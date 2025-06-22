@@ -11,7 +11,7 @@ async function connect(uri = process.env.URI) {
         await mongoose.connect(uri)
     } catch (error) {
         console.log(error)
-        errorEmail("Connection Failed", error.toString())
+        await errorEmail("Connection Failed", error.toString())
         throw error
     }
 }

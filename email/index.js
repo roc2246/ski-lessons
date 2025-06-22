@@ -5,14 +5,14 @@ require("dotenv").config({
   path: path.join(__dirname, "../config/.env"),
 });
 
-module.exports = async (subject, text, sendTo = "childswebdev.ccerrors@gmail.com") => {
+module.exports = async (subject, text, sendTo = "childswebdev@gmail.com") => {
   // Create a transporter object
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     secure: false, 
     auth: {
-      user: "childswebdev.ccerrors@gmail.comm",
+      user: "childswebdev@gmail.com",
       pass: process.env.APP_PASSWORD,
     },
     requireTLS: true, 
@@ -20,7 +20,7 @@ module.exports = async (subject, text, sendTo = "childswebdev.ccerrors@gmail.com
 
   // Set up the email options
   const mailOptions = {
-    from: "childswebdev.ccerrors@gmail.comm",
+    from: "childswebdev@gmail.com",
     to: sendTo,
     subject: subject,
     text: text,
