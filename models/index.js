@@ -8,8 +8,9 @@ require('dotenv').config({
 
 async function connect(uri = process.env.URI) {
   try {
+    if (!uri) throw new Error("MongoDB connection URI is required");
     const connection = await mongoose.connect(uri);
-    return connection; // return the connection object
+    return connection; 
   } catch (error) {
     console.log(error);
     await errorEmail("Connection Failed", error.toString());
