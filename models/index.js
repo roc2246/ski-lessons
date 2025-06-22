@@ -7,14 +7,16 @@ require('dotenv').config({
 })
 
 async function connect(uri = process.env.URI) {
-    try {
-        await mongoose.connect(uri)
-    } catch (error) {
-        console.log(error)
-        await errorEmail("Connection Failed", error.toString())
-        throw error
-    }
+  try {
+    const connection = await mongoose.connect(uri);
+    return connection; // return the connection object
+  } catch (error) {
+    console.log(error);
+    await errorEmail("Connection Failed", error.toString());
+    throw error;
+  }
 }
+
 
 module.exports = {
     connect
