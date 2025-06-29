@@ -1,4 +1,5 @@
 const { mongoose, Schema } = require("mongoose");
+const bcrypt = require("bcrypt");
 const path = require("path");
 const errorEmail = require("../email");
 
@@ -9,9 +10,8 @@ require("dotenv").config({
 async function connect(uri = process.env.URI) {
   try {
     if (!uri) throw new Error("MongoDB connection URI is required");
-    const connection = await mongoose.connect(uri, {
-      dbName: "myDatabaseName",
-    });
+    const db = { dbName: "ski-lessons" };
+    const connection = await mongoose.connect(uri, db);
     return connection;
   } catch (error) {
     console.log(error);
@@ -22,24 +22,23 @@ async function connect(uri = process.env.URI) {
 
 async function newUser(username, password) {
   try {
-    // Connect to DB (use env var or replace with your connection string)
-    await connect()
-    // Check if model is already compiled to prevent OverwriteModelError
-    const User =
-      mongoose.models.User ||
-      mongoose.model(
-        "User",
-        new mongoose.Schema({
-          username: { type: String, required: true, unique: true },
-          password: { type: String, required: true },
-        })
-      );
+    await connect();
 
-    // Hash the password securely
-    const hashedPassword = await bcrypt.hash(password, 12); // 12 salt rounds is standard
+    // Define schema
+    const userSchema = new Schema({
+      username: { type: String, required: true, unique: true },
+      password: { type: String, required: true },
+    });
 
-    // Create and save the new user
-    const newUser = new User({ username, password: hashedPassword });
+    // Prevent model overwrite errors in dev
+    const UserModel = mongoose.models.User || mongoose.model("User", userSchema);
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create a new user document
+    const newUser = new UserModel({ username, password: hashedPassword });
+
     await newUser.save();
 
     console.log("User successfully created");
