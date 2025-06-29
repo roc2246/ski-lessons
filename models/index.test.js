@@ -1,4 +1,9 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
+import mongoose from "mongoose";
+import { errorEmail } from "../email";
+
+import * as models from ".";
+
 
 vi.mock("mongoose", () => {
   const connectMock = vi.fn((uri, db) => {
@@ -14,28 +19,20 @@ vi.mock("mongoose", () => {
   };
 });
 
-vi.mock("../email/index.js", () => ({
-  errorEmail: vi.fn(),
-}));
+vi.mock("../email/index.js");
 
-let models;
-let mongooseMock;
-let errorEmailMock;
 
 beforeAll(async () => {
   process.env.URI = "mock://localhost";
 
-  mongooseMock = await import("mongoose");
-  errorEmailMock = (await import("../email/index.js")).errorEmail;
-  models = await import(".");
 });
 
 describe("dbConnect", () => {
   it("should call mongoose.connect with correct args", async () => {
     await models.dbConnect();
 
-    expect(mongooseMock.connect).toHaveBeenCalledOnce();
-    expect(mongooseMock.connect).toBeCalledWith(process.env.URI, {
+    expect(mongoose.connect).toHaveBeenCalledOnce();
+    expect(mongoose.connect).toBeCalledWith(process.env.URI, {
       dbName: "ski-lessons",
     });
   });
@@ -44,6 +41,6 @@ describe("dbConnect", () => {
     process.env.URI = "fail";
 
     await expect(models.dbConnect()).rejects.toThrow("DB failed");
-    expect(errorEmailMock).toHaveBeenCalledOnce();
+    expect(errorEmail).toHaveBeenCalledOnce();
   });
 });
