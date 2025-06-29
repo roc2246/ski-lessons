@@ -5,8 +5,8 @@ require("dotenv").config({
   path: path.join(__dirname, "../config/.env"),
 });
 
-module.exports = async (subject, text, sendTo = "childswebdev@gmail.com") => {
-  // Create a transporter object
+async function errorEmail(subject, text, sendTo = "childswebdev@gmail.com") {
+    // Create a transporter object
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
@@ -34,4 +34,8 @@ module.exports = async (subject, text, sendTo = "childswebdev@gmail.com") => {
     console.error("Error sending email:", error);
     throw error; // Ensure errors are propagated for the calling function to handle
   }
+}
+
+module.exports = {
+  errorEmail
 };
