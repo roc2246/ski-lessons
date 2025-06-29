@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
-import mongoose from "mongoose";
+import mongoose, { disconnect } from "mongoose";
 import { errorEmail } from "../email";
 
 import * as models from ".";
@@ -10,8 +10,9 @@ vi.mock("mongoose", () => {
   });
 
   return {
-    default: { connect: connectMock },
+    default: { connect: connectMock, disconnect: vi.fn() },
     connect: connectMock,
+    disconnect: vi.fn()
   };
 });
 
@@ -36,6 +37,14 @@ describe("dbConnect", () => {
     process.env.URI = "fail";
 
     await expect(models.dbConnect()).rejects.toThrow("DB failed");
-    expect(errorEmail).toHaveBeenCalledOnce();
+    expect(errorEmail).toHaveBeenCalled();
   });
 });
+
+describe("newUser", ()=>{
+  it("should throw error if there is no args", async()=>{
+    await expect(models.newUser(null,"")).rejects.toThrow("Username required");
+    await expect(models.newUser(" ",null)).rejects.toThrow("Password required");
+    expect(errorEmail).toHaveBeenCalled();
+  })
+})

@@ -24,8 +24,8 @@ async function dbConnect() {
 async function newUser(username, password) {
   try {
     // INPUT VALIDATION
-    if (username === " ") throw new Error("Username required");
-    if (password === " ") throw new Error("Password required");
+    if (!username) throw new Error("Username required");
+    if (!password) throw new Error("Password required");
 
     // CONNECT
     await dbConnect();
