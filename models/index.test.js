@@ -1,16 +1,12 @@
-import { describe, it, expect, vi, beforeAll } from "vitest";
+import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
 import mongoose from "mongoose";
 import { errorEmail } from "../email";
 
 import * as models from ".";
 
-
 vi.mock("mongoose", () => {
   const connectMock = vi.fn((uri, db) => {
-    if (uri === "fail") {
-      throw new Error("DB failed");
-    }
-    return Promise.resolve("mocked connection");
+    if (uri === "fail") throw new Error("DB failed");
   });
 
   return {
@@ -21,10 +17,9 @@ vi.mock("mongoose", () => {
 
 vi.mock("../email/index.js");
 
-
-beforeAll(async () => {
-  process.env.URI = "mock://localhost";
-
+const originalURI = process.env.URI
+afterAll(async () => {
+  process.env.URI = originalURI;
 });
 
 describe("dbConnect", () => {
