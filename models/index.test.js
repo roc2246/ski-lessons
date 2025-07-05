@@ -1,8 +1,23 @@
-import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
-import mongoose, { disconnect } from "mongoose";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import mongoose from "mongoose";
 import { errorEmail } from "../email";
-
 import * as models from ".";
+
+// Spy constructor
+const constructorSpy = vi.fn(function (data) {
+  Object.assign(this, data);
+  this.save = vi.fn(() => Promise.resolve());
+});
+constructorSpy.find = vi.fn(() => Promise.resolve([]));
+
+vi.mock("bcrypt", () => {
+  return {
+    hash: vi.fn(() => Promise.resolve("hashed_password")),
+    default: {
+      hash: vi.fn(() => Promise.resolve("hashed_password")),
+    },
+  };
+});
 
 vi.mock("mongoose", () => {
   const connectMock = vi.fn((uri, db) => {
@@ -10,16 +25,23 @@ vi.mock("mongoose", () => {
   });
 
   return {
-    default: { connect: connectMock, disconnect: vi.fn() },
     connect: connectMock,
-    disconnect: vi.fn()
+    Schema: vi.fn(),
+    model: vi.fn(() => constructorSpy),
+    disconnect: vi.fn(),
+    default: {
+      connect: connectMock,
+      Schema: vi.fn(),
+      model: vi.fn(() => constructorSpy),
+      disconnect: vi.fn(),
+    },
   };
 });
 
 vi.mock("../email/index.js");
 
-const originalURI = process.env.URI
-afterAll(async () => {
+const originalURI = process.env.URI;
+afterEach(() => {
   process.env.URI = originalURI;
 });
 
@@ -41,10 +63,27 @@ describe("dbConnect", () => {
   });
 });
 
-describe("newUser", ()=>{
-  it("should throw error if there is no args", async()=>{
-    await expect(models.newUser(null,"")).rejects.toThrow("Username required");
-    await expect(models.newUser(" ",null)).rejects.toThrow("Password required");
+describe("newUser", () => {
+  it("should register new user", async () => {
+    await models.newUser("username", "password");
+
+    expect(mongoose.Schema).toHaveBeenCalled();
+    expect(mongoose.model).toHaveBeenCalled();
+    expect(constructorSpy).toHaveBeenCalledWith({
+      username: "username",
+      password: "hashed_password",
+    });
+    expect(constructorSpy.find).toHaveBeenCalledWith({ username: "username" });
+
+    const instance = constructorSpy.mock.results[0].value;
+    expect(instance.save).toHaveBeenCalled();
+  });
+
+  it("should throw error if there is no args", async () => {
+    await expect(models.newUser(null, "")).rejects.toThrow("Username required");
+    await expect(models.newUser(" ", null)).rejects.toThrow(
+      "Password required"
+    );
     expect(errorEmail).toHaveBeenCalled();
-  })
-})
+  });
+});

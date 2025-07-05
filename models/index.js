@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 import { errorEmail } from "../email";
-const { Schema } = mongoose;
 
-const bcrypt = require("bcrypt");
+import bcrypt from 'bcrypt'
 const path = require("path");
 const errorEmail = require("../email");
 
@@ -31,12 +30,12 @@ async function newUser(username, password) {
     await dbConnect();
 
     // CREATE SCHEMA AND MODEL
-    const userSchema = new Schema({
+    const userSchema = new mongoose.Schema({
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
     });
     const UserModel =
-      mongoose.models.User || mongoose.model("User", userSchema);
+     /*  mongoose.models.User || */ mongoose.model("User", userSchema);
 
     // CHECK IF USER IS IN DB
     const userInDB = await UserModel.find({ username });
@@ -62,7 +61,7 @@ async function loginUser(username, password) {
   try {
     await dbConnect();
 
-    const userSchema = new Schema({
+    const userSchema = new mongoose.Schema({
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
     });
