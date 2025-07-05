@@ -38,7 +38,7 @@ async function newUser(username, password) {
     const UserModel =
       mongoose.models.User || mongoose.model("User", userSchema);
 
-      // CHECK IF USER IS IN DB
+    // CHECK IF USER IS IN DB
     const userInDB = await UserModel.find({ username });
     if (userInDB.length > 0) throw new Error("User already exists");
 
@@ -53,12 +53,39 @@ async function newUser(username, password) {
     console.error("Error creating user:", error);
     await errorEmail("Failed to register user", error.toString());
     throw error;
-  } finally{
-     mongoose.disconnect();
+  } finally {
+    mongoose.disconnect();
+  }
+}
+
+async function loginUser(username, password) {
+  try {
+    await dbConnect();
+
+    const userSchema = new Schema({
+      username: { type: String, required: true, unique: true },
+      password: { type: String, required: true },
+    });
+    const UserModel =
+      mongoose.models.User || mongoose.model("User", userSchema);
+
+    const userCreds = await UserModel.find({ username }, (err) => {
+      if (err) throw new Error(err);
+    });
+
+    password = await bcrypt.hash(password, 12);
+    const noPassword = "Passowrd doesnt match";
+    if (userCreds.password !== password) throw new Error(noPassword);
+  
+  } catch (error) {
+    throw error;
+  } finally {
+    mongoose.disconnect();
   }
 }
 
 module.exports = {
   dbConnect,
   newUser,
+  loginUser,
 };
