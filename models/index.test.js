@@ -8,7 +8,13 @@ const constructorSpy = vi.fn(function (data) {
   Object.assign(this, data);
   this.save = vi.fn(() => Promise.resolve());
 });
-constructorSpy.find = vi.fn(() => Promise.resolve([]));
+constructorSpy.find = vi.fn((param) => {
+  if (param.username === "exists") {
+   return Promise.resolve([param]);
+  } else {
+   return Promise.resolve([]);
+  }
+});
 
 vi.mock("bcrypt", () => {
   return {
@@ -83,6 +89,12 @@ describe("newUser", () => {
     await expect(models.newUser(null, "")).rejects.toThrow("Username required");
     await expect(models.newUser(" ", null)).rejects.toThrow(
       "Password required"
+    );
+    expect(errorEmail).toHaveBeenCalled();
+  });
+  it("should throw error if the username already exists", async () => {
+    await expect(models.newUser("exists", "password")).rejects.toThrow(
+      "User already exists"
     );
     expect(errorEmail).toHaveBeenCalled();
   });
