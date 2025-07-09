@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import { errorEmail } from "../email";
-
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
 const path = require("path");
 const errorEmail = require("../email");
 
@@ -80,7 +81,14 @@ async function loginUser(username, password) {
     const hashedPassword = await bcrypt.hash(password, 12);
     const noPassword = "User or passowrd doesnt match";
     if (userCreds[0].password !== hashedPassword) throw new Error(noPassword);
-    
+
+    const token = jwt.sign(
+      { username: userCreds.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    return token;
   } catch (error) {
     throw error;
   } finally {
