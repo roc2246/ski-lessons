@@ -6,7 +6,7 @@ function argValidation(args, argNames) {
   }
 }
 
-function getUserModel(schemaDefinition, modelName) {
+function getModel(schemaDefinition, modelName) {
   const schema = new mongoose.Schema(schemaDefinition);
   console.log("schema created")
   return/*  mongoose.models[modelName] || */ mongoose.model(modelName, schema);
@@ -14,5 +14,5 @@ function getUserModel(schemaDefinition, modelName) {
 
 module.exports = {
   argValidation,
-  getUserModel
+  getModel
 };

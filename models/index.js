@@ -28,7 +28,7 @@ async function newUser(username, password) {
 
     await dbConnect();
 
-    const UserModel = utilities.getUserModel({
+    const UserModel = utilities.getModel({
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
     }, "User")
@@ -59,7 +59,7 @@ async function loginUser(username, password) {
 
     await dbConnect();
 
-   const UserModel = utilities.getUserModel({
+   const UserModel = utilities.getModel({
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
     }, "User")
