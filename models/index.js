@@ -28,15 +28,10 @@ async function newUser(username, password) {
 
     await dbConnect();
 
-    // CREATE SCHEMA AND MODEL
-    const userSchema = new mongoose.Schema({
+    const UserModel = utilities.getUserModel({
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
-    });
-    const UserModel = /*  mongoose.models.User || */ mongoose.model(
-      "User",
-      userSchema
-    );
+    }, "User")
 
     // CHECK IF USER IS IN DB
     const userInDB = await UserModel.find({ username });
@@ -64,11 +59,10 @@ async function loginUser(username, password) {
 
     await dbConnect();
 
-    const userSchema = new mongoose.Schema({
+   const UserModel = utilities.getUserModel({
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
-    });
-    const UserModel = mongoose.model("User", userSchema);
+    }, "User")
 
     const userCreds = await UserModel.find({ username });
     if (userCreds.length === 0)

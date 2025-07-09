@@ -7,7 +7,6 @@ function argValidation(args, argNames) {
 }
 
 function getUserModel(schemaDefinition, modelName) {
-  argValidation([schemaDefinition, modelName], ["schemaDefinition", "modelName"])
   const schema = new mongoose.Schema(schemaDefinition);
   console.log("schema created")
   return/*  mongoose.models[modelName] || */ mongoose.model(modelName, schema);
