@@ -10,9 +10,12 @@ const constructorSpy = vi.fn(function (data) {
 });
 constructorSpy.find = vi.fn((param) => {
   if (param.username === "exists") {
-   return Promise.resolve([param]);
+    return Promise.resolve([param]);
+  } else if (param.username === "existusername") {
+    param.password = "hashed_password"
+    return Promise.resolve([param]);
   } else {
-   return Promise.resolve([]);
+    return Promise.resolve([]);
   }
 });
 
@@ -97,5 +100,29 @@ describe("newUser", () => {
       "User already exists"
     );
     expect(errorEmail).toHaveBeenCalled();
+  });
+});
+
+describe("loginUser", () => {
+  it("should throw error if there is no args", async () => {
+    await expect(models.loginUser(null, "")).rejects.toThrow(
+      "Username required"
+    );
+    await expect(models.loginUser(" ", null)).rejects.toThrow(
+      "Password required"
+    );
+    expect(errorEmail).toHaveBeenCalled();
+  });
+  it("should log in user", async () => {
+    await models.loginUser("existusername", "password");
+
+    expect(mongoose.Schema).toHaveBeenCalled();
+    expect(mongoose.model).toHaveBeenCalled();
+    expect(constructorSpy).toHaveBeenCalledWith({
+      username: "username",
+      password: "hashed_password",
+    });
+    expect(constructorSpy.find).toHaveBeenCalledWith({ username: "exists" });
+
   });
 });

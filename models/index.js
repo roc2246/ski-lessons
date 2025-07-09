@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { errorEmail } from "../email";
 
-import bcrypt from 'bcrypt'
+import bcrypt from "bcrypt";
 const path = require("path");
 const errorEmail = require("../email");
 
@@ -34,8 +34,10 @@ async function newUser(username, password) {
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
     });
-    const UserModel =
-     /*  mongoose.models.User || */ mongoose.model("User", userSchema);
+    const UserModel = /*  mongoose.models.User || */ mongoose.model(
+      "User",
+      userSchema
+    );
 
     // CHECK IF USER IS IN DB
     const userInDB = await UserModel.find({ username });
@@ -59,23 +61,26 @@ async function newUser(username, password) {
 
 async function loginUser(username, password) {
   try {
+    // INPUT VALIDATION
+    if (!username) throw new Error("Username required");
+    if (!password) throw new Error("Password required");
+
     await dbConnect();
 
     const userSchema = new mongoose.Schema({
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
     });
-    const UserModel =
-      mongoose.models.User || mongoose.model("User", userSchema);
+    const UserModel = mongoose.model("User", userSchema);
 
-    const userCreds = await UserModel.find({ username }, (err) => {
-      if (err) throw new Error(err);
-    });
+    const userCreds = await UserModel.find({ username });
+    if (userCreds.length === 0)
+      throw new Error("User or password doesn't match");
 
-    password = await bcrypt.hash(password, 12);
-    const noPassword = "Passowrd doesnt match";
-    if (userCreds.password !== password) throw new Error(noPassword);
-  
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const noPassword = "User or passowrd doesnt match";
+    if (userCreds[0].password !== hashedPassword) throw new Error(noPassword);
+    
   } catch (error) {
     throw error;
   } finally {
