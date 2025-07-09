@@ -1,3 +1,4 @@
+import utilities from "./utilities";
 import mongoose from "mongoose";
 import { errorEmail } from "../email";
 import bcrypt from "bcrypt";
@@ -23,11 +24,8 @@ async function dbConnect() {
 
 async function newUser(username, password) {
   try {
-    // INPUT VALIDATION
-    if (!username) throw new Error("Username required");
-    if (!password) throw new Error("Password required");
+    utilities.argValidation([username, password], ["Username", "Password"]);
 
-    // CONNECT
     await dbConnect();
 
     // CREATE SCHEMA AND MODEL
@@ -62,9 +60,7 @@ async function newUser(username, password) {
 
 async function loginUser(username, password) {
   try {
-    // INPUT VALIDATION
-    if (!username) throw new Error("Username required");
-    if (!password) throw new Error("Password required");
+    utilities.argValidation([username, password], ["Username", "Password"]);
 
     await dbConnect();
 
