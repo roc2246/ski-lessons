@@ -44,13 +44,7 @@ async function newUser(username, password) {
 
     await dbConnect();
 
-    const UserModel = utilities.getModel(
-      {
-        username: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
-      },
-      "User"
-    );
+    const UserModel = utilities.getModel(utilities.schemas().User, "User");
 
     const userInDB = await UserModel.find({ username });
     if (userInDB.length > 0) throw new Error("User already exists");
@@ -81,13 +75,7 @@ async function loginUser(username, password) {
 
     await dbConnect();
 
-    const UserModel = utilities.getModel(
-      {
-        username: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
-      },
-      "User"
-    );
+    const UserModel = utilities.getModel(utilities.schemas().User, "User");
 
     const userCreds = await UserModel.find({ username });
     if (userCreds.length === 0)
@@ -193,7 +181,6 @@ async function logoutUser(blacklist, token) {
 }
 
 // ======== CRUD FUNCTIONS ======== //
-
 
 // ======== EXPORTS ======== //
 module.exports = {

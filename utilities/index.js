@@ -12,7 +12,17 @@ function getModel(schemaDefinition, modelName) {
   return/*  mongoose.models[modelName] || */ mongoose.model(modelName, schema);
 }
 
+function schemas(){
+  return {
+    User: {
+        username: { type: String, required: true, unique: true },
+        password: { type: String, required: true },
+      }
+  }
+}
+
 module.exports = {
   argValidation,
-  getModel
+  getModel,
+  schemas
 };
