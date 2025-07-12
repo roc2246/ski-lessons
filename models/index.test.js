@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import mongoose from "mongoose";
 import { errorEmail } from "../email";
 import * as models from ".";
+import { compare } from "bcrypt";
 
 // Spy constructor
 const constructorSpy = vi.fn(function (data) {
@@ -12,7 +13,7 @@ constructorSpy.find = vi.fn((param) => {
   if (param.username === "exists") {
     return Promise.resolve([param]);
   } else if (param.username === "existusername") {
-    param.password = "hashed_password"
+    param.password = "hashed_password";
     return Promise.resolve([param]);
   } else {
     return Promise.resolve([]);
@@ -20,10 +21,14 @@ constructorSpy.find = vi.fn((param) => {
 });
 
 vi.mock("bcrypt", () => {
-  return {
+  const mockMetods = {
     hash: vi.fn(() => Promise.resolve("hashed_password")),
+    compare: vi.fn(() => Promise.resolve("compared_password")),
+  };
+  return {
+    mockMetods,
     default: {
-      hash: vi.fn(() => Promise.resolve("hashed_password")),
+      ...mockMetods,
     },
   };
 });
@@ -123,6 +128,5 @@ describe("loginUser", () => {
       password: "hashed_password",
     });
     expect(constructorSpy.find).toHaveBeenCalledWith({ username: "exists" });
-
   });
 });

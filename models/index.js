@@ -68,12 +68,11 @@ async function loginUser(username, password) {
     if (userCreds.length === 0)
       throw new Error("User or password doesn't match");
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const noPassword = "User or passowrd doesnt match";
-    if (userCreds[0].password !== hashedPassword) throw new Error(noPassword);
+   const passwordMatch = await bcrypt.compare(password, userCreds[0].password);
+    if (!passwordMatch) throw new Error("User or password doesn't match");
 
-    const token = jwt.sign(
-      { username: userCreds.username },
+   const token = jwt.sign(
+      { username: userCreds[0].username },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -86,8 +85,19 @@ async function loginUser(username, password) {
   }
 }
 
+async function logoutUser(){
+  try {
+    localStorage.removeItem("token")
+  } catch (error) {
+    throw error;
+  } finally {
+    mongoose.disconnect();
+  }
+}
+
 module.exports = {
   dbConnect,
   newUser,
   loginUser,
+  logoutUser
 };
