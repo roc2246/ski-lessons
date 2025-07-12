@@ -183,7 +183,7 @@ function createTokenBlacklist() {
  */
 async function logoutUser(blacklist, token) {
   try {
-    if (!token) throw new Error("Token is required to logout.");
+    utilities.argValidation([blacklist, token], [`Blacklist`, `Token`]);
     blacklist.add(token);
   } catch (error) {
     throw error;
@@ -191,6 +191,9 @@ async function logoutUser(blacklist, token) {
     mongoose.disconnect();
   }
 }
+
+// ======== CRUD FUNCTIONS ======== //
+
 
 // ======== EXPORTS ======== //
 module.exports = {
