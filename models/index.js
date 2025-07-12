@@ -44,10 +44,13 @@ async function newUser(username, password) {
 
     await dbConnect();
 
-    const UserModel = utilities.getModel({
-      username: { type: String, required: true, unique: true },
-      password: { type: String, required: true },
-    }, "User");
+    const UserModel = utilities.getModel(
+      {
+        username: { type: String, required: true, unique: true },
+        password: { type: String, required: true },
+      },
+      "User"
+    );
 
     const userInDB = await UserModel.find({ username });
     if (userInDB.length > 0) throw new Error("User already exists");
@@ -78,10 +81,13 @@ async function loginUser(username, password) {
 
     await dbConnect();
 
-    const UserModel = utilities.getModel({
-      username: { type: String, required: true, unique: true },
-      password: { type: String, required: true },
-    }, "User");
+    const UserModel = utilities.getModel(
+      {
+        username: { type: String, required: true, unique: true },
+        password: { type: String, required: true },
+      },
+      "User"
+    );
 
     const userCreds = await UserModel.find({ username });
     if (userCreds.length === 0)
@@ -105,29 +111,85 @@ async function loginUser(username, password) {
 }
 
 /**
- * Logs out a user by blacklisting their token.
- * NOTE: This version assumes you'll implement token blacklist checking in your auth middleware.
- * @param {string} token - JWT to invalidate
+ * TokenBlacklist class to track blacklisted tokens with expiration,
+ * preventing memory leaks by cleaning expired tokens periodically.
  */
-const tokenBlacklist = new Set();
+class TokenBlacklist {
+  constructor() {
+    this.tokens = new Map(); // token string => expiration timestamp (ms)
+    this.cleanupInterval = setInterval(() => this.cleanup(), 10 * 60 * 1000); // cleanup every 10 minutes
+  }
 
-async function logoutUser(token) {
+  /**
+   * Add a token to the blacklist with its expiration time.
+   * @param {string} token JWT token string
+   */
+  add(token) {
+    const decoded = jwt.decode(token);
+    if (!decoded || !decoded.exp) {
+      throw new Error("Invalid token: cannot decode expiration");
+    }
+    const expiresAt = decoded.exp * 1000; // exp is in seconds, convert to ms
+    this.tokens.set(token, expiresAt);
+  }
+
+  /**
+   * Check if a token is blacklisted and still valid.
+   * Automatically removes expired tokens.
+   * @param {string} token JWT token string
+   * @returns {boolean} true if blacklisted and valid, false otherwise
+   */
+  has(token) {
+    const expiresAt = this.tokens.get(token);
+    if (!expiresAt) return false;
+
+    if (Date.now() > expiresAt) {
+      this.tokens.delete(token);
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Remove expired tokens from the blacklist.
+   */
+  cleanup() {
+    const now = Date.now();
+    for (const [token, expiresAt] of this.tokens.entries()) {
+      if (expiresAt < now) {
+        this.tokens.delete(token);
+      }
+    }
+  }
+
+  /**
+   * Call to stop the cleanup interval when no longer needed.
+   */
+  stop() {
+    clearInterval(this.cleanupInterval);
+  }
+}
+
+// Export a factory to create new blacklist instances
+function createTokenBlacklist() {
+  return new TokenBlacklist();
+}
+
+/**
+ * Logout user by blacklisting the token.
+ * Requires an instance of TokenBlacklist to manage blacklisted tokens.
+ * @param {TokenBlacklist} blacklist Instance of TokenBlacklist
+ * @param {string} token JWT token string to blacklist
+ */
+async function logoutUser(blacklist, token) {
   try {
     if (!token) throw new Error("Token is required to logout.");
-    tokenBlacklist.add(token);
+    blacklist.add(token);
   } catch (error) {
     throw error;
   } finally {
     mongoose.disconnect();
   }
-}
-
-/**
- * Check if a token is blacklisted
- * (For use in middleware to simulate token "deletion")
- */
-function isTokenBlacklisted(token) {
-  return tokenBlacklist.has(token);
 }
 
 // ======== EXPORTS ======== //
@@ -136,5 +198,5 @@ module.exports = {
   newUser,
   loginUser,
   logoutUser,
-  isTokenBlacklisted,
+  createTokenBlacklist,
 };
