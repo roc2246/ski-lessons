@@ -51,11 +51,10 @@ async function newUser(username, password) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const newUser = new UserModel({ username, password: hashedPassword });
+    
     await newUser.save();
 
-    console.log("User successfully created");
   } catch (error) {
-    console.error("Error creating user:", error);
     await errorEmail("Failed to register user", error.toString());
     throw error;
   } finally {

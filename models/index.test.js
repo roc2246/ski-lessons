@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import mongoose from "mongoose";
 import { errorEmail } from "../email";
 import * as models from ".";
-import { compare } from "bcrypt";
+import jwt from "jsonwebtoken";
 
 // Spy constructor
 const constructorSpy = vi.fn(function (data) {
@@ -52,6 +52,7 @@ vi.mock("mongoose", () => {
   };
 });
 
+vi.mock("jwt");
 vi.mock("../email/index.js");
 
 const originalURI = process.env.URI;
@@ -109,17 +110,9 @@ describe("newUser", () => {
 });
 
 describe("loginUser", () => {
-  it("should throw error if there is no args", async () => {
-    await expect(models.loginUser(null, "")).rejects.toThrow(
-      "Username required"
-    );
-    await expect(models.loginUser(" ", null)).rejects.toThrow(
-      "Password required"
-    );
-    expect(errorEmail).toHaveBeenCalled();
-  });
-  it("should log in user", async () => {
-    await models.loginUser("existusername", "password");
+  it("should return a user token", async () => {
+    vi.spyOn(jwt, 'sign').mockReturnValue('mocked.token')
+    const result = await models.loginUser("existusername", "password");
 
     expect(mongoose.Schema).toHaveBeenCalled();
     expect(mongoose.model).toHaveBeenCalled();
@@ -128,5 +121,17 @@ describe("loginUser", () => {
       password: "hashed_password",
     });
     expect(constructorSpy.find).toHaveBeenCalledWith({ username: "exists" });
+    expect(jwt.sign).toHaveBeenCalled();
+    expect(result).toBe('mocked.token');
+  });
+
+  it("should throw error if there is no args", async () => {
+    await expect(models.loginUser(null, "")).rejects.toThrow(
+      "Username required"
+    );
+    await expect(models.loginUser(" ", null)).rejects.toThrow(
+      "Password required"
+    );
+    expect(errorEmail).toHaveBeenCalled();
   });
 });

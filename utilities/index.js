@@ -44,7 +44,6 @@ function argValidation(args, argNames) {
  */
 function getModel(schemaDefinition, modelName) {
   const schema = new mongoose.Schema(schemaDefinition);
-  console.log("schema created");
   return /* mongoose.models[modelName] || */ mongoose.model(modelName, schema);
 }
 
