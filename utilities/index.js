@@ -8,6 +8,7 @@
  */
 
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
 // ======== UNIVERSAL PURPOSE ======== //
 
@@ -44,7 +45,7 @@ function argValidation(args, argNames) {
  */
 function getModel(schemaDefinition, modelName) {
   const schema = new mongoose.Schema(schemaDefinition);
-  return /* mongoose.models[modelName] || */ mongoose.model(modelName, schema);
+  return mongoose.models[modelName] || mongoose.model(modelName, schema);
 }
 
 /**
@@ -65,8 +66,69 @@ function schemas() {
   };
 }
 
+/**
+ * TokenBlacklist class to track blacklisted tokens with expiration,
+ * preventing memory leaks by cleaning expired tokens periodically.
+ */
+class TokenBlacklist {
+  constructor() {
+    this.tokens = new Map(); // token string => expiration timestamp (ms)
+    this.cleanupInterval = setInterval(() => this.cleanup(), 10 * 60 * 1000); // cleanup every 10 minutes
+  }
+
+  /**
+   * Add a token to the blacklist with its expiration time.
+   * @param {string} token JWT token string
+   */
+  add(token) {
+    const decoded = jwt.decode(token);
+    if (!decoded || !decoded.exp) {
+      throw new Error("Invalid token: cannot decode expiration");
+    }
+    const expiresAt = decoded.exp * 1000; // exp is in seconds, convert to ms
+    this.tokens.set(token, expiresAt);
+  }
+
+  /**
+   * Check if a token is blacklisted and still valid.
+   * Automatically removes expired tokens.
+   * @param {string} token JWT token string
+   * @returns {boolean} true if blacklisted and valid, false otherwise
+   */
+  has(token) {
+    const expiresAt = this.tokens.get(token);
+    if (!expiresAt) return false;
+
+    if (Date.now() > expiresAt) {
+      this.tokens.delete(token);
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Remove expired tokens from the blacklist.
+   */
+  cleanup() {
+    const now = Date.now();
+    for (const [token, expiresAt] of this.tokens.entries()) {
+      if (expiresAt < now) {
+        this.tokens.delete(token);
+      }
+    }
+  }
+
+  /**
+   * Call to stop the cleanup interval when no longer needed.
+   */
+  stop() {
+    clearInterval(this.cleanupInterval);
+  }
+}
+
 module.exports = {
   argValidation,
   getModel,
   schemas,
+  TokenBlacklist
 };
