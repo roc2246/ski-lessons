@@ -118,6 +118,11 @@ async function logoutUser(blacklist, token) {
 }
 
 // ======== CRUD FUNCTIONS ======== //
+// CREATE LESSON
+// RETRIEVE LESSONS
+// RETRIEVE LESSON
+// UPDATE LESSON
+// REMOVE LESSON
 
 // ======== EXPORTS ======== //
 module.exports = {

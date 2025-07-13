@@ -18,3 +18,4 @@ type
 date
 timeLength
 guests
+assignedTo
