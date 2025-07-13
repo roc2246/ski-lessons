@@ -51,9 +51,8 @@ async function newUser(username, password) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const newUser = new UserModel({ username, password: hashedPassword });
-    
-    await newUser.save();
 
+    await newUser.save();
   } catch (error) {
     await errorEmail("Failed to register user", error.toString());
     throw error;
@@ -91,6 +90,7 @@ async function loginUser(username, password) {
 
     return token;
   } catch (error) {
+    await errorEmail("Login failed", error.toString());
     throw error;
   } finally {
     mongoose.disconnect();
