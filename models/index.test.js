@@ -135,3 +135,19 @@ describe("loginUser", () => {
     expect(errorEmail).toHaveBeenCalled();
   });
 });
+
+
+describe("logoutUser", () => {
+  it("adds token to blacklist", async () => {
+    const mockBlacklist = {
+      add: vi.fn(),
+      has: vi.fn(),
+      stop: vi.fn(),
+    };
+
+    await models.logoutUser(mockBlacklist, "fake.token");
+
+    expect(mockBlacklist.add).toHaveBeenCalledWith("fake.token");
+  });
+});
+
