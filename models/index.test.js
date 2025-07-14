@@ -10,10 +10,19 @@ const constructorSpy = vi.fn(function (data) {
   this.save = vi.fn(() => Promise.resolve());
 });
 constructorSpy.find = vi.fn((param) => {
+  // if (param.assignedTo) {
+  //   if (typeof param.assignedTo === Number) {
+  //     return [{ lesson: "lesson" }];
+  //   } else {
+  //     throw Error;
+  //   }
+  // }
   if (param.username === "exists") {
     return Promise.resolve([param]);
   } else if (param.username === "existusername") {
-    return Promise.resolve([{ username: "existusername", password: "hashed_password" }]);
+    return Promise.resolve([
+      { username: "existusername", password: "hashed_password" },
+    ]);
   } else {
     return Promise.resolve([]);
   }
@@ -23,7 +32,9 @@ constructorSpy.find = vi.fn((param) => {
 vi.mock("bcrypt", () => {
   const mockMethods = {
     hash: vi.fn(() => Promise.resolve("hashed_password")),
-    compare: vi.fn((provided, actual) => Promise.resolve(provided === "password" && actual === "hashed_password")),
+    compare: vi.fn((provided, actual) =>
+      Promise.resolve(provided === "password" && actual === "hashed_password")
+    ),
   };
   return {
     ...mockMethods,
@@ -59,7 +70,6 @@ vi.mock("jsonwebtoken", () => ({
   sign: vi.fn(() => "mocked.token"),
   decode: vi.fn(() => ({ exp: Math.floor(Date.now() / 1000) + 3600 })),
 }));
-
 
 // Mock email
 vi.mock("../email/index.js", () => ({
@@ -109,12 +119,16 @@ describe("newUser", () => {
 
   it("should throw error if args are missing", async () => {
     await expect(models.newUser(null, "")).rejects.toThrow("Username required");
-    await expect(models.newUser(" ", null)).rejects.toThrow("Password required");
+    await expect(models.newUser(" ", null)).rejects.toThrow(
+      "Password required"
+    );
     expect(errorEmail).toHaveBeenCalled();
   });
 
   it("should throw error if user already exists", async () => {
-    await expect(models.newUser("exists", "password")).rejects.toThrow("User already exists");
+    await expect(models.newUser("exists", "password")).rejects.toThrow(
+      "User already exists"
+    );
     expect(errorEmail).toHaveBeenCalled();
   });
 });
@@ -125,21 +139,27 @@ describe("loginUser", () => {
 
     expect(mongoose.Schema).toHaveBeenCalled();
     expect(mongoose.model).toHaveBeenCalled();
-    expect(constructorSpy.find).toHaveBeenCalledWith({ username: "existusername" });
+    expect(constructorSpy.find).toHaveBeenCalledWith({
+      username: "existusername",
+    });
     expect(jwt.sign).toHaveBeenCalled();
     expect(result).toBe("mocked.token");
   });
 
   it("should throw error if args are missing", async () => {
-    await expect(models.loginUser(null, "")).rejects.toThrow("Username required");
-    await expect(models.loginUser(" ", null)).rejects.toThrow("Password required");
+    await expect(models.loginUser(null, "")).rejects.toThrow(
+      "Username required"
+    );
+    await expect(models.loginUser(" ", null)).rejects.toThrow(
+      "Password required"
+    );
     expect(errorEmail).toHaveBeenCalled();
   });
 
   it("should throw error if credentials are wrong", async () => {
-    await expect(models.loginUser("existusername", "wrongpass")).rejects.toThrow(
-      "User or password doesn't match"
-    );
+    await expect(
+      models.loginUser("existusername", "wrongpass")
+    ).rejects.toThrow("User or password doesn't match");
   });
 });
 
@@ -157,8 +177,15 @@ describe("logoutUser", () => {
   });
 });
 
-describe("retrieveLessons", ()=>{
-  it("should run retrieveLessons()", async()=>{
-    await models.retrieveLessons(2)
-  })
-})
+describe("retrieveLessons", () => {
+  it("should retrieve lessons", async () => {
+    const results = await models.retrieveLessons(2);
+    expect(mongoose.Schema).toHaveBeenCalled();
+    expect(mongoose.model).toHaveBeenCalled();
+    expect(constructorSpy.find).toHaveBeenCalledWith({ assignedTo: 2 });
+  });
+  it("should throw an error", async () => {
+    await models.retrieveLessons("test");
+    expect(errorEmail).toHaveBeenCalled();
+  });
+});
