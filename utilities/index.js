@@ -64,11 +64,11 @@ function schemas() {
       password: { type: String, required: true },
     },
     Lesson: {
-      lessonID: { type: Integer, required: true, unique: true },
+      lessonID: { type: Number, required: true, unique: true },
       type: { type: String, required: true },
       date: { type: Date, required: true },
-      timeLength: { type: Interger, required: true },
-      assignedTo: { type: Interger, required: true, unique: true },
+      timeLength: { type: Number, required: true },
+      assignedTo: { type: Number, required: true, unique: true },
     },
   };
 }

@@ -156,3 +156,9 @@ describe("logoutUser", () => {
     expect(mockBlacklist.add).toHaveBeenCalledWith("fake.token");
   });
 });
+
+// describe("retrieveLessons", ()=>{
+//   it("should run retrieveLessons()", async()=>{
+//     await models.retrieveLessons(2)
+//   })
+// })
