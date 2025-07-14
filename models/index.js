@@ -56,7 +56,7 @@ async function newUser(username, password) {
   } catch (error) {
     await errorEmail("Failed to register user", error.toString());
     throw error;
-  } 
+  }
 }
 
 /**
@@ -90,10 +90,8 @@ async function loginUser(username, password) {
   } catch (error) {
     await errorEmail("Login failed", error.toString());
     throw error;
-  } 
+  }
 }
-
-
 
 // Export a factory to create new blacklist instances
 function createTokenBlacklist() {
@@ -119,6 +117,14 @@ async function logoutUser(blacklist, token) {
 
 // ======== CRUD FUNCTIONS ======== //
 // RETRIEVE LESSONS
+async function retrieveLessons(id) {
+  utilities.argValidation([id], ["ID"]);
+
+  const lessonModel = utilities.getModel(utilities.schemas().Lesson, "Lesson");
+  const lessons = await lessonModel.find({ assignedTo: id });
+
+  return lessons
+}
 // RETRIEVE LESSON
 // REMOVE LESSON
 
@@ -129,4 +135,5 @@ module.exports = {
   loginUser,
   logoutUser,
   createTokenBlacklist,
+  retrieveLessons
 };
