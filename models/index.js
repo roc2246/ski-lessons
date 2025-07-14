@@ -118,12 +118,20 @@ async function logoutUser(blacklist, token) {
 // ======== CRUD FUNCTIONS ======== //
 // RETRIEVE LESSONS
 async function retrieveLessons(id) {
-  utilities.argValidation([id], ["ID"]);
+  try {
+    utilities.argValidation([id], ["ID"]);
 
-  const lessonModel = utilities.getModel(utilities.schemas().Lesson, "Lesson");
-  const lessons = await lessonModel.find({ assignedTo: id });
+    const lessonModel = utilities.getModel(
+      utilities.schemas().Lesson,
+      "Lesson"
+    );
+    const lessons = await lessonModel.find({ assignedTo: id });
 
-  return lessons
+    return lessons;
+  } catch (error) {
+    await errorEmail("Failed to retrieve lessons", error.toString());
+    throw error;
+  }
 }
 // RETRIEVE LESSON
 // REMOVE LESSON
@@ -135,5 +143,5 @@ module.exports = {
   loginUser,
   logoutUser,
   createTokenBlacklist,
-  retrieveLessons
+  retrieveLessons,
 };
