@@ -10,13 +10,14 @@ const constructorSpy = vi.fn(function (data) {
   this.save = vi.fn(() => Promise.resolve());
 });
 constructorSpy.find = vi.fn((param) => {
-  // if (param.assignedTo) {
-  //   if (typeof param.assignedTo === Number) {
-  //     return [{ lesson: "lesson" }];
-  //   } else {
-  //     throw Error;
-  //   }
-  // }
+  if (param.assignedTo) {
+    if (typeof param.assignedTo === "number") {
+      return Promise.resolve([{ lesson: "lesson" }]);
+    } else {
+      throw new Error("ID must be a number")
+    }
+  }
+
   if (param.username === "exists") {
     return Promise.resolve([param]);
   } else if (param.username === "existusername") {
@@ -185,7 +186,9 @@ describe("retrieveLessons", () => {
     expect(constructorSpy.find).toHaveBeenCalledWith({ assignedTo: 2 });
   });
   it("should throw an error", async () => {
-    await models.retrieveLessons("test");
+     await expect(models.retrieveLessons("test")).rejects.toThrow(
+      "ID must be a number"
+    );
     expect(errorEmail).toHaveBeenCalled();
   });
 });

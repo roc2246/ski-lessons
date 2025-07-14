@@ -135,20 +135,19 @@ async function logoutUser(blacklist, token) {
 async function retrieveLessons(id) {
   try {
     utilities.argValidation([id], ["ID"]);
+    if (typeof id !== "number") throw new Error("ID must be a number");
 
     const lessonModel = utilities.getModel(
       utilities.schemas().Lesson,
       "Lesson"
     );
     const lessons = await lessonModel.find({ assignedTo: id });
-
     return lessons;
   } catch (error) {
     await errorEmail("Failed to retrieve lessons", error.toString());
     throw error;
   }
 }
-
 
 // ======== EXPORTS ======== //
 module.exports = {
