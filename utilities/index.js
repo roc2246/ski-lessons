@@ -63,6 +63,13 @@ function schemas() {
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
     },
+    Lesson: {
+      lessonID: { type: Integer, required: true, unique: true },
+      type: { type: String, required: true },
+      date: { type: Date, required: true },
+      timeLength: { type: Interger, required: true },
+      assignedTo: { type: Interger, required: true, unique: true },
+    },
   };
 }
 
@@ -130,5 +137,5 @@ module.exports = {
   argValidation,
   getModel,
   schemas,
-  TokenBlacklist
+  TokenBlacklist,
 };
