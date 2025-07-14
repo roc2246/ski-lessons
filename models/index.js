@@ -116,7 +116,22 @@ async function logoutUser(blacklist, token) {
 }
 
 // ======== CRUD FUNCTIONS ======== //
-// RETRIEVE LESSONS
+/**
+ * Retrieves all lessons assigned to a specific user/instructor by ID.
+ *
+ * DESCRIPTION: This function connects to the database, retrieves the Lesson model,
+ * and finds all documents where the `assignedTo` field matches the provided ID.
+ *
+ * @param {string} id - The ID of the user/instructor whose lessons are being fetched.
+ *
+ * @returns {Promise<Array<Object>>} - A promise that resolves to an array of lesson documents.
+ *
+ * @throws {Error} - Throws an error if the ID is invalid, if the query fails,
+ *                   or if there is any issue during the process.
+ *
+ * @example
+ *   const lessons = await retrieveLessons("64d0f64abc1234567890abcd");
+ */
 async function retrieveLessons(id) {
   try {
     utilities.argValidation([id], ["ID"]);
@@ -133,8 +148,7 @@ async function retrieveLessons(id) {
     throw error;
   }
 }
-// RETRIEVE LESSON
-// REMOVE LESSON
+
 
 // ======== EXPORTS ======== //
 module.exports = {
