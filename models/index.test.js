@@ -157,8 +157,8 @@ describe("logoutUser", () => {
   });
 });
 
-// describe("retrieveLessons", ()=>{
-//   it("should run retrieveLessons()", async()=>{
-//     await models.retrieveLessons(2)
-//   })
-// })
+describe("retrieveLessons", ()=>{
+  it("should run retrieveLessons()", async()=>{
+    await models.retrieveLessons(2)
+  })
+})
