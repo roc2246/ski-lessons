@@ -10,6 +10,6 @@ router.use(express.json());
 router.post("/register", controllers.manageNewUser);
 router.post("/login", controllers.manageLogin);
 router.post("/logout", controllers.manageLogout);
-router.post("/lessons", controllers.manageLessonRetrieval);
+router.get("/lessons", controllers.manageLessonRetrieval);
 
 module.exports = router;

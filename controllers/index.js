@@ -161,7 +161,7 @@ async function manageLogout(req, res) {
  */
 async function manageLessonRetrieval(req, res) {
   try {
-    const { id } = req.body;
+    const { id } = req.params;
 
     const lessons = await models.retrieveLessons(id);
 
