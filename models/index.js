@@ -5,7 +5,7 @@
  * interacting with the database, organized into:
  *  - DB connection functions
  *  - Authentication functions (register/login)
- *  - CRUD functions (to be added)
+ *  - CRUD functions 
  */
 
 import utilities from "./utilities";
@@ -32,7 +32,6 @@ async function dbConnect() {
 }
 
 // ======== AUTHENTICATION FUNCTIONS ======== //
-
 /**
  * Creates a new user with a hashed password.
  * @param {string} username
