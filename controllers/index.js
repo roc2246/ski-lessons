@@ -98,10 +98,53 @@ async function manageLogin(req, res) {
   }
 }
 
+/**
+ * Logs out a user by blacklisting their JWT token.
+ *
+ * DESCRIPTION: This function expects the token to be passed in the request headers (e.g., Authorization).
+ * It uses an instance of `TokenBlacklist` to store the token so it can be invalidated on future requests.
+ *
+ * @param {import("express").Request} req - Express request object, expects JWT in the `Authorization` header
+ * @param {import("express").Response} res - Express response object
+ *
+ * @returns {void}
+ *
+ * @example
+ *   POST /logout
+ *   Headers: { Authorization: "Bearer eyJhbGciOi..." }
+ *
+ *   Response:
+ *   {
+ *     "message": "Successfully logged out"
+ *   }
+ */
+async function manageLogout(req, res) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(400).json({ message: "Missing or invalid Authorization header" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const blacklist = models.createTokenBlacklist();
+
+    await models.logoutUser(blacklist, token);
+
+    res.status(200).json({ message: "Successfully logged out" });
+  } catch (error) {
+    res.status(400).json({
+      message: "Logout failed",
+      error: error.message || "An unknown error occurred",
+    });
+  }
+}
+
+
 // ======== CRUD FUNCTIONS ======== //
 
 // ======== EXPORTS ======== //
 module.exports = {
   manageNewUser,
   manageLogin,
+  manageLogout
 };
