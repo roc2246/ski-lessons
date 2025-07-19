@@ -10,8 +10,10 @@
  */
 
 import * as models from "./models";
+import * as utilities from "./utilities";
 
 // ======== AUTHENTICATION FUNCTIONS ======== //
+
 /**
  * Registers a new user by creating an account with a hashed password.
  *
@@ -47,10 +49,7 @@ async function manageNewUser(req, res) {
       message: `${username} registered`,
     });
   } catch (error) {
-    res.status(401).json({
-      message: "Failed to register user",
-      error: error.message || "An unknown error occurred",
-    });
+    utilities.httpErrorMssg(res, 401, "Failed to register user", error);
   }
 }
 
@@ -91,10 +90,7 @@ async function manageLogin(req, res) {
       token: token,
     });
   } catch (error) {
-    res.status(401).json({
-      message: "Login failed",
-      error: error.message || "An unknown error occurred",
-    });
+    utilities.httpErrorMssg(res, 401, "Login failed", error);
   }
 }
 
@@ -134,14 +130,12 @@ async function manageLogout(req, res) {
 
     res.status(200).json({ message: "Successfully logged out" });
   } catch (error) {
-    res.status(400).json({
-      message: "Logout failed",
-      error: error.message || "An unknown error occurred",
-    });
+    utilities.httpErrorMssg(res, 400, "Logout failed", error);
   }
 }
 
 // ======== CRUD FUNCTIONS ======== //
+
 /**
  * Retrieves all lessons assigned to a specific user/instructor by ID.
  *
@@ -176,18 +170,15 @@ async function manageLessonRetrieval(req, res) {
       lessons: lessons,
     });
   } catch (error) {
-    res.status(400).json({
-      message: "Failed to retrieve lessons",
-      error: error.message || "An unknown error occurred",
-    });
+    utilities.httpErrorMssg(res, 400, "Failed to retrieve lessons", error);
   }
 }
 
-
 // ======== EXPORTS ======== //
+
 module.exports = {
   manageNewUser,
   manageLogin,
   manageLogout,
-  manageLessonRetrieval
+  manageLessonRetrieval,
 };

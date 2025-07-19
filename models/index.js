@@ -20,6 +20,7 @@ require("dotenv").config({
 });
 
 // ======== DB CONNECTION ======== //
+
 async function dbConnect() {
   try {
     const db = { dbName: "ski-lessons" };
@@ -32,6 +33,7 @@ async function dbConnect() {
 }
 
 // ======== AUTHENTICATION FUNCTIONS ======== //
+
 /**
  * Creates a new user with a hashed password.
  * @param {string} username
@@ -115,6 +117,7 @@ async function logoutUser(blacklist, token) {
 }
 
 // ======== CRUD FUNCTIONS ======== //
+
 /**
  * Retrieves all lessons assigned to a specific user/instructor by ID.
  *
@@ -149,6 +152,7 @@ async function retrieveLessons(id) {
 }
 
 // ======== EXPORTS ======== //
+
 module.exports = {
   dbConnect,
   newUser,

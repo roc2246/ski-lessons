@@ -4,7 +4,8 @@
  * DESCRIPTION: This module contains all utility functions,
  * organized into:
  *  - Universal functions
- *  -Mongoose functions
+ *  - Mongoose functions
+ *  - Controller functions
  */
 
 import mongoose from "mongoose";
@@ -133,9 +134,42 @@ class TokenBlacklist {
   }
 }
 
+// ======== CONTROLLERS ======== //
+
+/**
+ * Sends a standardized HTTP error response.
+ *
+ * DESCRIPTION: This helper function formats and sends a JSON response
+ * with the given HTTP status code, a custom error message, and the
+ * error details extracted from the Error object. Useful for consistent
+ * error handling across controllers.
+ *
+ * @param {import("express").Response} res - Express response object used to send the response
+ * @param {number} code - HTTP status code to send (e.g., 400, 401, 500)
+ * @param {string} message - Custom error message describing the failure
+ * @param {Error} error - The error object from which to extract details
+ *
+ * @returns {void}
+ *
+ * @example
+ *   try {
+ *     // some code that throws
+ *   } catch (err) {
+ *     httpErrorMssg(res, 500, "Internal server error", err);
+ *   }
+ */
+function httpErrorMssg(res, code, message, error) {
+  res.status(code).json({
+    message: message,
+    error: error.message || "An unknown error occurred",
+  });
+}
+
+
 module.exports = {
   argValidation,
   getModel,
   schemas,
   TokenBlacklist,
+  httpErrorMssg,
 };
