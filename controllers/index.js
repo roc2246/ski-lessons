@@ -122,7 +122,9 @@ async function manageLogout(req, res) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(400).json({ message: "Missing or invalid Authorization header" });
+      return res
+        .status(400)
+        .json({ message: "Missing or invalid Authorization header" });
     }
 
     const token = authHeader.split(" ")[1];
@@ -139,12 +141,53 @@ async function manageLogout(req, res) {
   }
 }
 
-
 // ======== CRUD FUNCTIONS ======== //
+/**
+ * Retrieves all lessons assigned to a specific user/instructor by ID.
+ *
+ * DESCRIPTION: Calls the `retrieveLessons` model function using the provided
+ * user ID from the request body, then returns the lesson data in the response.
+ *
+ * @param {import("express").Request} req - Express request object, expects `id` in `req.body`
+ * @param {import("express").Response} res - Express response object
+ *
+ * @returns {void}
+ *
+ * @example
+ *   POST /lessons
+ *   {
+ *     "id": "64d0f64abc1234567890abcd"
+ *   }
+ *
+ *   Response:
+ *   {
+ *     "message": "User ID 64d0f64abc1234567890abcd lessons retrieved",
+ *     "lessons": [...]
+ *   }
+ */
+async function manageLessonRetrieval(req, res) {
+  try {
+    const { id } = req.body;
+
+    const lessons = await models.retrieveLessons(id);
+
+    res.status(200).json({
+      message: `User ID ${id} lessons retrieved`,
+      lessons: lessons,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Failed to retrieve lessons",
+      error: error.message || "An unknown error occurred",
+    });
+  }
+}
+
 
 // ======== EXPORTS ======== //
 module.exports = {
   manageNewUser,
   manageLogin,
-  manageLogout
+  manageLogout,
+  manageLessonRetrieval
 };
