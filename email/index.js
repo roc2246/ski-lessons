@@ -1,11 +1,16 @@
-const nodemailer = require("nodemailer");
-const path = require("path");
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 
-require("dotenv").config({
+// Recreate __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({
   path: path.join(__dirname, "../config/.env"),
 });
 
-async function errorEmail(subject, text, sendTo = "childswebdev@gmail.com") {
+export async function errorEmail(subject, text, sendTo = "childswebdev@gmail.com") {
     // Create a transporter object
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -36,6 +41,3 @@ async function errorEmail(subject, text, sendTo = "childswebdev@gmail.com") {
   }
 }
 
-module.exports = {
-  errorEmail
-};

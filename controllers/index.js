@@ -9,8 +9,8 @@
  *  - CRUD controllers (to be added)
  */
 
-import * as models from "./models";
-import * as utilities from "./utilities";
+import * as models from "../models/index.js";
+import * as utilities from "../utilities/index.js";
 
 // ======== AUTHENTICATION FUNCTIONS ======== //
 
@@ -39,7 +39,7 @@ import * as utilities from "./utilities";
  *     "message": "demoUser registered"
  *   }
  */
-async function manageNewUser(req, res) {
+export async function manageNewUser(req, res) {
   try {
     const { username, password } = req.body;
 
@@ -79,7 +79,7 @@ async function manageNewUser(req, res) {
  *     "token": "eyJhbGciOiJIUzI1NiIsInR..."
  *   }
  */
-async function manageLogin(req, res) {
+export async function manageLogin(req, res) {
   try {
     const { username, password } = req.body;
 
@@ -114,7 +114,7 @@ async function manageLogin(req, res) {
  *     "message": "Successfully logged out"
  *   }
  */
-async function manageLogout(req, res) {
+export async function manageLogout(req, res) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -159,7 +159,7 @@ async function manageLogout(req, res) {
  *     "lessons": [...]
  *   }
  */
-async function manageLessonRetrieval(req, res) {
+export async function manageLessonRetrieval(req, res) {
   try {
     const { id } = req.params;
 
@@ -173,12 +173,3 @@ async function manageLessonRetrieval(req, res) {
     utilities.httpErrorMssg(res, 400, "Failed to retrieve lessons", error);
   }
 }
-
-// ======== EXPORTS ======== //
-
-module.exports = {
-  manageNewUser,
-  manageLogin,
-  manageLogout,
-  manageLessonRetrieval,
-};

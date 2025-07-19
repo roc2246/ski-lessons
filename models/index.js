@@ -8,20 +8,28 @@
  *  - CRUD functions 
  */
 
-import utilities from "./utilities";
+import * as utilities from "../utilities/index.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import path from "path";
-import { errorEmail } from "../email";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { errorEmail } from "../email/index.js";
 
-require("dotenv").config({
+// Emulate __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables
+dotenv.config({
   path: path.join(__dirname, "../config/.env"),
 });
 
+
 // ======== DB CONNECTION ======== //
 
-async function dbConnect() {
+export async function  dbConnect() {
   try {
     const db = { dbName: "ski-lessons" };
     await mongoose.connect(process.env.URI, db);
@@ -39,7 +47,7 @@ async function dbConnect() {
  * @param {string} username
  * @param {string} password
  */
-async function newUser(username, password) {
+export async function  newUser(username, password) {
   try {
     utilities.argValidation([username, password], ["Username", "Password"]);
 
@@ -66,7 +74,7 @@ async function newUser(username, password) {
  * @param {string} password
  * @returns {string} JWT
  */
-async function loginUser(username, password) {
+export async function  loginUser(username, password) {
   try {
     utilities.argValidation([username, password], ["Username", "Password"]);
 
@@ -105,7 +113,7 @@ function createTokenBlacklist() {
  * @param {TokenBlacklist} blacklist Instance of TokenBlacklist
  * @param {string} token JWT token string to blacklist
  */
-async function logoutUser(blacklist, token) {
+export async function  logoutUser(blacklist, token) {
   try {
     utilities.argValidation([blacklist, token], [`Blacklist`, `Token`]);
     blacklist.add(token);
@@ -134,7 +142,7 @@ async function logoutUser(blacklist, token) {
  * @example
  *   const lessons = await retrieveLessons("64d0f64abc1234567890abcd");
  */
-async function retrieveLessons(id) {
+export async function  retrieveLessons(id) {
   try {
     utilities.argValidation([id], ["ID"]);
     if (typeof id !== "number") throw new Error("ID must be a number");
@@ -151,13 +159,4 @@ async function retrieveLessons(id) {
   }
 }
 
-// ======== EXPORTS ======== //
 
-module.exports = {
-  dbConnect,
-  newUser,
-  loginUser,
-  logoutUser,
-  createTokenBlacklist,
-  retrieveLessons,
-};

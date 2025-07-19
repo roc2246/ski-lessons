@@ -1,11 +1,11 @@
 /**
- * UTILITY FUNCTIONS
+ * UTILITY export function S
  *
- * DESCRIPTION: This module contains all utility functions,
+ * DESCRIPTION: This module contains all utility export function s,
  * organized into:
- *  - Universal functions
- *  - Mongoose functions
- *  - Controller functions
+ *  - Universal export function s
+ *  - Mongoose export function s
+ *  - Controller export function s
  */
 
 import mongoose from "mongoose";
@@ -25,7 +25,7 @@ import jwt from "jsonwebtoken";
  * @example
  *   argValidation([username, password], ["Username", "Password"]);
  */
-function argValidation(args, argNames) {
+export function  argValidation(args, argNames) {
   for (let i = 0; i < args.length; i++) {
     if (!args[i]) throw new Error(`${argNames[i]} required`);
   }
@@ -44,7 +44,7 @@ function argValidation(args, argNames) {
  * @example
  *   const UserModel = getModel(schemas().User, "User");
  */
-function getModel(schemaDefinition, modelName) {
+export function  getModel(schemaDefinition, modelName) {
   const schema = new mongoose.Schema(schemaDefinition);
   return /* mongoose.models[modelName] || */ mongoose.model(modelName, schema);
 }
@@ -58,7 +58,7 @@ function getModel(schemaDefinition, modelName) {
  * @example
  *   const userSchema = schemas().User;
  */
-function schemas() {
+export function  schemas() {
   return {
     User: {
       username: { type: String, required: true, unique: true },
@@ -139,7 +139,7 @@ class TokenBlacklist {
 /**
  * Sends a standardized HTTP error response.
  *
- * DESCRIPTION: This helper function formats and sends a JSON response
+ * DESCRIPTION: This helper export function  formats and sends a JSON response
  * with the given HTTP status code, a custom error message, and the
  * error details extracted from the Error object. Useful for consistent
  * error handling across controllers.
@@ -158,18 +158,10 @@ class TokenBlacklist {
  *     httpErrorMssg(res, 500, "Internal server error", err);
  *   }
  */
-function httpErrorMssg(res, code, message, error) {
+export function  httpErrorMssg(res, code, message, error) {
   res.status(code).json({
     message: message,
     error: error.message || "An unknown error occurred",
   });
 }
 
-
-module.exports = {
-  argValidation,
-  getModel,
-  schemas,
-  TokenBlacklist,
-  httpErrorMssg,
-};
