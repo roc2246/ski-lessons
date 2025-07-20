@@ -118,9 +118,12 @@ export async function manageLogout(req, res) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res
-        .status(400)
-        .json({ message: "Missing or invalid Authorization header" });
+      return utilities.httpErrorMssg(
+        res,
+        400,
+        "Logout failed",
+        "Missing or invalid Authorization header"
+      );
     }
 
     const token = authHeader.split(" ")[1];
