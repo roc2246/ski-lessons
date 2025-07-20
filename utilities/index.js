@@ -25,7 +25,7 @@ import jwt from "jsonwebtoken";
  * @example
  *   argValidation([username, password], ["Username", "Password"]);
  */
-export function  argValidation(args, argNames) {
+export function argValidation(args, argNames) {
   for (let i = 0; i < args.length; i++) {
     if (!args[i]) throw new Error(`${argNames[i]} required`);
   }
@@ -44,7 +44,7 @@ export function  argValidation(args, argNames) {
  * @example
  *   const UserModel = getModel(schemas().User, "User");
  */
-export function  getModel(schemaDefinition, modelName) {
+export function getModel(schemaDefinition, modelName) {
   if (mongoose.models[modelName]) {
     return mongoose.model(modelName); // Return the existing compiled model
   }
@@ -61,18 +61,18 @@ export function  getModel(schemaDefinition, modelName) {
  * @example
  *   const userSchema = schemas().User;
  */
-export function  schemas() {
+export function schemas() {
   return {
     User: {
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
     },
     Lesson: {
-      lessonID: { type: Number, required: true, unique: true },
       type: { type: String, required: true },
       date: { type: Date, required: true },
       timeLength: { type: String, required: true },
-      assignedTo: { type: String, required: true , required: true },
+      guests: { type: Number, required: true },
+      assignedTo: { type: String, required: true },
     },
   };
 }
@@ -161,10 +161,9 @@ export class TokenBlacklist {
  *     httpErrorMssg(res, 500, "Internal server error", err);
  *   }
  */
-export function  httpErrorMssg(res, code, message, error) {
+export function httpErrorMssg(res, code, message, error) {
   res.status(code).json({
     message: message,
     error: error.message || "An unknown error occurred",
   });
 }
-

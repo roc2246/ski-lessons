@@ -89,7 +89,7 @@ export async function loginUser(username, password) {
     if (!passwordMatch) throw new Error("User or password doesn't match");
 
     const token = jwt.sign(
-      { userId: userCreds[0]._id, username: userCreds[0].username },
+      { userId: userCreds[0]._id.toString(), username: userCreds[0].username },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -144,7 +144,7 @@ export async function logoutUser(blacklist, token) {
 export async function retrieveLessons(id) {
   try {
     utilities.argValidation([id], ["ID"]);
-    if (typeof id !== "number") throw new Error("ID must be a number");
+    if (typeof id !== "string") throw new Error("ID must be a string");
 
     const lessonModel = utilities.getModel(
       utilities.schemas().Lesson,
