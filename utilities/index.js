@@ -45,6 +45,9 @@ export function  argValidation(args, argNames) {
  *   const UserModel = getModel(schemas().User, "User");
  */
 export function  getModel(schemaDefinition, modelName) {
+  if (mongoose.models[modelName]) {
+    return mongoose.model(modelName); // Return the existing compiled model
+  }
   const schema = new mongoose.Schema(schemaDefinition);
   return /* mongoose.models[modelName] || */ mongoose.model(modelName, schema);
 }
