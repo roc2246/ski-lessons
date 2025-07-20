@@ -71,8 +71,8 @@ export function  schemas() {
       lessonID: { type: Number, required: true, unique: true },
       type: { type: String, required: true },
       date: { type: Date, required: true },
-      timeLength: { type: Number, required: true },
-      assignedTo: { type: Number, required: true, unique: true },
+      timeLength: { type: String, required: true },
+      assignedTo: { type: Number, required: true },
     },
   };
 }

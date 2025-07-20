@@ -164,7 +164,8 @@ export async function manageLogout(req, res) {
  */
 export async function manageLessonRetrieval(req, res) {
   try {
-    const { id } = req.params;
+    let { id } = req.query;
+    if(typeof id !== "number") id = Number(id)
 
     const lessons = await models.retrieveLessons(id);
 
