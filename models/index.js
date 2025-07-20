@@ -103,7 +103,7 @@ export async function  loginUser(username, password) {
 }
 
 // Export a factory to create new blacklist instances
-function createTokenBlacklist() {
+export function createTokenBlacklist() {
   return new utilities.TokenBlacklist();
 }
 

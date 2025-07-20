@@ -81,7 +81,7 @@ export function  schemas() {
  * TokenBlacklist class to track blacklisted tokens with expiration,
  * preventing memory leaks by cleaning expired tokens periodically.
  */
-class TokenBlacklist {
+export class TokenBlacklist {
   constructor() {
     this.tokens = new Map(); // token string => expiration timestamp (ms)
     this.cleanupInterval = setInterval(() => this.cleanup(), 10 * 60 * 1000); // cleanup every 10 minutes
