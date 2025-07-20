@@ -11,6 +11,8 @@
 
 import * as models from "../models/index.js";
 import * as utilities from "../utilities/index.js";
+import jwt from "jsonwebtoken";
+
 
 // ======== AUTHENTICATION FUNCTIONS ======== //
 
@@ -164,13 +166,28 @@ export async function manageLogout(req, res) {
  */
 export async function manageLessonRetrieval(req, res) {
   try {
-    let { id } = req.query;
-    if(typeof id !== "number") id = Number(id)
+      const authHeader = req.headers.authorization;
 
-    const lessons = await models.retrieveLessons(id);
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return utilities.httpErrorMssg(res, 401, "Unauthorized: Invalid token");
+    }
+
+    const userId = decoded.userId;
+
+    // Assuming retrieveLessons expects a userId of type ObjectId or string, adjust if needed
+    const lessons = await models.retrieveLessons(userId);
 
     res.status(200).json({
-      message: `User ID ${id} lessons retrieved`,
+      message: `Lessons retrieved for user ID ${userId}`,
       lessons: lessons,
     });
   } catch (error) {

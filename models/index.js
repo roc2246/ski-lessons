@@ -5,7 +5,7 @@
  * interacting with the database, organized into:
  *  - DB connection functions
  *  - Authentication functions (register/login)
- *  - CRUD functions 
+ *  - CRUD functions
  */
 
 import * as utilities from "../utilities/index.js";
@@ -26,10 +26,9 @@ dotenv.config({
   path: path.join(__dirname, "../config/.env"),
 });
 
-
 // ======== DB CONNECTION ======== //
 
-export async function  dbConnect() {
+export async function dbConnect() {
   try {
     const db = { dbName: "ski-lessons" };
     await mongoose.connect(process.env.URI, db);
@@ -47,7 +46,7 @@ export async function  dbConnect() {
  * @param {string} username
  * @param {string} password
  */
-export async function  newUser(username, password) {
+export async function newUser(username, password) {
   try {
     utilities.argValidation([username, password], ["Username", "Password"]);
 
@@ -74,7 +73,7 @@ export async function  newUser(username, password) {
  * @param {string} password
  * @returns {string} JWT
  */
-export async function  loginUser(username, password) {
+export async function loginUser(username, password) {
   try {
     utilities.argValidation([username, password], ["Username", "Password"]);
 
@@ -90,7 +89,7 @@ export async function  loginUser(username, password) {
     if (!passwordMatch) throw new Error("User or password doesn't match");
 
     const token = jwt.sign(
-      { username: userCreds[0].username },
+      { userId: userCreds[0]._id, username: userCreds[0].username },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -113,7 +112,7 @@ export function createTokenBlacklist() {
  * @param {TokenBlacklist} blacklist Instance of TokenBlacklist
  * @param {string} token JWT token string to blacklist
  */
-export async function  logoutUser(blacklist, token) {
+export async function logoutUser(blacklist, token) {
   try {
     utilities.argValidation([blacklist, token], [`Blacklist`, `Token`]);
     blacklist.add(token);
@@ -142,7 +141,7 @@ export async function  logoutUser(blacklist, token) {
  * @example
  *   const lessons = await retrieveLessons("64d0f64abc1234567890abcd");
  */
-export async function  retrieveLessons(id) {
+export async function retrieveLessons(id) {
   try {
     utilities.argValidation([id], ["ID"]);
     if (typeof id !== "number") throw new Error("ID must be a number");
@@ -158,5 +157,3 @@ export async function  retrieveLessons(id) {
     throw error;
   }
 }
-
-
