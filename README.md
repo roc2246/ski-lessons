@@ -17,7 +17,7 @@ This project aims to streamline communication, reduce bottlenecks, and improve t
 
 ## Tech Stack
 
-- **Frontend:** React (planned or in development)
+- **Frontend:** Vanilla HTML and Vanilla JS
 - **Backend:** Node.js with Express
 - **Database:** MongoDB (Mongoose ODM)
 - **Authentication:** JWT with token blacklisting
