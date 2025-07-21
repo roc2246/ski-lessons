@@ -186,8 +186,8 @@ describe("retrieveLessons", () => {
     expect(constructorSpy.find).toHaveBeenCalledWith({ assignedTo: 2 });
   });
   it("should throw an error", async () => {
-     await expect(models.retrieveLessons("test")).rejects.toThrow(
-      "ID must be a number"
+     await expect(models.retrieveLessons(88)).rejects.toThrow(
+      "ID must be a string"
     );
     expect(errorEmail).toHaveBeenCalled();
   });
