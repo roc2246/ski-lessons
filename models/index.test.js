@@ -1,20 +1,27 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import mongoose from "mongoose";
-import { errorEmail } from "../email";
 import * as models from ".";
+import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import { errorEmail } from "../email";
+import * as utilities from "../utilities";
 
-// Spy constructor for mocked model
+// Capture instance of model
+let instance;
+
+// Mock constructor for models
 const constructorSpy = vi.fn(function (data) {
   Object.assign(this, data);
   this.save = vi.fn(() => Promise.resolve());
+  instance = this;
 });
+
+// Attach .find to constructor
 constructorSpy.find = vi.fn((param) => {
   if (param.assignedTo) {
-    if (typeof param.assignedTo === "number") {
+    if (typeof param.assignedTo === "string") {
       return Promise.resolve([{ lesson: "lesson" }]);
     } else {
-      throw new Error("ID must be a number")
+      throw new Error("ID must be a string");
     }
   }
 
@@ -22,7 +29,7 @@ constructorSpy.find = vi.fn((param) => {
     return Promise.resolve([param]);
   } else if (param.username === "existusername") {
     return Promise.resolve([
-      { username: "existusername", password: "hashed_password" },
+      { username: "existusername", password: "hashed_password", _id: "user123" },
     ]);
   } else {
     return Promise.resolve([]);
@@ -45,7 +52,7 @@ vi.mock("bcrypt", () => {
 
 // Mock mongoose
 vi.mock("mongoose", () => {
-  const connectMock = vi.fn((uri, db) => {
+  const connectMock = vi.fn((uri) => {
     if (uri === "fail") throw new Error("DB failed");
   });
 
@@ -63,6 +70,7 @@ vi.mock("mongoose", () => {
   };
 });
 
+// Mock jsonwebtoken
 vi.mock("jsonwebtoken", () => ({
   default: {
     sign: vi.fn(() => "mocked.token"),
@@ -77,17 +85,37 @@ vi.mock("../email/index.js", () => ({
   errorEmail: vi.fn(),
 }));
 
+// Mock getModel from utilities
+vi.mock("../utilities/index.js", async () => {
+  const actual = await vi.importActual("../utilities/index.js");
+  return {
+    ...actual,
+    getModel: vi.fn(() => constructorSpy),
+    schemas: actual.schemas,
+    argValidation: actual.argValidation,
+    TokenBlacklist: actual.TokenBlacklist,
+  };
+});
+
+// Environment setup
 const originalURI = process.env.URI;
+const originalSecret = process.env.JWT_SECRET;
+
+beforeEach(() => {
+  process.env.URI = "mongodb://localhost:27017/test";
+  process.env.JWT_SECRET = "testsecret";
+  instance = undefined;
+  vi.clearAllMocks();
+});
 
 afterEach(() => {
   process.env.URI = originalURI;
-  vi.clearAllMocks();
+  process.env.JWT_SECRET = originalSecret;
 });
 
 describe("dbConnect", () => {
   it("should call mongoose.connect with correct args", async () => {
     await models.dbConnect();
-
     expect(mongoose.connect).toHaveBeenCalledOnce();
     expect(mongoose.connect).toHaveBeenCalledWith(process.env.URI, {
       dbName: "ski-lessons",
@@ -106,23 +134,18 @@ describe("newUser", () => {
   it("should register new user", async () => {
     await models.newUser("username", "password");
 
-    expect(mongoose.Schema).toHaveBeenCalled();
-    expect(mongoose.model).toHaveBeenCalled();
-    expect(constructorSpy).toHaveBeenCalledWith({
+    expect(constructorSpy.find).toHaveBeenCalledWith({ username: "username" });
+    expect(instance).toBeDefined();
+    expect(instance).toMatchObject({
       username: "username",
       password: "hashed_password",
     });
-    expect(constructorSpy.find).toHaveBeenCalledWith({ username: "username" });
-
-    const instance = constructorSpy.mock.results[0].value;
     expect(instance.save).toHaveBeenCalled();
   });
 
   it("should throw error if args are missing", async () => {
     await expect(models.newUser(null, "")).rejects.toThrow("Username required");
-    await expect(models.newUser(" ", null)).rejects.toThrow(
-      "Password required"
-    );
+    await expect(models.newUser(" ", null)).rejects.toThrow("Password required");
     expect(errorEmail).toHaveBeenCalled();
   });
 
@@ -136,24 +159,18 @@ describe("newUser", () => {
 
 describe("loginUser", () => {
   it("should return a user token", async () => {
-    const result = await models.loginUser("existusername", "password");
+    const token = await models.loginUser("existusername", "password");
 
-    expect(mongoose.Schema).toHaveBeenCalled();
-    expect(mongoose.model).toHaveBeenCalled();
     expect(constructorSpy.find).toHaveBeenCalledWith({
       username: "existusername",
     });
     expect(jwt.sign).toHaveBeenCalled();
-    expect(result).toBe("mocked.token");
+    expect(token).toBe("mocked.token");
   });
 
   it("should throw error if args are missing", async () => {
-    await expect(models.loginUser(null, "")).rejects.toThrow(
-      "Username required"
-    );
-    await expect(models.loginUser(" ", null)).rejects.toThrow(
-      "Password required"
-    );
+    await expect(models.loginUser(null, "")).rejects.toThrow("Username required");
+    await expect(models.loginUser(" ", null)).rejects.toThrow("Password required");
     expect(errorEmail).toHaveBeenCalled();
   });
 
@@ -161,6 +178,7 @@ describe("loginUser", () => {
     await expect(
       models.loginUser("existusername", "wrongpass")
     ).rejects.toThrow("User or password doesn't match");
+    expect(errorEmail).toHaveBeenCalled();
   });
 });
 
@@ -180,15 +198,21 @@ describe("logoutUser", () => {
 
 describe("retrieveLessons", () => {
   it("should retrieve lessons", async () => {
-    const results = await models.retrieveLessons(2);
-    expect(mongoose.Schema).toHaveBeenCalled();
-    expect(mongoose.model).toHaveBeenCalled();
-    expect(constructorSpy.find).toHaveBeenCalledWith({ assignedTo: 2 });
+    const results = await models.retrieveLessons("2");
+
+    expect(constructorSpy.find).toHaveBeenCalledWith({ assignedTo: "2" });
+    expect(results).toEqual([{ lesson: "lesson" }]);
   });
-  it("should throw an error", async () => {
-     await expect(models.retrieveLessons(88)).rejects.toThrow(
-      "ID must be a string"
-    );
+
+  it("should throw an error if ID is not a string", async () => {
+    await expect(models.retrieveLessons(88)).rejects.toThrow("ID must be a string");
     expect(errorEmail).toHaveBeenCalled();
+  });
+});
+
+describe("createTokenBlacklist", () => {
+  it("should create a blacklist instance", () => {
+    const blacklist = models.createTokenBlacklist();
+    expect(blacklist).toBeInstanceOf(utilities.TokenBlacklist);
   });
 });
