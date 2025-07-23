@@ -96,7 +96,6 @@ export async function loginUser(username, password) {
 
     return token;
   } catch (error) {
-    await errorEmail("Login failed", error.toString());
     throw error;
   }
 }
