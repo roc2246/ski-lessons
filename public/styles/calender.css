@@ -1,0 +1,42 @@
+  .calander-container {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      margin-top: 40px;
+    }
+    .calendar {
+      width: 340px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .month-year {
+      font-size: 24px;
+    }
+    button {
+      padding: 5px 10px;
+    }
+    .days, .dates {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+    .day, .date {
+      text-align: center;
+      padding: 10px;
+    }
+    .day {
+      background-color: #f0f0f0;
+      font-weight: bold;
+    }
+    .date {
+      border: 1px solid #ddd;
+    }
+    .today {
+      background-color: #cce5ff;
+      border: 2px solid #339af0;
+      font-weight: bold;
+    }
