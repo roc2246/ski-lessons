@@ -6,17 +6,21 @@
     <title>Snow Pro App</title>
   </head>
   <body>
-    <main>
-      <h1>Snow Pro App</h1>
-      <form method="post">
-        <h2>Please log in here</h2>
-        <label for="username">Username</label>
-        <input type="text" name="username" id="username" required />
+    <main class="login">
+      <h1 class="login__title">Snow Pro App</h1>
+      
+      <form method="post" class="login__form">
+        <h2 class="login__form-title">Please log in here</h2>
+
+        <label for="username" class="login__label">Username</label>
+        <input type="text" name="username" id="username" class="login__input" required />
         <br />
-        <label for="password">password</label>
-        <input type="password" name="password" id="password" required />
+
+        <label for="password" class="login__label">Password</label>
+        <input type="password" name="password" id="password" class="login__input" required />
         <br />
-        <input type="submit" value="login" />
+
+        <input type="submit" value="Login" class="login__submit" />
       </form>
     </main>
 
