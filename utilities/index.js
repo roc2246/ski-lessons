@@ -63,17 +63,17 @@ export function getModel(schemaDefinition, modelName) {
  */
 export function schemas() {
   return {
-    User: {
+    User: new mongoose.Schema({
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
-    },
-    Lesson: {
+    }),
+    Lesson: new mongoose.Schema({
       type: { type: String, required: true },
       date: { type: Date, required: true },
       timeLength: { type: String, required: true },
       guests: { type: Number, required: true },
-      assignedTo: { type: String, required: true },
-    },
+      assignedTo: { type: String, required: true, ref: "User" }, // fixed this too
+    }),
   };
 }
 
