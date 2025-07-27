@@ -80,6 +80,24 @@ async function renderCalendar(date) {
     <h4 class="date__lesson-type">${filterLessons[lessonCounter].type}</h4>  
     </div>`;
       lessonCounter++;
+
+      if (
+        filterLessons[lessonCounter] &&
+        filterLessons[lessonCounter].date.includes(`-${day}-`)
+      ) {
+        const lastDateLength = document.getElementsByClassName("date").length;
+        const lastDate =
+          document.getElementsByClassName("date")[lastDateLength - 1];
+
+        lastDate.insertAdjacentHTML(
+          "beforeend",
+          `
+    <h4 class="date__time-slot">${filterLessons[lessonCounter].timeLength}</h4>  
+    <h4 class="date__lesson-type">${filterLessons[lessonCounter].type}</h4>  
+    `
+        );
+        lessonCounter++;
+      }
     } else {
       calendarDates.innerHTML += `<div class="date">
     <h3 class="date__heading">${day}</h3>
