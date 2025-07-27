@@ -78,7 +78,7 @@ async function renderCalendar(date) {
 
   // Helper functions for lesson HTML
   const timeslot = (length) => `<h4 class="date__time-slot">${length}</h4>`;
-  const type = (type) => `<h4 class="date__lesson-type">${type}</h4>`;
+  const type = (type) => `<span class="date__lesson-type">${type}</span>`;
   const dayCont = (day) => `<h3 class="date__day">${day}</h3>`;
 
   let lessonCounter = 0;
