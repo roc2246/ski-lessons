@@ -76,7 +76,7 @@ async function renderCalendar(date) {
     ) {
       calendarDates.innerHTML += `<div class="date">
     <h3 class="date__heading">${day}</h3>
-    <h4 class="date__time-slot>${filterLessons[lessonCounter].timeLength}</h4>  
+    <h4 class="date__time-slot">${filterLessons[lessonCounter].timeLength}</h4>  
     <h4 class="date__lesson-type">${filterLessons[lessonCounter].type}</h4>  
     </div>`;
       lessonCounter++;
