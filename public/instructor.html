@@ -6,6 +6,10 @@
     <title>Document</title>
     <link rel="stylesheet" href="styles/calender.css" />
   </head>
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) window.location.href = "/index.html";
+  </script>
   <body>
     <main>
       <section class="calander-container">
@@ -31,10 +35,7 @@
       <h1>Logged In</h1>
       <button id="logoutBtn">Logout</button>
     </main>
-    <script>
-      const token = localStorage.getItem("token");
-      if (!token) window.location.href = "/index.html";
-    </script>
+
     <script src="scripts/calander.js"></script>
     <script src="scripts/logout.js"></script>
   </body>
