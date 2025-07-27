@@ -12,41 +12,35 @@
   <body>
     <main class="login">
       <h1 class="login__title">Snow Pro App</h1>
-      
+
       <form method="post" class="login__form">
         <h2 class="login__form-title">Please log in here</h2>
 
         <label for="username" class="login__label">Username</label>
-        <input type="text" name="username" id="username" class="login__input" required />
+        <input
+          type="text"
+          name="username"
+          id="username"
+          class="login__input"
+          required
+        />
         <br />
 
         <label for="password" class="login__label">Password</label>
-        <input type="password" name="password" id="password" class="login__input" required />
+        <input
+          type="password"
+          name="password"
+          id="password"
+          class="login__input"
+          required
+        />
         <br />
 
         <input type="submit" value="Login" class="btn login__submit" />
       </form>
-
-      <section class="new-user">
-        <form method="post" class="new-user__form">
-        <h2 class="new-user__form-title">Register New User</h2>
-
-        <label for="username" class="new-user__label">Username</label>
-        <input type="text" name="username" id="new-username" class="new-user__input" required />
-        <br />
-
-        <label for="password" class="new-user__label">Password</label>
-        <input type="password" name="password" id="new-password" class="new-user__input" required />
-        <br />
-
-        <input type="submit" value="register" class="btn new-user__submit" />
-      </form>
-      </section>
-       
-
+      <a href="register.html">Register</a>
     </main>
 
     <script src="scripts/login.js"></script>
-    <script src="scripts/new-user.js"></script>
   </body>
 </html>

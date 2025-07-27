@@ -1,4 +1,4 @@
-document.querySelectorAll("form")[1].addEventListener("submit", async (e) => {
+document.querySelector("form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const username = document.getElementById("new-username").value;
   const password = document.getElementById("new-password").value;
