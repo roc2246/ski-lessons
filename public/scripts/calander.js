@@ -74,17 +74,11 @@ async function renderCalendar(date) {
       filterLessons[lessonCounter] &&
       filterLessons[lessonCounter].date.includes(`-${day}-`)
     ) {
-      calendarDates.innerHTML += `<div class="date">
-    <h3 class="date__heading">${day}</h3>
-    <h4 class="date__time-slot">${filterLessons[lessonCounter].timeLength}</h4>  
-    <h4 class="date__lesson-type">${filterLessons[lessonCounter].type}</h4>  
-    </div>`;
-      lessonCounter++;
-
-      if (
-        filterLessons[lessonCounter] &&
-        filterLessons[lessonCounter].date.includes(`-${day}-`)
-      ) {
+      const lastDateLength =
+        document.getElementsByClassName("date__heading").length;
+      const lastDate =
+        document.getElementsByClassName("date__heading")[lastDateLength - 1];
+      if (lastDate.innerHTML === `${day}`) {
         const lastDateLength = document.getElementsByClassName("date").length;
         const lastDate =
           document.getElementsByClassName("date")[lastDateLength - 1];
@@ -92,10 +86,17 @@ async function renderCalendar(date) {
         lastDate.insertAdjacentHTML(
           "beforeend",
           `
+      <h4 class="date__time-slot">${filterLessons[lessonCounter].timeLength}</h4>
+      <h4 class="date__lesson-type">${filterLessons[lessonCounter].type}</h4>
+      `
+        );
+        lessonCounter++;
+      } else {
+        calendarDates.innerHTML += `<div class="date">
+    <h3 class="date__heading">${day}</h3>
     <h4 class="date__time-slot">${filterLessons[lessonCounter].timeLength}</h4>  
     <h4 class="date__lesson-type">${filterLessons[lessonCounter].type}</h4>  
-    `
-        );
+    </div>`;
         lessonCounter++;
       }
     } else {
@@ -103,7 +104,13 @@ async function renderCalendar(date) {
     <h3 class="date__heading">${day}</h3>
     </div>`;
     }
-    day++;
+
+    if (
+      !filterLessons[lessonCounter] ||
+      !filterLessons[lessonCounter].date.includes(`-${day}-`)
+    ) {
+      day++;
+    }
   }
 }
 
