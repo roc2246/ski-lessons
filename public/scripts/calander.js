@@ -42,39 +42,31 @@ async function getLessons() {
 }
 
 async function renderCalendar(date) {
+  // Sets date data
   const year = date.getFullYear();
   const month = date.getMonth();
-  const today = new Date();
-
-  const firstDay = new Date(year, month, 1).getDay(); // 0 = Sun, 6 = Sat
+  const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  // Set header
+  // Set initial content
   monthYear.textContent = `${monthNames[month]} ${year}`;
-
-  // Clear previous days
   calendarDates.innerHTML = "";
-
-  // Add blank slots before the first day
-  for (let i = 0; i < firstDay; i++) {
-    calendarDates.innerHTML += `<div></div>`;
-  }
+  for (let i = 0; i < firstDay; i++) calendarDates.innerHTML += `<div></div>`;
 
   // Fetch lessons
-  const minCall = 1;
   let callCount = 0;
   let lessons;
-  while (callCount < minCall) {
+  while (callCount < 1) {
     lessons = await getLessons();
     callCount++;
   }
 
-  const filterMonth = month.toString().length === 1 ? `0${month + 1}-` : `${month + 1}-`
-  const filterLessons = lessons.filter((lesson) =>
-    lesson.date.includes(filterMonth) &&
-    lesson.date.includes(year)
+  // Filter for lessons for the month
+  const filterLessons = lessons.filter(
+    (lesson) => lesson.date.includes(month + 1) && lesson.date.includes(year)
   );
 
+  // Fills lesson data into instructor calander
   let day = 1;
   let lessonCounter = 0;
   while (day < daysInMonth) {
@@ -84,14 +76,13 @@ async function renderCalendar(date) {
     ) {
       calendarDates.innerHTML += `<div class="date">
     <h3 class="date__heading">${day}</h3>
-    <h4>${filterLessons[lessonCounter].timeLength}</h4>  
-    <h4>${filterLessons[lessonCounter].type}</h4>  
+    <h4 class="date__time-slot>${filterLessons[lessonCounter].timeLength}</h4>  
+    <h4 class="date__lesson-type">${filterLessons[lessonCounter].type}</h4>  
     </div>`;
       lessonCounter++;
     } else {
       calendarDates.innerHTML += `<div class="date">
     <h3 class="date__heading">${day}</h3>
-    
     </div>`;
     }
     day++;
