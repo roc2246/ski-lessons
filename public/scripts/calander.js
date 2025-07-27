@@ -2,29 +2,18 @@ const monthYear = document.getElementById("monthYear");
 const calendarDates = document.getElementById("calendarDates");
 
 const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
 ];
 
 let currentDate = new Date();
+
 async function getLessons() {
   try {
-    const token = localStorage.getItem("token"); // or however you're storing the JWT
+    const token = localStorage.getItem("token");
 
     const response = await fetch("/api/lessons", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (!response.ok) {
@@ -33,7 +22,6 @@ async function getLessons() {
     }
 
     const { lessons } = await response.json();
-
     return lessons;
   } catch (err) {
     console.error("Error retrieving lessons:", err.message);
@@ -41,52 +29,54 @@ async function getLessons() {
   }
 }
 
+function preprocessLessons(lessons) {
+  return lessons.map((lesson) => {
+    const [month, day, year] = lesson.date.split("-").map(Number);
+    const [startTime] = lesson.timeLength.split("-");
+    const [hours = "0", minutes = "0"] = startTime.split(":");
+
+    return {
+      ...lesson,
+      _year: year,
+      _month: month,
+      _day: day,
+      _startDate: new Date(year, month - 1, day, +hours, +minutes),
+    };
+  });
+}
+
 async function renderCalendar(date) {
-  // Sets date data
   const year = date.getFullYear();
   const month = date.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  // Set initial content
+  // Set header text
   monthYear.textContent = `${monthNames[month]} ${year}`;
+
+  // Clear previous calendar
   calendarDates.innerHTML = "";
-  for (let i = 0; i < firstDay; i++) calendarDates.innerHTML += `<div></div>`;
 
-  // Fetch lessons
-  let callCount = 0;
-  let lessons;
-  while (callCount < 1) {
-    lessons = await getLessons();
-    callCount++;
+  // Add blank days for alignment
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < firstDay; i++) {
+    fragment.appendChild(document.createElement("div"));
   }
+  calendarDates.appendChild(fragment);
 
-  // Filter for lessons for the month
-  let filterLessons = lessons.filter(
-    (lesson) => lesson.date.includes(month + 1) && lesson.date.includes(year)
+  // Fetch and prepare lessons
+  const lessons = await getLessons();
+  const preprocessedLessons = preprocessLessons(lessons);
+
+  // Filter lessons for current month and year
+  const filterLessons = preprocessedLessons.filter(
+    (lesson) => lesson._month === month + 1 && lesson._year === year
   );
-  filterLessons.sort((a, b) => {
-    const getDateTime = (lesson) => {
-      const [month, day, year] = lesson.date.split("-").map(Number);
-      const [startTime] = lesson.timeLength.split("-");
 
-      // Normalize startTime to HH:MM format
-      let [hours, minutes] = startTime.split(":");
-      const hour = parseInt(hours, 10);
-      const min = parseInt(minutes, 10);
+  // Sort lessons by start date/time
+  filterLessons.sort((a, b) => a._startDate - b._startDate);
 
-      return new Date(year, month - 1, day, hour, min);
-    };
-
-    return getDateTime(a) - getDateTime(b);
-  });
-
-  // Fills lesson data into instructor calander
-  filterLessons.forEach((lesson) => {
-    const [, dayStr] = lesson.date.split("-");
-    lesson._day = parseInt(dayStr, 10);
-  });
-
+  // Helper functions for lesson HTML
   const timeslot = (length) => `<h4 class="date__time-slot">${length}</h4>`;
   const type = (type) => `<h4 class="date__lesson-type">${type}</h4>`;
   const dayCont = (day) => `<h3 class="date__day">${day}</h3>`;
@@ -111,7 +101,8 @@ async function renderCalendar(date) {
     html += dayHTML;
   }
 
-  calendarDates.innerHTML = html;
+  // Render calendar days with lessons
+  calendarDates.innerHTML += html;
 }
 
 function changeMonth(offset) {
