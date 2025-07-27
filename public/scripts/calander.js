@@ -62,73 +62,56 @@ async function renderCalendar(date) {
   }
 
   // Filter for lessons for the month
- let filterLessons = lessons.filter(
+  let filterLessons = lessons.filter(
     (lesson) => lesson.date.includes(month + 1) && lesson.date.includes(year)
   );
-filterLessons.sort((a, b) => {
-  const getDateTime = (lesson) => {
-    const [month, day, year] = lesson.date.split("-").map(Number);
-    const [startTime] = lesson.timeLength.split("-");
+  filterLessons.sort((a, b) => {
+    const getDateTime = (lesson) => {
+      const [month, day, year] = lesson.date.split("-").map(Number);
+      const [startTime] = lesson.timeLength.split("-");
 
-    // Normalize startTime to HH:MM format
-    let [hours, minutes] = startTime.split(":");
-    if (!minutes) minutes = "00"; // handle "9" -> "09:00"
-    const hour = parseInt(hours, 10);
-    const min = parseInt(minutes, 10);
+      // Normalize startTime to HH:MM format
+      let [hours, minutes] = startTime.split(":");
+      const hour = parseInt(hours, 10);
+      const min = parseInt(minutes, 10);
 
-    return new Date(year, month - 1, day, hour, min);
-  };
+      return new Date(year, month - 1, day, hour, min);
+    };
 
-  return getDateTime(a) - getDateTime(b);
-});
-
+    return getDateTime(a) - getDateTime(b);
+  });
 
   // Fills lesson data into instructor calander
-  let day = 1;
+  filterLessons.forEach((lesson) => {
+    const [, dayStr] = lesson.date.split("-");
+    lesson._day = parseInt(dayStr, 10);
+  });
+
+  const timeslot = (length) => `<h4 class="date__time-slot">${length}</h4>`;
+  const type = (type) => `<h4 class="date__lesson-type">${type}</h4>`;
+  const dayCont = (day) => `<h3 class="date__day">${day}</h3>`;
+
   let lessonCounter = 0;
-  while (day < daysInMonth) {
-    if (
-      filterLessons[lessonCounter] &&
-      filterLessons[lessonCounter].date.includes(`-${day}-`)
-    ) {
-      const lastDateLength =
-        document.getElementsByClassName("date__heading").length;
-      const lastDate =
-        document.getElementsByClassName("date__heading")[lastDateLength - 1];
-      if (lastDate.innerHTML === `${day}`) {
-        const lastDateLength = document.getElementsByClassName("date").length;
-        const lastDate =
-          document.getElementsByClassName("date")[lastDateLength - 1];
+  let html = "";
 
-        lastDate.insertAdjacentHTML(
-          "beforeend",
-          `
-      <h4 class="date__time-slot">${filterLessons[lessonCounter].timeLength}</h4>
-      <h4 class="date__lesson-type">${filterLessons[lessonCounter].type}</h4>
-      `
-        );
-        lessonCounter++;
-      } else {
-        calendarDates.innerHTML += `<div class="date">
-    <h3 class="date__heading">${day}</h3>
-    <h4 class="date__time-slot">${filterLessons[lessonCounter].timeLength}</h4>  
-    <h4 class="date__lesson-type">${filterLessons[lessonCounter].type}</h4>  
-    </div>`;
-        lessonCounter++;
-      }
-    } else {
-      calendarDates.innerHTML += `<div class="date">
-    <h3 class="date__heading">${day}</h3>
-    </div>`;
+  for (let day = 1; day <= daysInMonth; day++) {
+    let dayHTML = `<div class="date">${dayCont(day)}`;
+
+    // Append all lessons for this day
+    while (
+      lessonCounter < filterLessons.length &&
+      filterLessons[lessonCounter]._day === day
+    ) {
+      const lesson = filterLessons[lessonCounter];
+      dayHTML += timeslot(lesson.timeLength) + type(lesson.type);
+      lessonCounter++;
     }
 
-    if (
-      !filterLessons[lessonCounter] ||
-      !filterLessons[lessonCounter].date.includes(`-${day}-`)
-    ) {
-      day++;
-    }
+    dayHTML += "</div>";
+    html += dayHTML;
   }
+
+  calendarDates.innerHTML = html;
 }
 
 function changeMonth(offset) {
