@@ -32,15 +32,14 @@ async function getLessons() {
       throw new Error(error.message || "Failed to fetch lessons");
     }
 
-    const data = await response.json();
-    console.log("Lessons:", data.lessons);
-    return data.lessons;
+    const { lessons } = await response.json();
+
+    return lessons;
   } catch (err) {
     console.error("Error retrieving lessons:", err.message);
     throw err;
   }
 }
-
 
 async function renderCalendar(date) {
   const year = date.getFullYear();
@@ -61,23 +60,41 @@ async function renderCalendar(date) {
     calendarDates.innerHTML += `<div></div>`;
   }
 
-
   // Fetch lessons
-  await getLessons()
+  const minCall = 1;
+  let callCount = 0;
+  let lessons;
+  while (callCount < minCall) {
+    lessons = await getLessons();
+    callCount++;
+  }
 
-  // Add the actual dates
-  for (let day = 1; day <= daysInMonth; day++) {
-    const isToday =
-      day === today.getDate() &&
-      month === today.getMonth() &&
-      year === today.getFullYear();
+  const filterMonth = month.toString().length === 1 ? `0${month + 1}-` : `${month + 1}-`
+  const filterLessons = lessons.filter((lesson) =>
+    lesson.date.includes(filterMonth) &&
+    lesson.date.includes(year)
+  );
 
-    const dateClass = isToday ? "date today" : "date";
-
-    calendarDates.innerHTML += `<div class="${dateClass}">
+  let day = 1;
+  let lessonCounter = 0;
+  while (day < daysInMonth) {
+    if (
+      filterLessons[lessonCounter] &&
+      filterLessons[lessonCounter].date.includes(`-${day}-`)
+    ) {
+      calendarDates.innerHTML += `<div class="date">
+    <h3 class="date__heading">${day}</h3>
+    <h4>${filterLessons[lessonCounter].timeLength}</h4>  
+    <h4>${filterLessons[lessonCounter].type}</h4>  
+    </div>`;
+      lessonCounter++;
+    } else {
+      calendarDates.innerHTML += `<div class="date">
     <h3 class="date__heading">${day}</h3>
     
     </div>`;
+    }
+    day++;
   }
 }
 
