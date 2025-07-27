@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Snow Pro App</title>
   </head>
+  <script>
+    const token = localStorage.getItem("token");
+    if (token) window.location.href = "/instructor.html";
+  </script>
   <body>
     <main class="login">
       <h1 class="login__title">Snow Pro App</h1>
@@ -20,10 +24,29 @@
         <input type="password" name="password" id="password" class="login__input" required />
         <br />
 
-        <input type="submit" value="Login" class="login__submit" />
+        <input type="submit" value="Login" class="btn login__submit" />
       </form>
+
+      <section class="new-user">
+        <form method="post" class="new-user__form">
+        <h2 class="new-user__form-title">Register New User</h2>
+
+        <label for="username" class="new-user__label">Username</label>
+        <input type="text" name="username" id="new-username" class="new-user__input" required />
+        <br />
+
+        <label for="password" class="new-user__label">Password</label>
+        <input type="password" name="password" id="new-password" class="new-user__input" required />
+        <br />
+
+        <input type="submit" value="register" class="btn new-user__submit" />
+      </form>
+      </section>
+       
+
     </main>
 
     <script src="scripts/login.js"></script>
+    <script src="scripts/new-user.js"></script>
   </body>
 </html>
