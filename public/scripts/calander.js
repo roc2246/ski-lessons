@@ -62,9 +62,26 @@ async function renderCalendar(date) {
   }
 
   // Filter for lessons for the month
-  const filterLessons = lessons.filter(
+ let filterLessons = lessons.filter(
     (lesson) => lesson.date.includes(month + 1) && lesson.date.includes(year)
   );
+filterLessons.sort((a, b) => {
+  const getDateTime = (lesson) => {
+    const [month, day, year] = lesson.date.split("-").map(Number);
+    const [startTime] = lesson.timeLength.split("-");
+
+    // Normalize startTime to HH:MM format
+    let [hours, minutes] = startTime.split(":");
+    if (!minutes) minutes = "00"; // handle "9" -> "09:00"
+    const hour = parseInt(hours, 10);
+    const min = parseInt(minutes, 10);
+
+    return new Date(year, month - 1, day, hour, min);
+  };
+
+  return getDateTime(a) - getDateTime(b);
+});
+
 
   // Fills lesson data into instructor calander
   let day = 1;
