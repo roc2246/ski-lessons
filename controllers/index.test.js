@@ -272,10 +272,11 @@ describe("manageSwitchLessonAssignment", () => {
     };
     models.switchLessonAssignment = vi.fn().mockResolvedValue(updatedLesson);
 
-    const req = createReq(
-      { lessonId: "lesson123", newUserId: "newUser123" },
-      {}
-    );
+    // lessonId in params, newUserId in body
+    const req = {
+      params: { lessonId: "lesson123" },
+      body: { newUserId: "newUser123" },
+    };
     const res = createRes();
 
     await controllers.manageSwitchLessonAssignment(req, res);
@@ -292,11 +293,20 @@ describe("manageSwitchLessonAssignment", () => {
   });
 
   it("should respond with 400 if lessonId or newUserId missing", async () => {
-    const req = createReq({ lessonId: "lesson123" }); // no newUserId
     const res = createRes();
 
+    // Missing newUserId in body
+    let req = { params: { lessonId: "lesson123" }, body: {} };
     await controllers.manageSwitchLessonAssignment(req, res);
+    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+      res,
+      400,
+      "Lesson ID and New User ID are required"
+    );
 
+    // Missing lessonId in params
+    req = { params: {}, body: { newUserId: "newUser123" } };
+    await controllers.manageSwitchLessonAssignment(req, res);
     expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
       res,
       400,
@@ -308,10 +318,10 @@ describe("manageSwitchLessonAssignment", () => {
     const error = new Error("fail");
     models.switchLessonAssignment = vi.fn().mockRejectedValue(error);
 
-    const req = createReq(
-      { lessonId: "lesson123", newUserId: "newUser123" },
-      {}
-    );
+    const req = {
+      params: { lessonId: "lesson123" },
+      body: { newUserId: "newUser123" },
+    };
     const res = createRes();
 
     await controllers.manageSwitchLessonAssignment(req, res);
@@ -324,3 +334,4 @@ describe("manageSwitchLessonAssignment", () => {
     );
   });
 });
+

@@ -198,20 +198,19 @@ export async function manageLessonRetrieval(req, res) {
 /**
  * Switches the assigned user of a lesson to a new user.
  *
- * DESCRIPTION: Extracts `lessonId` and `newUserId` from the request body,
+ * DESCRIPTION: Extracts `lessonId` from URL params and `newUserId` from the request body,
  * calls the `switchLessonAssignment` model function to update the lesson,
  * and responds with the updated lesson. If updating fails, returns
  * an appropriate error status and message.
  *
- * @param {import("express").Request} req - Express request object, expects `lessonId` and `newUserId` in `req.body`
+ * @param {import("express").Request} req - Express request object, expects `lessonId` in params and `newUserId` in body
  * @param {import("express").Response} res - Express response object
  *
  * @returns {void}
  *
  * @example
- *   POST /lessons/switch-assignment
+ *   PATCH /lessons/:lessonId/assign
  *   {
- *     "lessonId": "64d0f64abc1234567890abcd",
  *     "newUserId": "64d0f64abc1234567890dcba"
  *   }
  *
@@ -223,7 +222,8 @@ export async function manageLessonRetrieval(req, res) {
  */
 export async function manageSwitchLessonAssignment(req, res) {
   try {
-    const { lessonId, newUserId } = req.body;
+    const { lessonId } = req.params;
+    const { newUserId } = req.body;
 
     if (!lessonId || !newUserId) {
       return utilities.httpErrorMssg(res, 400, "Lesson ID and New User ID are required");
