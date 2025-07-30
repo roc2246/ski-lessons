@@ -194,3 +194,48 @@ export async function manageLessonRetrieval(req, res) {
     utilities.httpErrorMssg(res, 400, "Failed to retrieve lessons", error);
   }
 }
+
+/**
+ * Switches the assigned user of a lesson to a new user.
+ *
+ * DESCRIPTION: Extracts `lessonId` and `newUserId` from the request body,
+ * calls the `switchLessonAssignment` model function to update the lesson,
+ * and responds with the updated lesson. If updating fails, returns
+ * an appropriate error status and message.
+ *
+ * @param {import("express").Request} req - Express request object, expects `lessonId` and `newUserId` in `req.body`
+ * @param {import("express").Response} res - Express response object
+ *
+ * @returns {void}
+ *
+ * @example
+ *   POST /lessons/switch-assignment
+ *   {
+ *     "lessonId": "64d0f64abc1234567890abcd",
+ *     "newUserId": "64d0f64abc1234567890dcba"
+ *   }
+ *
+ *   Response:
+ *   {
+ *     "message": "Lesson assignment updated",
+ *     "lesson": { ...updated lesson object... }
+ *   }
+ */
+export async function manageSwitchLessonAssignment(req, res) {
+  try {
+    const { lessonId, newUserId } = req.body;
+
+    if (!lessonId || !newUserId) {
+      return utilities.httpErrorMssg(res, 400, "Lesson ID and New User ID are required");
+    }
+
+    const updatedLesson = await models.switchLessonAssignment(lessonId, newUserId);
+
+    res.status(200).json({
+      message: "Lesson assignment updated",
+      lesson: updatedLesson,
+    });
+  } catch (error) {
+    utilities.httpErrorMssg(res, 400, "Failed to switch lesson assignment", error);
+  }
+}

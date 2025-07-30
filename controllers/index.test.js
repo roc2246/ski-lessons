@@ -262,3 +262,65 @@ describe("Controller Tests", () => {
     });
   });
 });
+
+describe("manageSwitchLessonAssignment", () => {
+  it("should respond with 200 and updated lesson on success", async () => {
+    const updatedLesson = {
+      _id: "lesson123",
+      type: "private",
+      assignedTo: "newUser123",
+    };
+    models.switchLessonAssignment = vi.fn().mockResolvedValue(updatedLesson);
+
+    const req = createReq(
+      { lessonId: "lesson123", newUserId: "newUser123" },
+      {}
+    );
+    const res = createRes();
+
+    await controllers.manageSwitchLessonAssignment(req, res);
+
+    expect(models.switchLessonAssignment).toHaveBeenCalledWith(
+      "lesson123",
+      "newUser123"
+    );
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Lesson assignment updated",
+      lesson: updatedLesson,
+    });
+  });
+
+  it("should respond with 400 if lessonId or newUserId missing", async () => {
+    const req = createReq({ lessonId: "lesson123" }); // no newUserId
+    const res = createRes();
+
+    await controllers.manageSwitchLessonAssignment(req, res);
+
+    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+      res,
+      400,
+      "Lesson ID and New User ID are required"
+    );
+  });
+
+  it("should call httpErrorMssg on failure", async () => {
+    const error = new Error("fail");
+    models.switchLessonAssignment = vi.fn().mockRejectedValue(error);
+
+    const req = createReq(
+      { lessonId: "lesson123", newUserId: "newUser123" },
+      {}
+    );
+    const res = createRes();
+
+    await controllers.manageSwitchLessonAssignment(req, res);
+
+    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+      res,
+      400,
+      "Failed to switch lesson assignment",
+      error
+    );
+  });
+});
