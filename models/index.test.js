@@ -267,3 +267,70 @@ describe("removeLesson", () => {
     );
   });
 });
+
+describe("createLesson", () => {
+  beforeEach(() => {
+    // Ensure constructorSpy returns a fresh object with .save mocked before each test
+    instance = {
+      save: vi.fn(() => Promise.resolve()),
+    };
+    constructorSpy.mockImplementation((data) => {
+      Object.assign(instance, data);
+      return instance;
+    });
+  });
+
+  it("should create a new lesson", async () => {
+    const lessonInput = {
+      type: "private",
+      date: "2025-12-01",
+      timeLength: "2 hours",
+      guests: 2,
+      assignedTo: "64bfe5a3c7d2f4001a9c1bfa", // realistic ObjectId-like string
+    };
+
+    const result = await models.createLesson(lessonInput);
+
+    expect(utilities.getModel).toHaveBeenCalled();
+    expect(instance).toMatchObject(lessonInput);
+    expect(instance.save).toHaveBeenCalled();
+    expect(result).toBe(instance);
+  });
+
+  it("should throw an error if any field is missing", async () => {
+    await expect(
+      models.createLesson({
+        type: "group",
+        date: "", // Invalid
+        timeLength: "1 hour",
+        guests: 4,
+        assignedTo: "abc123def456ghi789jkl", // valid-looking string
+      })
+    ).rejects.toThrow("Date required");
+
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Failed to create lesson",
+      expect.stringContaining("Date required")
+    );
+  });
+
+  it("should throw and email error if save fails", async () => {
+    // Override the instance's save to reject
+    instance.save = vi.fn(() => Promise.reject(new Error("Save failed")));
+
+    await expect(
+      models.createLesson({
+        type: "private",
+        date: "2025-12-01",
+        timeLength: "2 hours",
+        guests: 2,
+        assignedTo: "a1b2c3d4e5f6g7h8i9j0klmn",
+      })
+    ).rejects.toThrow("Save failed");
+
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Failed to create lesson",
+      expect.stringContaining("Save failed")
+    );
+  });
+});

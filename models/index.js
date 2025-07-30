@@ -125,6 +125,58 @@ export async function logoutUser(blacklist, token) {
 // ======== CRUD FUNCTIONS ======== //
 
 /**
+ * Creates a new lesson document in the database.
+ *
+ * DESCRIPTION: This function connects to the database, retrieves the Lesson model,
+ * validates the provided lesson data, and creates a new lesson record.
+ *
+ * @param {Object} lessonData - The lesson details.
+ * @param {string} lessonData.type - The type of lesson (e.g., "private", "group").
+ * @param {string} lessonData.date - The date of the lesson.
+ * @param {string} lessonData.timeLength - The duration of the lesson.
+ * @param {number} lessonData.guests - The number of guests attending.
+ * @param {string} lessonData.assignedTo - The user ID the lesson is assigned to.
+ *
+ * @returns {Promise<Object>} - A promise that resolves to the newly created lesson document.
+ *
+ * @throws {Error} - Throws an error if input is invalid or creation fails.
+ *
+ * @example
+ *   const newLesson = await createLesson({
+ *     type: "private",
+ *     date: "2025-12-01",
+ *     timeLength: "2 hours",
+ *     guests: 2,
+ *     assignedTo: "64d0f64abc1234567890abcd"
+ *   });
+ */
+export async function createLesson(lessonData) {
+  try {
+    const requiredFields = ["type", "date", "timeLength", "guests", "assignedTo"];
+    const values = requiredFields.map((field) => lessonData[field]);
+    utilities.argValidation(values, requiredFields.map(f => f[0].toUpperCase() + f.slice(1)));
+
+    const lessonModel = utilities.getModel(utilities.schemas().Lesson, "Lesson");
+
+    const newLesson = new lessonModel({
+      type: lessonData.type,
+      date: lessonData.date,
+      timeLength: lessonData.timeLength,
+      guests: lessonData.guests,
+      assignedTo: lessonData.assignedTo,
+    });
+
+    await newLesson.save();
+
+    return newLesson;
+  } catch (error) {
+    await errorEmail("Failed to create lesson", error.toString());
+    throw error;
+  }
+}
+
+
+/**
  * Retrieves all lessons assigned to a specific user/instructor by ID.
  *
  * DESCRIPTION: This function connects to the database, retrieves the Lesson model,
