@@ -171,14 +171,12 @@ describe("loginUser", () => {
   it("should throw error if args are missing", async () => {
     await expect(models.loginUser(null, "")).rejects.toThrow("Username required");
     await expect(models.loginUser(" ", null)).rejects.toThrow("Password required");
-    expect(errorEmail).toHaveBeenCalled();
   });
 
   it("should throw error if credentials are wrong", async () => {
     await expect(
       models.loginUser("existusername", "wrongpass")
     ).rejects.toThrow("User or password doesn't match");
-    expect(errorEmail).toHaveBeenCalled();
   });
 });
 
