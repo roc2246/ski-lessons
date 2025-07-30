@@ -214,3 +214,56 @@ describe("createTokenBlacklist", () => {
     expect(blacklist).toBeInstanceOf(utilities.TokenBlacklist);
   });
 });
+
+describe("removeLesson", () => {
+  // Attach a mock for findByIdAndDelete on the constructor
+  beforeEach(() => {
+    constructorSpy.findByIdAndDelete = vi.fn((id) => {
+      if (id === "validLessonId") {
+        return Promise.resolve({ _id: id, title: "Test Lesson" });
+      }
+      return Promise.resolve(null); // Simulate "not found"
+    });
+  });
+
+  it("should delete a lesson by ID", async () => {
+    const result = await models.removeLesson("validLessonId");
+
+    expect(utilities.getModel).toHaveBeenCalled(); // Ensure model retrieval
+    expect(constructorSpy.findByIdAndDelete).toHaveBeenCalledWith("validLessonId");
+    expect(result).toEqual({
+      success: true,
+      message: "Lesson successfully removed",
+      lesson: { _id: "validLessonId", title: "Test Lesson" },
+    });
+  });
+
+  it("should throw an error if ID is not a string", async () => {
+    await expect(models.removeLesson(123)).rejects.toThrow("Lesson ID must be a string");
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Failed to remove lesson",
+      expect.stringContaining("Lesson ID must be a string")
+    );
+  });
+
+  it("should throw an error if lesson is not found", async () => {
+    await expect(models.removeLesson("nonexistent")).rejects.toThrow(
+      "Lesson not found or already deleted"
+    );
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Failed to remove lesson",
+      expect.stringContaining("Lesson not found")
+    );
+  });
+
+  it("should send an error email if something fails", async () => {
+    // Cause findByIdAndDelete to throw
+    constructorSpy.findByIdAndDelete.mockRejectedValueOnce(new Error("DB error"));
+
+    await expect(models.removeLesson("validLessonId")).rejects.toThrow("DB error");
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Failed to remove lesson",
+      expect.stringContaining("DB error")
+    );
+  });
+});

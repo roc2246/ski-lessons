@@ -156,3 +156,38 @@ export async function retrieveLessons(id) {
     throw error;
   }
 }
+
+/**
+ * Deletes a lesson from the database by its unique ID.
+ *
+ * DESCRIPTION: This function connects to the database, retrieves the Lesson model,
+ * and deletes a lesson document that matches the provided lesson ID.
+ *
+ * @param {string} id - The unique identifier of the lesson to be removed.
+ *
+ * @returns {Promise<Object>} - A promise that resolves to an object indicating success,
+ *                              or the deleted document if needed for auditing.
+ *
+ * @throws {Error} - Throws an error if the ID is invalid, if the deletion fails,
+ *                   or if there is any issue during the process.
+ *
+ * @example
+ *   const result = await removeLesson("64e1c3a4b7890cde12345678");
+ */
+export async function removeLesson(id) {
+  try {
+    utilities.argValidation([id], ["Lesson ID"]);
+    if (typeof id !== "string") throw new Error("Lesson ID must be a string");
+
+
+    const lessonModel = utilities.getModel(utilities.schemas().Lesson, "Lesson");
+
+    const deletedLesson = await lessonModel.findByIdAndDelete(id);
+    if (!deletedLesson) throw new Error("Lesson not found or already deleted");
+
+    return { success: true, message: "Lesson successfully removed", lesson: deletedLesson };
+  } catch (error) {
+    await errorEmail("Failed to remove lesson", error.toString());
+    throw error;
+  } 
+}
