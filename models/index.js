@@ -100,11 +100,6 @@ export async function loginUser(username, password) {
   }
 }
 
-// Export a factory to create new blacklist instances
-export function createTokenBlacklist() {
-  return new utilities.TokenBlacklist();
-}
-
 /**
  * Logout user by blacklisting the token.
  * Requires an instance of TokenBlacklist to manage blacklisted tokens.
@@ -122,36 +117,24 @@ export async function logoutUser(blacklist, token) {
   }
 }
 
+// Export a factory to create new blacklist instances
+export function createTokenBlacklist() {
+  return new utilities.TokenBlacklist();
+}
+
 // ======== CRUD FUNCTIONS ======== //
 
 /**
  * Creates a new lesson document in the database.
  *
- * DESCRIPTION: This function connects to the database, retrieves the Lesson model,
- * validates the provided lesson data, and creates a new lesson record.
- *
- * @param {Object} lessonData - The lesson details.
- * @param {string} lessonData.type - The type of lesson (e.g., "private", "group").
- * @param {string} lessonData.date - The date of the lesson.
- * @param {string} lessonData.timeLength - The duration of the lesson.
- * @param {number} lessonData.guests - The number of guests attending.
- * @param {string} lessonData.assignedTo - The user ID the lesson is assigned to.
- *
- * @returns {Promise<Object>} - A promise that resolves to the newly created lesson document.
- *
- * @throws {Error} - Throws an error if input is invalid or creation fails.
- *
- * @example
- *   const newLesson = await createLesson({
- *     type: "private",
- *     date: "2025-12-01",
- *     timeLength: "2 hours",
- *     guests: 2,
- *     assignedTo: "64d0f64abc1234567890abcd"
- *   });
+ * @param {Object} lessonData - Lesson info
+ * @param {string} lessonData.type
+ * @param {string} lessonData.date
+ * @param {string} lessonData.timeLength
+ * @param {number} lessonData.guests
+ * @param {string} lessonData.assignedTo
+ * @returns {Promise<Object>}
  */
-
-// CREATE
 export async function createLesson(lessonData) {
   try {
     const requiredFields = ["type", "date", "timeLength", "guests", "assignedTo"];
@@ -177,22 +160,11 @@ export async function createLesson(lessonData) {
   }
 }
 
-// READ
 /**
  * Retrieves all lessons assigned to a specific user/instructor by ID.
  *
- * DESCRIPTION: This function connects to the database, retrieves the Lesson model,
- * and finds all documents where the `assignedTo` field matches the provided ID.
- *
- * @param {string} id - The ID of the user/instructor whose lessons are being fetched.
- *
- * @returns {Promise<Array<Object>>} - A promise that resolves to an array of lesson documents.
- *
- * @throws {Error} - Throws an error if the ID is invalid, if the query fails,
- *                   or if there is any issue during the process.
- *
- * @example
- *   const lessons = await retrieveLessons("64d0f64abc1234567890abcd");
+ * @param {string} id - The instructor's user ID
+ * @returns {Promise<Array<Object>>}
  */
 export async function retrieveLessons(id) {
   try {
@@ -211,22 +183,12 @@ export async function retrieveLessons(id) {
   }
 }
 
-// UPDATE
 /**
  * Switches the assigned instructor/user for a lesson.
  *
- * DESCRIPTION: This function updates the `assignedTo` field of a lesson document
- * in the database, switching it from the old user ID to a new user ID.
- *
- * @param {string} lessonId - The ID of the lesson to update.
- * @param {string} newUserId - The new user ID to assign the lesson to.
- *
- * @returns {Promise<Object>} - The updated lesson document.
- *
- * @throws {Error} - Throws error if inputs are invalid or update fails.
- *
- * @example
- *   const updatedLesson = await switchLessonAssignment("64d0f64abc1234567890abcd", "64e1c3a4b7890cde12345678");
+ * @param {string} lessonId - The lesson's ObjectId string
+ * @param {string} newUserId - The new user's ObjectId string
+ * @returns {Promise<Object>} - Updated lesson document
  */
 export async function switchLessonAssignment(lessonId, newUserId) {
   try {
@@ -239,7 +201,7 @@ export async function switchLessonAssignment(lessonId, newUserId) {
     const updatedLesson = await lessonModel.findByIdAndUpdate(
       lessonId,
       { assignedTo: newUserId },
-      { new: true } // return the updated document
+      { new: true }
     );
 
     if (!updatedLesson) throw new Error("Lesson not found");
@@ -251,30 +213,16 @@ export async function switchLessonAssignment(lessonId, newUserId) {
   }
 }
 
-
-// DELETE
 /**
  * Deletes a lesson from the database by its unique ID.
  *
- * DESCRIPTION: This function connects to the database, retrieves the Lesson model,
- * and deletes a lesson document that matches the provided lesson ID.
- *
- * @param {string} id - The unique identifier of the lesson to be removed.
- *
- * @returns {Promise<Object>} - A promise that resolves to an object indicating success,
- *                              or the deleted document if needed for auditing.
- *
- * @throws {Error} - Throws an error if the ID is invalid, if the deletion fails,
- *                   or if there is any issue during the process.
- *
- * @example
- *   const result = await removeLesson("64e1c3a4b7890cde12345678");
+ * @param {string} id - The lesson ID to delete
+ * @returns {Promise<Object>} - Deletion confirmation and deleted lesson
  */
 export async function removeLesson(id) {
   try {
     utilities.argValidation([id], ["Lesson ID"]);
     if (typeof id !== "string") throw new Error("Lesson ID must be a string");
-
 
     const lessonModel = utilities.getModel(utilities.schemas().Lesson, "Lesson");
 
@@ -285,5 +233,5 @@ export async function removeLesson(id) {
   } catch (error) {
     await errorEmail("Failed to remove lesson", error.toString());
     throw error;
-  } 
+  }
 }

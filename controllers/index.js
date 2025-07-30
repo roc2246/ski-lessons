@@ -1,45 +1,28 @@
-/**
- * CONTROLLER FUNCTIONS
- *
- * DESCRIPTION: This module handles incoming HTTP requests and responses.
- * Controllers act as the intermediary between client requests and model logic.
- *
- * ORGANIZED INTO:
- *  - Authentication controllers (e.g., login)
- *  - CRUD controllers (to be added)
- */
-
 import * as models from "../models/index.js";
 import * as utilities from "../utilities/index.js";
 import jwt from "jsonwebtoken";
-
 
 // ======== AUTHENTICATION FUNCTIONS ======== //
 
 /**
  * Registers a new user by creating an account with a hashed password.
  *
- * DESCRIPTION: Extracts `username` and `password` from the request body,
- * calls the `newUser` model function to create a new user in the database,
- * and responds with a confirmation message. If registration fails, returns
- * a 401 status with an error message.
- *
- * @param {import("express").Request} req - Express request object with `username` and `password` in `req.body`
- * @param {import("express").Response} res - Express response object for sending status and data
+ * @param {import("express").Request} req - Express request object containing `username` and `password` in `req.body`.
+ * @param {import("express").Response} res - Express response object used to send status and data.
  *
  * @returns {void}
  *
  * @example
- *   POST /register
- *   {
- *     "username": "demoUser",
- *     "password": "securePass"
- *   }
+ * POST /register
+ * {
+ *   "username": "demoUser",
+ *   "password": "securePass"
+ * }
  *
- *   Response:
- *   {
- *     "message": "demoUser registered"
- *   }
+ * Response:
+ * {
+ *   "message": "demoUser registered"
+ * }
  */
 export async function manageNewUser(req, res) {
   try {
@@ -58,28 +41,23 @@ export async function manageNewUser(req, res) {
 /**
  * Handles user login by validating credentials and returning a JWT.
  *
- * DESCRIPTION: Extracts `username` and `password` from the request body,
- * calls the `loginUser` model function, and responds with a signed JWT token
- * if authentication is successful. Returns a 401 status code with an error
- * message if authentication fails.
- *
- * @param {import("express").Request} req - Express request object, expects `username` and `password` in `req.body`
- * @param {import("express").Response} res - Express response object used to send status and data back to the client
+ * @param {import("express").Request} req - Express request object expecting `username` and `password` in `req.body`.
+ * @param {import("express").Response} res - Express response object used to send status and JWT token.
  *
  * @returns {void}
  *
  * @example
- *   POST /login
- *   {
- *     "username": "demoUser",
- *     "password": "securePass"
- *   }
+ * POST /login
+ * {
+ *   "username": "demoUser",
+ *   "password": "securePass"
+ * }
  *
- *   Response:
- *   {
- *     "message": "Login successful",
- *     "token": "eyJhbGciOiJIUzI1NiIsInR..."
- *   }
+ * Response:
+ * {
+ *   "message": "Login successful",
+ *   "token": "eyJhbGciOiJIUzI1NiIsInR..."
+ * }
  */
 export async function manageLogin(req, res) {
   try {
@@ -89,7 +67,7 @@ export async function manageLogin(req, res) {
 
     res.status(200).json({
       message: "Login successful",
-      token: token,
+      token,
     });
   } catch (error) {
     utilities.httpErrorMssg(res, 401, "Login failed", error);
@@ -99,22 +77,19 @@ export async function manageLogin(req, res) {
 /**
  * Logs out a user by blacklisting their JWT token.
  *
- * DESCRIPTION: This function expects the token to be passed in the request headers (e.g., Authorization).
- * It uses an instance of `TokenBlacklist` to store the token so it can be invalidated on future requests.
- *
- * @param {import("express").Request} req - Express request object, expects JWT in the `Authorization` header
- * @param {import("express").Response} res - Express response object
+ * @param {import("express").Request} req - Express request object expecting JWT in the `Authorization` header.
+ * @param {import("express").Response} res - Express response object used to send status response.
  *
  * @returns {void}
  *
  * @example
- *   POST /logout
- *   Headers: { Authorization: "Bearer eyJhbGciOi..." }
+ * POST /logout
+ * Headers: { Authorization: "Bearer eyJhbGciOi..." }
  *
- *   Response:
- *   {
- *     "message": "Successfully logged out"
- *   }
+ * Response:
+ * {
+ *   "message": "Successfully logged out"
+ * }
  */
 export async function manageLogout(req, res) {
   try {
@@ -142,32 +117,26 @@ export async function manageLogout(req, res) {
 // ======== CRUD FUNCTIONS ======== //
 
 /**
- * Retrieves all lessons assigned to a specific user/instructor by ID.
+ * Retrieves all lessons assigned to the currently authenticated user.
  *
- * DESCRIPTION: Calls the `retrieveLessons` model function using the provided
- * user ID from the request body, then returns the lesson data in the response.
- *
- * @param {import("express").Request} req - Express request object, expects `id` in `req.body`
- * @param {import("express").Response} res - Express response object
+ * @param {import("express").Request} req - Express request object, expects JWT token in `Authorization` header.
+ * @param {import("express").Response} res - Express response object used to send lessons data.
  *
  * @returns {void}
  *
  * @example
- *   POST /lessons
- *   {
- *     "id": "64d0f64abc1234567890abcd"
- *   }
+ * POST /lessons
+ * Headers: { Authorization: "Bearer eyJhbGciOi..." }
  *
- *   Response:
- *   {
- *     "message": "User ID 64d0f64abc1234567890abcd lessons retrieved",
- *     "lessons": [...]
- *   }
+ * Response:
+ * {
+ *   "message": "Lessons retrieved for user ID 64d0f64abc1234567890abcd",
+ *   "lessons": [ ... ]
+ * }
  */
 export async function manageLessonRetrieval(req, res) {
   try {
-      const authHeader = req.headers.authorization;
-
+    const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
     }
@@ -183,12 +152,11 @@ export async function manageLessonRetrieval(req, res) {
 
     const userId = decoded.userId;
 
-    // Assuming retrieveLessons expects a userId of type ObjectId or string, adjust if needed
     const lessons = await models.retrieveLessons(userId);
 
     res.status(200).json({
       message: `Lessons retrieved for user ID ${userId}`,
-      lessons: lessons,
+      lessons,
     });
   } catch (error) {
     utilities.httpErrorMssg(res, 400, "Failed to retrieve lessons", error);
@@ -198,31 +166,27 @@ export async function manageLessonRetrieval(req, res) {
 /**
  * Switches the assigned user of a lesson to a new user.
  *
- * DESCRIPTION: Extracts `lessonId` from URL params and `newUserId` from the request body,
- * calls the `switchLessonAssignment` model function to update the lesson,
- * and responds with the updated lesson. If updating fails, returns
- * an appropriate error status and message.
- *
- * @param {import("express").Request} req - Express request object, expects `lessonId` in params and `newUserId` in body
- * @param {import("express").Response} res - Express response object
+ * @param {import("express").Request} req - Express request object,
+ *   expects `lessonId` in URL params and `newUserId` in JSON body.
+ * @param {import("express").Response} res - Express response object used to send status and updated lesson data.
  *
  * @returns {void}
  *
  * @example
- *   PATCH /lessons/:lessonId/assign
- *   {
- *     "newUserId": "64d0f64abc1234567890dcba"
- *   }
+ * PATCH /lessons/:lessonId/assign
+ * {
+ *   "newUserId": "64d0f64abc1234567890dcba"
+ * }
  *
- *   Response:
- *   {
- *     "message": "Lesson assignment updated",
- *     "lesson": { ...updated lesson object... }
- *   }
+ * Response:
+ * {
+ *   "message": "Lesson assignment updated",
+ *   "lesson": { ...updated lesson object... }
+ * }
  */
 export async function manageSwitchLessonAssignment(req, res) {
   try {
-    const { lessonId } = req.params;
+    const lessonId = req.params.id;
     const { newUserId } = req.body;
 
     if (!lessonId || !newUserId) {
@@ -231,11 +195,11 @@ export async function manageSwitchLessonAssignment(req, res) {
 
     const updatedLesson = await models.switchLessonAssignment(lessonId, newUserId);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Lesson assignment updated",
       lesson: updatedLesson,
     });
   } catch (error) {
-    utilities.httpErrorMssg(res, 400, "Failed to switch lesson assignment", error);
+    return utilities.httpErrorMssg(res, 400, "Failed to switch lesson assignment", error);
   }
 }

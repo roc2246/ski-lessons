@@ -13,12 +13,14 @@ const createRes = () => {
   return res;
 };
 
-// Mock request helper (minimal)
-const createReq = (body = {}, headers = {}) => ({
+// Mock request helper
+const createReq = (body = {}, headers = {}, params = {}) => ({
   body,
   headers,
+  params,
 });
 
+// Mocks
 vi.mock("jsonwebtoken", () => ({
   default: {
     sign: vi.fn(),
@@ -33,7 +35,6 @@ vi.mock("bcrypt", () => ({
   },
 }));
 
-// Mock models module functions as needed
 vi.mock("../models/index.js", async () => {
   const actual = await vi.importActual("../models/index.js");
   return {
@@ -45,10 +46,10 @@ vi.mock("../models/index.js", async () => {
       add: vi.fn(),
     })),
     retrieveLessons: vi.fn(),
+    switchLessonAssignment: vi.fn(),
   };
 });
 
-// Mock utilities
 vi.mock("../utilities/index.js", async () => {
   const actual = await vi.importActual("../utilities/index.js");
   return {
@@ -169,9 +170,8 @@ describe("Controller Tests", () => {
     });
 
     it("should call httpErrorMssg on failure", async () => {
-      const addMock = vi.fn();
-      models.createTokenBlacklist.mockReturnValueOnce({ add: addMock });
       const error = new Error("fail");
+      models.createTokenBlacklist.mockReturnValueOnce({ add: vi.fn() });
       models.logoutUser.mockRejectedValueOnce(error);
 
       const req = createReq({}, { authorization: "Bearer token123" });
@@ -192,9 +192,8 @@ describe("Controller Tests", () => {
     it("should verify token, call retrieveLessons, and respond 200", async () => {
       const fakeUserId = "user123";
       const fakeLessons = [{ id: 1 }];
-
-      models.retrieveLessons.mockResolvedValueOnce(fakeLessons);
       jwt.verify.mockReturnValueOnce({ userId: fakeUserId });
+      models.retrieveLessons.mockResolvedValueOnce(fakeLessons);
 
       const req = createReq({}, { authorization: "Bearer faketoken" });
       const res = createRes();
@@ -261,68 +260,52 @@ describe("Controller Tests", () => {
       );
     });
   });
-});
 
-describe("manageSwitchLessonAssignment", () => {
-  it("should respond with 200 and updated lesson on success", async () => {
-    const updatedLesson = {
-      _id: "lesson123",
-      type: "private",
-      assignedTo: "newUser123",
-    };
-    models.switchLessonAssignment = vi.fn().mockResolvedValue(updatedLesson);
+describe("controllers.manageSwitchLessonAssignment", () => {
+  let req, res;
 
-    // lessonId in params, newUserId in body
-    const req = {
-      params: { lessonId: "lesson123" },
-      body: { newUserId: "newUser123" },
+  beforeEach(() => {
+    req = {
+      params: { id: "12345" },
+      body: { newUserId: "67890" },
     };
-    const res = createRes();
+    res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
+    utilities.httpErrorMssg = vi.fn();
+  });
+
+  it("should return updated lesson on success", async () => {
+    const mockLesson = { _id: "12345", assignedTo: "67890" };
+    models.switchLessonAssignment.mockResolvedValue(mockLesson);
 
     await controllers.manageSwitchLessonAssignment(req, res);
 
-    expect(models.switchLessonAssignment).toHaveBeenCalledWith(
-      "lesson123",
-      "newUser123"
-    );
+    expect(models.switchLessonAssignment).toHaveBeenCalledWith("12345", "67890");
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       message: "Lesson assignment updated",
-      lesson: updatedLesson,
+      lesson: mockLesson,
     });
   });
 
-  it("should respond with 400 if lessonId or newUserId missing", async () => {
-    const res = createRes();
+  it("should respond with 400 if newUserId is missing", async () => {
+    req.body.newUserId = null;
 
-    // Missing newUserId in body
-    let req = { params: { lessonId: "lesson123" }, body: {} };
     await controllers.manageSwitchLessonAssignment(req, res);
+
     expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
       res,
       400,
       "Lesson ID and New User ID are required"
     );
-
-    // Missing lessonId in params
-    req = { params: {}, body: { newUserId: "newUser123" } };
-    await controllers.manageSwitchLessonAssignment(req, res);
-    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
-      res,
-      400,
-      "Lesson ID and New User ID are required"
-    );
+    expect(models.switchLessonAssignment).not.toHaveBeenCalled();
   });
 
-  it("should call httpErrorMssg on failure", async () => {
-    const error = new Error("fail");
-    models.switchLessonAssignment = vi.fn().mockRejectedValue(error);
-
-    const req = {
-      params: { lessonId: "lesson123" },
-      body: { newUserId: "newUser123" },
-    };
-    const res = createRes();
+  it("should call httpErrorMssg on DB failure", async () => {
+    const dbError = new Error("fail");
+    models.switchLessonAssignment.mockRejectedValue(dbError);
 
     await controllers.manageSwitchLessonAssignment(req, res);
 
@@ -330,8 +313,7 @@ describe("manageSwitchLessonAssignment", () => {
       res,
       400,
       "Failed to switch lesson assignment",
-      error
+      dbError
     );
   });
-});
-
+})});

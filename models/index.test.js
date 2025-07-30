@@ -338,14 +338,14 @@ describe("createLesson", () => {
 describe("switchLessonAssignment", () => {
   // Mock findByIdAndUpdate on the constructorSpy
   beforeEach(() => {
-    constructorSpy.findByIdAndUpdate = vi.fn((lessonId, update, options) => {
-      if (typeof lessonId !== "string" || typeof update.assignedTo !== "string") {
+    constructorSpy.findByIdAndUpdate = vi.fn((id, update, options) => {
+      if (typeof id !== "string" || typeof update.assignedTo !== "string") {
         return Promise.reject(new Error("Invalid input"));
       }
-      if (lessonId === "validLessonId") {
+      if (id === "validLessonId") {
         // Return updated lesson mock
         return Promise.resolve({
-          _id: lessonId,
+          _id: id,
           assignedTo: update.assignedTo,
           type: "private",
           date: "2025-12-01",
@@ -372,7 +372,7 @@ describe("switchLessonAssignment", () => {
     expect(updatedLesson.assignedTo).toBe(updatedUserId);
   });
 
-  it("should throw if lessonId is not a string", async () => {
+  it("should throw if id is not a string", async () => {
     await expect(models.switchLessonAssignment(123, "newUser")).rejects.toThrow("Lesson ID must be a string");
     expect(errorEmail).toHaveBeenCalledWith(
       "Failed to switch lesson assignment",
