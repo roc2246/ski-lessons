@@ -334,3 +334,76 @@ describe("createLesson", () => {
     );
   });
 });
+
+describe("switchLessonAssignment", () => {
+  // Mock findByIdAndUpdate on the constructorSpy
+  beforeEach(() => {
+    constructorSpy.findByIdAndUpdate = vi.fn((lessonId, update, options) => {
+      if (typeof lessonId !== "string" || typeof update.assignedTo !== "string") {
+        return Promise.reject(new Error("Invalid input"));
+      }
+      if (lessonId === "validLessonId") {
+        // Return updated lesson mock
+        return Promise.resolve({
+          _id: lessonId,
+          assignedTo: update.assignedTo,
+          type: "private",
+          date: "2025-12-01",
+          timeLength: "2 hours",
+          guests: 2,
+        });
+      }
+      // Simulate lesson not found
+      return Promise.resolve(null);
+    });
+  });
+
+  it("should update the assignedTo field and return the updated lesson", async () => {
+    const updatedUserId = "newUser123";
+    const updatedLesson = await models.switchLessonAssignment("validLessonId", updatedUserId);
+
+    expect(utilities.getModel).toHaveBeenCalled();
+    expect(constructorSpy.findByIdAndUpdate).toHaveBeenCalledWith(
+      "validLessonId",
+      { assignedTo: updatedUserId },
+      { new: true }
+    );
+    expect(updatedLesson).toBeDefined();
+    expect(updatedLesson.assignedTo).toBe(updatedUserId);
+  });
+
+  it("should throw if lessonId is not a string", async () => {
+    await expect(models.switchLessonAssignment(123, "newUser")).rejects.toThrow("Lesson ID must be a string");
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Failed to switch lesson assignment",
+      expect.stringContaining("Lesson ID must be a string")
+    );
+  });
+
+  it("should throw if newUserId is not a string", async () => {
+    await expect(models.switchLessonAssignment("validLessonId", 456)).rejects.toThrow("New User ID must be a string");
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Failed to switch lesson assignment",
+      expect.stringContaining("New User ID must be a string")
+    );
+  });
+
+  it("should throw if lesson not found", async () => {
+    await expect(models.switchLessonAssignment("nonexistentId", "newUser123")).rejects.toThrow("Lesson not found");
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Failed to switch lesson assignment",
+      expect.stringContaining("Lesson not found")
+    );
+  });
+
+  it("should send error email if database update throws", async () => {
+    constructorSpy.findByIdAndUpdate.mockRejectedValueOnce(new Error("DB error"));
+
+    await expect(models.switchLessonAssignment("validLessonId", "newUser123")).rejects.toThrow("DB error");
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Failed to switch lesson assignment",
+      expect.stringContaining("DB error")
+    );
+  });
+});
+

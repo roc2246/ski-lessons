@@ -150,6 +150,8 @@ export async function logoutUser(blacklist, token) {
  *     assignedTo: "64d0f64abc1234567890abcd"
  *   });
  */
+
+// CREATE
 export async function createLesson(lessonData) {
   try {
     const requiredFields = ["type", "date", "timeLength", "guests", "assignedTo"];
@@ -175,7 +177,7 @@ export async function createLesson(lessonData) {
   }
 }
 
-
+// READ
 /**
  * Retrieves all lessons assigned to a specific user/instructor by ID.
  *
@@ -209,6 +211,48 @@ export async function retrieveLessons(id) {
   }
 }
 
+// UPDATE
+/**
+ * Switches the assigned instructor/user for a lesson.
+ *
+ * DESCRIPTION: This function updates the `assignedTo` field of a lesson document
+ * in the database, switching it from the old user ID to a new user ID.
+ *
+ * @param {string} lessonId - The ID of the lesson to update.
+ * @param {string} newUserId - The new user ID to assign the lesson to.
+ *
+ * @returns {Promise<Object>} - The updated lesson document.
+ *
+ * @throws {Error} - Throws error if inputs are invalid or update fails.
+ *
+ * @example
+ *   const updatedLesson = await switchLessonAssignment("64d0f64abc1234567890abcd", "64e1c3a4b7890cde12345678");
+ */
+export async function switchLessonAssignment(lessonId, newUserId) {
+  try {
+    utilities.argValidation([lessonId, newUserId], ["Lesson ID", "New User ID"]);
+    if (typeof lessonId !== "string") throw new Error("Lesson ID must be a string");
+    if (typeof newUserId !== "string") throw new Error("New User ID must be a string");
+
+    const lessonModel = utilities.getModel(utilities.schemas().Lesson, "Lesson");
+
+    const updatedLesson = await lessonModel.findByIdAndUpdate(
+      lessonId,
+      { assignedTo: newUserId },
+      { new: true } // return the updated document
+    );
+
+    if (!updatedLesson) throw new Error("Lesson not found");
+
+    return updatedLesson;
+  } catch (error) {
+    await errorEmail("Failed to switch lesson assignment", error.toString());
+    throw error;
+  }
+}
+
+
+// DELETE
 /**
  * Deletes a lesson from the database by its unique ID.
  *
