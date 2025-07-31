@@ -186,20 +186,20 @@ export async function retrieveLessons(id) {
 /**
  * Switches the assigned instructor/user for a lesson.
  *
- * @param {string} lessonId - The lesson's ObjectId string
+ * @param {string} id - The lesson's ObjectId string
  * @param {string} newUserId - The new user's ObjectId string
  * @returns {Promise<Object>} - Updated lesson document
  */
-export async function switchLessonAssignment(lessonId, newUserId) {
+export async function switchLessonAssignment(id, newUserId) {
   try {
-    utilities.argValidation([lessonId, newUserId], ["Lesson ID", "New User ID"]);
-    if (typeof lessonId !== "string") throw new Error("Lesson ID must be a string");
+    utilities.argValidation([id, newUserId], ["Lesson ID", "New User ID"]);
+    if (typeof id !== "string") throw new Error("Lesson ID must be a string");
     if (typeof newUserId !== "string") throw new Error("New User ID must be a string");
 
     const lessonModel = utilities.getModel(utilities.schemas().Lesson, "Lesson");
 
     const updatedLesson = await lessonModel.findByIdAndUpdate(
-      lessonId,
+      id,
       { assignedTo: newUserId },
       { new: true }
     );
