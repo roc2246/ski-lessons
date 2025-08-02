@@ -8,7 +8,7 @@ router.post("/register", controllers.manageNewUser);
 router.post("/login", controllers.manageLogin);
 router.post("/logout", controllers.manageLogout);
 router.get("/lessons", controllers.manageLessonRetrieval);
-router.patch("/lessons/:id/assign", controllers.manageSwitchLessonAssignment);
+router.patch("/lessons/:lessonId/assign", controllers.manageSwitchLessonAssignment);
 
 
 export default router;
