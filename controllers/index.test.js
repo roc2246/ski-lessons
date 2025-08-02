@@ -261,59 +261,90 @@ describe("Controller Tests", () => {
     });
   });
 
-describe("controllers.manageSwitchLessonAssignment", () => {
-  let req, res;
+  describe("controllers.manageSwitchLessonAssignment", () => {
+    let req, res;
 
-  beforeEach(() => {
-    req = {
-      params: { id: "12345" },
-      body: { newUserId: "67890" },
-    };
-    res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
-    utilities.httpErrorMssg = vi.fn();
-  });
+    beforeEach(() => {
+      req = createReq({}, { authorization: "Bearer faketoken" }, { lessonId: "12345" });
+      res = createRes();
+      vi.clearAllMocks();
+    });
 
-  it("should return updated lesson on success", async () => {
-    const mockLesson = { _id: "12345", assignedTo: "67890" };
-    models.switchLessonAssignment.mockResolvedValue(mockLesson);
+    it("should return updated lesson on success", async () => {
+      const decoded = { userId: "67890" };
+      const mockLesson = { _id: "12345", assignedTo: "67890" };
 
-    await controllers.manageSwitchLessonAssignment(req, res);
+      jwt.verify.mockReturnValue(decoded);
+      models.switchLessonAssignment.mockResolvedValue(mockLesson);
 
-    expect(models.switchLessonAssignment).toHaveBeenCalledWith("12345", "67890");
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Lesson assignment updated",
-      lesson: mockLesson,
+      await controllers.manageSwitchLessonAssignment(req, res);
+
+      expect(jwt.verify).toHaveBeenCalledWith("faketoken", process.env.JWT_SECRET);
+      expect(models.switchLessonAssignment).toHaveBeenCalledWith("12345", "67890");
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Lesson assignment updated",
+        lesson: mockLesson,
+      });
+    });
+
+    it("should respond with 400 if lessonId is missing", async () => {
+      req.params.lessonId = undefined;
+
+      await controllers.manageSwitchLessonAssignment(req, res);
+
+      expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+        res,
+        400,
+        "Missing lessonId in request parameters"
+      );
+      expect(models.switchLessonAssignment).not.toHaveBeenCalled();
+    });
+
+    it("should respond with 401 if Authorization header is missing", async () => {
+      req.headers.authorization = undefined;
+
+      await controllers.manageSwitchLessonAssignment(req, res);
+
+      expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+        res,
+        401,
+        "Unauthorized: No token provided"
+      );
+      expect(models.switchLessonAssignment).not.toHaveBeenCalled();
+    });
+
+    it("should respond with 401 if token is invalid", async () => {
+      jwt.verify.mockImplementation(() => {
+        throw new Error("Invalid token");
+      });
+
+      await controllers.manageSwitchLessonAssignment(req, res);
+
+      expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+        res,
+        401,
+        "Unauthorized: Invalid token"
+      );
+      expect(models.switchLessonAssignment).not.toHaveBeenCalled();
+    });
+
+    it("should call httpErrorMssg on DB failure", async () => {
+      const decoded = { userId: "67890" };
+      const dbError = new Error("fail");
+
+      jwt.verify.mockReturnValue(decoded);
+      models.switchLessonAssignment.mockRejectedValue(dbError);
+
+      await controllers.manageSwitchLessonAssignment(req, res);
+
+      expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+        res,
+        400,
+        "Failed to switch lesson assignment",
+        dbError
+      );
     });
   });
 
-  it("should respond with 400 if newUserId is missing", async () => {
-    req.body.newUserId = null;
-
-    await controllers.manageSwitchLessonAssignment(req, res);
-
-    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
-      res,
-      400,
-      "Lesson ID and New User ID are required"
-    );
-    expect(models.switchLessonAssignment).not.toHaveBeenCalled();
-  });
-
-  it("should call httpErrorMssg on DB failure", async () => {
-    const dbError = new Error("fail");
-    models.switchLessonAssignment.mockRejectedValue(dbError);
-
-    await controllers.manageSwitchLessonAssignment(req, res);
-
-    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
-      res,
-      400,
-      "Failed to switch lesson assignment",
-      dbError
-    );
-  });
-})});
+});

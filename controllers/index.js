@@ -164,19 +164,19 @@ export async function manageLessonRetrieval(req, res) {
 }
 
 /**
- * Switches the assigned user of a lesson to a new user.
+ * Switches the assigned user of a lesson to the authenticated user.
  *
  * @param {import("express").Request} req - Express request object,
- *   expects `lessonId` in URL params and `newUserId` in JSON body.
+ *   expects `lessonId` in URL params. Authenticated user's ID is taken from JWT.
  * @param {import("express").Response} res - Express response object used to send status and updated lesson data.
  *
- * @returns {void}
+ * @returns {Promise<void>}
  *
  * @example
  * PATCH /lessons/:lessonId/assign
- * {
- *   "newUserId": "64d0f64abc1234567890dcba"
- * }
+ *
+ * Headers:
+ *   Authorization: Bearer <token>
  *
  * Response:
  * {
@@ -186,12 +186,27 @@ export async function manageLessonRetrieval(req, res) {
  */
 export async function manageSwitchLessonAssignment(req, res) {
   try {
-    const lessonId = req.params.id;
-    const { newUserId } = req.body;
+    const { lessonId } = req.params;
 
-    if (!lessonId || !newUserId) {
-      return utilities.httpErrorMssg(res, 400, "Lesson ID and New User ID are required");
+    if (!lessonId) {
+      return utilities.httpErrorMssg(res, 400, "Missing lessonId in request parameters");
     }
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return utilities.httpErrorMssg(res, 401, "Unauthorized: Invalid token");
+    }
+
+    const newUserId = decoded.userId;
 
     const updatedLesson = await models.switchLessonAssignment(lessonId, newUserId);
 
@@ -203,3 +218,5 @@ export async function manageSwitchLessonAssignment(req, res) {
     return utilities.httpErrorMssg(res, 400, "Failed to switch lesson assignment", error);
   }
 }
+
+
