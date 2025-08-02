@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="styles/calender.css" />
+  </head>
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) window.location.href = "/index.html";
+  </script>
+  <body>
+    <main>
+      <section class="calander-container">
+        <h1 class="calender-header">Pick Up Lesson</h1>
+        <div class="calendar">
+          <div class="header">
+            <button onclick="changeMonth(-1)">←</button>
+            <div class="month-year" id="monthYear"></div>
+            <button onclick="changeMonth(1)">→</button>
+          </div>
+          <div class="days">
+            <div class="day">Sun</div>
+            <div class="day">Mon</div>
+            <div class="day">Tue</div>
+            <div class="day">Wed</div>
+            <div class="day">Thu</div>
+            <div class="day">Fri</div>
+            <div class="day">Sat</div>
+          </div>
+          <div class="dates" id="calendarDates"></div>
+        </div>
+      </section>
+
+      <h1>Logged In</h1>
+      <button id="logoutBtn">Logout</button>
+    </main>
+
+    <script src="scripts/lesson-board.js"></script>
+    <script src="scripts/logout.js"></script>
+  </body>
+</html>
