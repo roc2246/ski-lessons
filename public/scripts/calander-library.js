@@ -97,3 +97,20 @@ export async function assignLesson(lessonId, token) {
     throw error;
   }
 }
+
+export function blankDays(firstDay, dom) {
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < firstDay; i++) {
+    fragment.appendChild(document.createElement("div"));
+  }
+  dom.calendarDates.appendChild(fragment);
+}
+
+export async function addLessonBtn(lessons) {
+  const lessonBtn = document.getElementsByClassName("addLesson");
+  for (let x = 0; x < lessonBtn.length; x++) {
+    lessonBtn[x].addEventListener("click", async () => {
+      await assignLesson(lessons[x]._id, token);
+    });
+  }
+}

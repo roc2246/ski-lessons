@@ -10,20 +10,14 @@ async function renderCalendar(date) {
   dom.calendarDates.innerHTML = "";
 
   // Add blank days for alignment
-  const fragment = document.createDocumentFragment();
-  for (let i = 0; i < firstDay; i++) {
-    fragment.appendChild(document.createElement("div"));
-  }
-  dom.calendarDates.appendChild(fragment);
+  lib.blankDays(firstDay, dom);
 
   // Fetch and prepare lessons
   const lessons = await lib.getLessons();
   const preprocessedLessons = lib.preprocessLessons(lessons);
   const filterLessons = preprocessedLessons.filter(
     (lesson) =>
-      lesson._month === month + 1 &&
-      lesson._year === year &&
-      lesson.upForGrabs === true
+      lesson._month === month + 1 && lesson._year === year && lesson.upForGrabs
   );
   filterLessons.sort((a, b) => a._startDate - b._startDate);
 
@@ -51,12 +45,7 @@ async function renderCalendar(date) {
   dom.calendarDates.innerHTML = html;
 
   // NOT IN CALENDER.JS
-  const addLessonBtn = document.getElementsByClassName("addLesson");
-  for (let x = 0; x < addLessonBtn.length; x++) {
-    addLessonBtn[x].addEventListener("click", async () => {
-      await lib.assignLesson(filterLessons[x]._id, token);
-    });
-  }
+  lib.addLessonBtn(filterLessons)
 }
 
 function changeMonth(offset) {
@@ -64,9 +53,12 @@ function changeMonth(offset) {
   renderCalendar(currentDate);
 }
 
-document.querySelector(".header button:first-child").addEventListener("click", () => changeMonth(-1));
-document.querySelector(".header button:last-child").addEventListener("click", () => changeMonth(1));
-
+document
+  .querySelector(".header button:first-child")
+  .addEventListener("click", () => changeMonth(-1));
+document
+  .querySelector(".header button:last-child")
+  .addEventListener("click", () => changeMonth(1));
 
 // Initial render
 renderCalendar(currentDate);

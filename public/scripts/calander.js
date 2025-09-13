@@ -10,11 +10,7 @@ async function renderCalendar(date) {
   dom.calendarDates.innerHTML = "";
 
   // Add blank days for alignment
-  const fragment = document.createDocumentFragment();
-  for (let i = 0; i < firstDay; i++) {
-    fragment.appendChild(document.createElement("div"));
-  }
-  dom.calendarDates.appendChild(fragment);
+  lib.blankDays(firstDay, dom);
 
   // Fetch and prepare lessons
   const lessons = await lib.getLessons();
@@ -52,9 +48,12 @@ function changeMonth(offset) {
   renderCalendar(currentDate);
 }
 
-document.querySelector(".header button:first-child").addEventListener("click", () => changeMonth(-1));
-document.querySelector(".header button:last-child").addEventListener("click", () => changeMonth(1));
-
+document
+  .querySelector(".header button:first-child")
+  .addEventListener("click", () => changeMonth(-1));
+document
+  .querySelector(".header button:last-child")
+  .addEventListener("click", () => changeMonth(1));
 
 // Initial render
 renderCalendar(currentDate);
