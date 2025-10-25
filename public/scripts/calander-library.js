@@ -28,7 +28,7 @@ export async function getLessons() {
  */
 export function preprocessLessons(lessons) {
   return lessons.map((lesson) => {
-    const [month, day, year] = lesson.date.split("-").map(Number);
+    const [year, month, day] = lesson.date.split("-").map(Number);
     const [startTime] = lesson.timeLength.split("-");
     const [hours = "0", minutes = "0"] = startTime.split(":");
     return {
@@ -40,6 +40,7 @@ export function preprocessLessons(lessons) {
     };
   });
 }
+
 
 /**
  * Return calendar context including month, year, firstDay, daysInMonth, DOM references
