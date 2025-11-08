@@ -47,8 +47,7 @@ export async function register(username, password) {
     });
 
     const data = await res.json();
-    console.log(data)
-    res.ok ? alert(`${data.message}`) : alert(data.error);
+    res.ok ? alert(`${username} registered`) : alert(data.error);
   } catch (error) {
     console.error("Error during login:", error);
   }
