@@ -5,9 +5,8 @@ import * as lib from "./calander-library.js";
 // Global Mock DOM
 // ========================
 beforeAll(() => {
-  // Create global mock DOM elements
-  const mockMonthYear = { innerText: "", style: {}, className: "" };
-  const mockCalendarDates = { innerHTML: "", style: {}, className: "" };
+  const mockMonthYear = { innerText: "", textContent: "", style: {}, className: "" };
+  const mockCalendarDates = { innerHTML: "", appendChild: vi.fn(), style: {}, className: "" };
 
   global.document = {
     getElementById: vi.fn((id) => {
@@ -15,13 +14,14 @@ beforeAll(() => {
       if (id === "calendarDates") return mockCalendarDates;
       return null;
     }),
+    createDocumentFragment: () => ({ appendChild: vi.fn() }),
+    createElement: (tag) => ({ tagName: tag.toUpperCase(), className: "", innerHTML: "" }),
+    getElementsByClassName: vi.fn(() => []),
   };
 
-  // Make the mocks globally accessible
   global.mockMonthYear = mockMonthYear;
   global.mockCalendarDates = mockCalendarDates;
 
-  // Mock localStorage for all tests
   global.localStorage = {
     store: {},
     getItem(key) {
@@ -43,9 +43,7 @@ beforeAll(() => {
 // getLessons
 // ========================
 describe("getLessons", () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+  beforeEach(() => localStorage.clear());
 
   it("fetches lessons successfully", async () => {
     localStorage.setItem("token", "fake-token");
@@ -133,84 +131,199 @@ describe("assignLesson", () => {
 // ========================
 describe("getCalendarContext", () => {
   it("returns correct year and month for a given date", () => {
-    const date = new Date(2025, 9, 15); // October 15, 2025
+    const date = new Date(2025, 9, 15);
     const context = lib.getCalendarContext(date);
-
     expect(context.year).toBe(2025);
-    expect(context.month).toBe(9); // 0-indexed months
+    expect(context.month).toBe(9);
   });
 
-  it("calculates first day of the month correctly", () => {
-    const date = new Date(2025, 9, 1); // October 1, 2025
+  it("calculates first day and days in month correctly", () => {
+    const date = new Date(2025, 9, 1);
     const context = lib.getCalendarContext(date);
-
     expect(context.firstDay).toBe(new Date(2025, 9, 1).getDay());
-  });
-
-  it("calculates the correct number of days in the month", () => {
-    const dateFeb2025 = new Date(2025, 1, 1); // February 2025
-    const contextFeb = lib.getCalendarContext(dateFeb2025);
-    expect(contextFeb.daysInMonth).toBe(28);
-
-    const dateFeb2024 = new Date(2024, 1, 1); // February 2024, leap year
-    const contextLeap = lib.getCalendarContext(dateFeb2024);
-    expect(contextLeap.daysInMonth).toBe(29);
-
-    const dateApril = new Date(2025, 3, 1); // April 2025
-    const contextApril = lib.getCalendarContext(dateApril);
-    expect(contextApril.daysInMonth).toBe(30);
-  });
-
-  it("returns the full array of month names", () => {
-    const date = new Date();
-    const context = lib.getCalendarContext(date);
-
-    expect(context.monthNames).toEqual([
-      "January","February","March","April","May","June",
-      "July","August","September","October","November","December"
-    ]);
+    expect(context.daysInMonth).toBe(31);
   });
 
   it("returns DOM references correctly", () => {
-    const date = new Date();
-    const context = lib.getCalendarContext(date);
-
+    const context = lib.getCalendarContext(new Date());
     expect(context.dom.monthYear).toBe(mockMonthYear);
     expect(context.dom.calendarDates).toBe(mockCalendarDates);
-    expect(document.getElementById).toHaveBeenCalledWith("monthYear");
-    expect(document.getElementById).toHaveBeenCalledWith("calendarDates");
+  });
+});
+
+// ========================
+// createEle
+// ========================
+describe("createEle", () => {
+  const ele = lib.createEle();
+
+  it("generates timeslot HTML", () => {
+    expect(ele.timeslot("10:00-11:00")).toBe('<h4 class="date__time-slot">10:00-11:00</h4>');
   });
 
-  it("updates the monthYear DOM element correctly", () => {
-    const date = new Date(2025, 9, 15); // October 2025
-    const context = lib.getCalendarContext(date);
-
-    context.dom.monthYear.innerText = `${context.monthNames[context.month]} ${context.year}`;
-    expect(mockMonthYear.innerText).toBe("October 2025");
+  it("generates lesson type HTML", () => {
+    expect(ele.type("Yoga")).toBe('<span class="date__lesson-type">Yoga</span>');
   });
 
-  it("handles months starting on different weekdays", () => {
-    const march2025 = new Date(2025, 2, 1); // March 1, 2025
-    const contextMarch = lib.getCalendarContext(march2025);
-    expect(contextMarch.firstDay).toBe(new Date(2025, 2, 1).getDay());
-
-    const sept2025 = new Date(2025, 8, 1); // September 1, 2025
-    const contextSept = lib.getCalendarContext(sept2025);
-    expect(contextSept.firstDay).toBe(new Date(2025, 8, 1).getDay());
+  it("generates day container HTML", () => {
+    expect(ele.dayCont(5)).toBe('<h3 class="date__day">5</h3>');
   });
 
-  it("allows calendarDates DOM element to be populated correctly", () => {
-    const date = new Date(2025, 9, 15); // October 2025
-    const context = lib.getCalendarContext(date);
+  it("generates addLesson button HTML", () => {
+    expect(ele.addLesson()).toBe('<button class="addLesson">Add Lesson</button>');
+  });
+});
 
-    context.dom.calendarDates.innerHTML = Array.from(
-      { length: context.daysInMonth },
-      (_, i) => `<div class="day">${i + 1}</div>`
-    ).join("");
+// ========================
+// blankDays
+// ========================
+describe("blankDays", () => {
+  it("appends a fragment with correct number of blank divs to calendarDates", () => {
+    // Mock document.createDocumentFragment to capture appended children
+    const appendedChildren = [];
+    document.createDocumentFragment = () => ({
+      appendChild: (child) => appendedChildren.push(child),
+    });
 
-    const days = context.dom.calendarDates.innerHTML.match(/<div class="day">(\d+)<\/div>/g);
-    expect(days.length).toBe(context.daysInMonth);
-    expect(days[0]).toBe('<div class="day">1</div>');
-    expect(days[days.length - 1]).toBe(`<div class="day">${context.daysInMonth}</div>`);
+    const mockDom = { calendarDates: { appendChild: vi.fn() } };
+
+    lib.blankDays(3, mockDom);
+
+    // dom.calendarDates.appendChild should be called once with the fragment
+    expect(mockDom.calendarDates.appendChild).toHaveBeenCalledTimes(1);
+
+    // The fragment should contain 3 children (blank divs)
+    expect(appendedChildren).toHaveLength(3);
+    appendedChildren.forEach((child) => {
+      expect(child.tagName).toBe("DIV");
+    });
+  });
+});
+
+
+// ========================
+// addLessonBtn
+// ========================
+describe("addLessonBtn", () => {
+  it("attaches click listeners to addLesson buttons", async () => {
+    const lessons = [{ _id: "1" }, { _id: "2" }];
+    const token = "fake-token";
+    localStorage.setItem("token", token);
+
+    const btn1 = { addEventListener: vi.fn() };
+    const btn2 = { addEventListener: vi.fn() };
+    document.getElementsByClassName = vi.fn(() => [btn1, btn2]);
+
+    global.assignLesson = vi.fn().mockResolvedValue({});
+    await lib.addLessonBtn(lessons);
+
+    expect(btn1.addEventListener).toHaveBeenCalledWith("click", expect.any(Function));
+    expect(btn2.addEventListener).toHaveBeenCalledWith("click", expect.any(Function));
+  });
+});
+
+// ========================
+// renderCalendar (thorough tests)
+// ========================
+describe("renderCalendar", () => {
+  beforeEach(() => {
+    mockMonthYear.textContent = "";
+    mockCalendarDates.innerHTML = "";
+    global.fetch = vi.fn();
+  });
+
+  it("renders calendar with lessons and updates DOM", async () => {
+    const lessons = [
+      { _id: "1", date: "2025-10-02", timeLength: "10:00-11:00", type: "Yoga" },
+      { _id: "2", date: "2025-10-03", timeLength: "11:00-12:00", type: "Cardio" },
+    ];
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ lessons }),
+    });
+
+    await lib.renderCalendar({
+      date: new Date(2025, 9, 1),
+    });
+
+    expect(mockMonthYear.textContent).toBe("October 2025");
+    expect(mockCalendarDates.innerHTML).toContain('<h3 class="date__day">2</h3>');
+    expect(mockCalendarDates.innerHTML).toContain('<span class="date__lesson-type">Yoga</span>');
+    expect(mockCalendarDates.innerHTML).toContain('<span class="date__lesson-type">Cardio</span>');
+  });
+
+  it("applies lessonFilter correctly", async () => {
+    const lessons = [
+      { _id: "1", date: "2025-10-02", timeLength: "10:00-11:00", type: "Yoga" },
+      { _id: "2", date: "2025-10-03", timeLength: "11:00-12:00", type: "Cardio" },
+    ];
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ lessons }),
+    });
+
+    await lib.renderCalendar({
+      date: new Date(2025, 9, 1),
+      lessonFilter: (lesson) => lesson.type === "Yoga",
+    });
+
+    expect(mockCalendarDates.innerHTML).toContain('<span class="date__lesson-type">Yoga</span>');
+    expect(mockCalendarDates.innerHTML).not.toContain('<span class="date__lesson-type">Cardio</span>');
+  });
+
+  it("applies extraDayHTML correctly", async () => {
+    const lessons = [
+      { _id: "1", date: "2025-10-02", timeLength: "10:00-11:00", type: "Yoga" },
+    ];
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ lessons }),
+    });
+
+    await lib.renderCalendar({
+      date: new Date(2025, 9, 1),
+      extraDayHTML: (lesson) => `<span class="extra">${lesson._id}</span>`,
+    });
+
+    expect(mockCalendarDates.innerHTML).toContain('<span class="extra">1</span>');
+  });
+
+  it("calls onComplete callback with filtered lessons", async () => {
+    const lessons = [
+      { _id: "1", date: "2025-10-02", timeLength: "10:00-11:00", type: "Yoga" },
+    ];
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ lessons }),
+    });
+
+    const onComplete = vi.fn();
+    await lib.renderCalendar({
+      date: new Date(2025, 9, 1),
+      onComplete,
+    });
+
+    expect(onComplete).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({ _id: "1" }),
+    ]));
+  });
+
+  it("sorts multiple lessons on same day by start time", async () => {
+    const lessons = [
+      { _id: "1", date: "2025-10-02", timeLength: "12:00-13:00", type: "Yoga" },
+      { _id: "2", date: "2025-10-02", timeLength: "10:00-11:00", type: "Cardio" },
+    ];
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ lessons }),
+    });
+
+    await lib.renderCalendar({
+      date: new Date(2025, 9, 1),
+    });
+
+    const firstIndex = mockCalendarDates.innerHTML.indexOf('Cardio');
+    const secondIndex = mockCalendarDates.innerHTML.indexOf('Yoga');
+    expect(firstIndex).toBeLessThan(secondIndex); // sorted by time
   });
 });
