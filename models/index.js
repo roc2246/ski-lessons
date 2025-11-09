@@ -101,6 +101,39 @@ export async function loginUser(username, password) {
 }
 
 /**
+ * Deletes a user from the database by their username.
+ *
+ * This function is intended for general user deletion and can be
+ * used for both admin-initiated deletions or self-deletion logic.
+ * It does **not** handle logout or token invalidation — that should
+ * be done separately if needed.
+ *
+ * @param {string} username - The username of the user to delete.
+ * @returns {Promise<Object>} The deleted user document.
+ *
+ * @throws {Error} Throws an error if:
+ *   - The username argument is missing or invalid.
+ *   - The database operation fails.
+ *   - No user with the given username is found.
+ *
+ * @example
+ * const deleted = await deleteUser("john_doe");
+ * console.log(deleted);
+ */
+export async function deleteUser(username) {
+  try {
+    utilities.argValidation([username], [`Username`]);
+    await dbConnect();
+    const User = utilities.getModel(utilities.schemas().User, "User");
+    const deletedUser = await User.findOneAndDelete({ username });
+    if (!deletedUser) throw new Error(`No user found with username: ${username}`);
+    return deletedUser;
+  } catch (error) {
+    throw error;
+  }
+}
+
+/**
  * Logout user by blacklisting the token.
  * Requires an instance of TokenBlacklist to manage blacklisted tokens.
  * @param {TokenBlacklist} blacklist Instance of TokenBlacklist
@@ -137,11 +170,23 @@ export function createTokenBlacklist() {
  */
 export async function createLesson(lessonData) {
   try {
-    const requiredFields = ["type", "date", "timeLength", "guests", "assignedTo"];
+    const requiredFields = [
+      "type",
+      "date",
+      "timeLength",
+      "guests",
+      "assignedTo",
+    ];
     const values = requiredFields.map((field) => lessonData[field]);
-    utilities.argValidation(values, requiredFields.map(f => f[0].toUpperCase() + f.slice(1)));
+    utilities.argValidation(
+      values,
+      requiredFields.map((f) => f[0].toUpperCase() + f.slice(1))
+    );
 
-    const lessonModel = utilities.getModel(utilities.schemas().Lesson, "Lesson");
+    const lessonModel = utilities.getModel(
+      utilities.schemas().Lesson,
+      "Lesson"
+    );
 
     const newLesson = new lessonModel({
       type: lessonData.type,
@@ -194,9 +239,13 @@ export async function switchLessonAssignment(id, newUserId) {
   try {
     utilities.argValidation([id, newUserId], ["Lesson ID", "New User ID"]);
     if (typeof id !== "string") throw new Error("Lesson ID must be a string");
-    if (typeof newUserId !== "string") throw new Error("New User ID must be a string");
+    if (typeof newUserId !== "string")
+      throw new Error("New User ID must be a string");
 
-    const lessonModel = utilities.getModel(utilities.schemas().Lesson, "Lesson");
+    const lessonModel = utilities.getModel(
+      utilities.schemas().Lesson,
+      "Lesson"
+    );
 
     const updatedLesson = await lessonModel.findByIdAndUpdate(
       id,
@@ -224,12 +273,19 @@ export async function removeLesson(id) {
     utilities.argValidation([id], ["Lesson ID"]);
     if (typeof id !== "string") throw new Error("Lesson ID must be a string");
 
-    const lessonModel = utilities.getModel(utilities.schemas().Lesson, "Lesson");
+    const lessonModel = utilities.getModel(
+      utilities.schemas().Lesson,
+      "Lesson"
+    );
 
     const deletedLesson = await lessonModel.findByIdAndDelete(id);
     if (!deletedLesson) throw new Error("Lesson not found or already deleted");
 
-    return { success: true, message: "Lesson successfully removed", lesson: deletedLesson };
+    return {
+      success: true,
+      message: "Lesson successfully removed",
+      lesson: deletedLesson,
+    };
   } catch (error) {
     await errorEmail("Failed to remove lesson", error.toString());
     throw error;
