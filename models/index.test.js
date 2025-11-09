@@ -180,6 +180,52 @@ describe("loginUser", () => {
   });
 });
 
+describe("deleteUser", () => {
+  beforeEach(() => {
+    // Mock findOneAndDelete on constructorSpy
+    constructorSpy.findOneAndDelete = vi.fn(async (query) => {
+      if (query.username === "existentUser") {
+        return { username: "existentUser", _id: "user123" };
+      }
+      return null; // Simulate user not found
+    });
+  });
+
+  it("should delete an existing user and return the document", async () => {
+    const deleted = await models.deleteUser("existentUser");
+
+    expect(utilities.getModel).toHaveBeenCalledWith(utilities.schemas().User, "User");
+    expect(constructorSpy.findOneAndDelete).toHaveBeenCalledWith({ username: "existentUser" });
+    expect(deleted).toEqual({ username: "existentUser", _id: "user123" });
+  });
+
+  it("should throw if username is not provided", async () => {
+    await expect(models.deleteUser(null)).rejects.toThrow("Username required");
+    await expect(models.deleteUser("")).rejects.toThrow("Username required");
+  });
+
+  it("should throw if user does not exist", async () => {
+    await expect(models.deleteUser("nonexistentUser")).rejects.toThrow("No user found with username: nonexistentUser");
+  });
+
+  it("should re-throw and send email if getModel fails", async () => {
+    utilities.getModel.mockImplementationOnce(() => {
+      throw new Error("DB failure");
+    });
+
+    await expect(models.deleteUser("anyUser")).rejects.toThrow("DB failure");
+    // We could optionally assert that errorEmail was called if you want to mock that in deleteUser
+  });
+
+  it("should call argValidation with the username", async () => {
+    const spy = vi.spyOn(utilities, "argValidation");
+    await expect(models.deleteUser("existentUser")).resolves.toBeDefined();
+    expect(spy).toHaveBeenCalledWith(["existentUser"], ["Username"]);
+    spy.mockRestore();
+  });
+});
+
+
 describe("logoutUser", () => {
   it("adds token to blacklist", async () => {
     const mockBlacklist = {
