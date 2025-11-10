@@ -72,7 +72,6 @@ export async function selfDeleteFrontend(token) {
     if (res.ok) {
       alert(data.message || "Account deleted successfully");
       localStorage.removeItem("token");
-      window.location.href = "/";
     } else {
       alert(data.message || "Failed to delete account");
     }
