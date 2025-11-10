@@ -37,7 +37,7 @@ export async function logout(token) {
 }
 
 export async function register(username, password) {
-    try {
+  try {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: {
@@ -50,5 +50,34 @@ export async function register(username, password) {
     res.ok ? alert(`${username} registered`) : alert(data.error);
   } catch (error) {
     console.error("Error during login:", error);
+  }
+}
+
+export async function selfDeleteFrontend(token) {
+ if (!globalThis.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      return;
+    }
+
+  try {
+    const res = await fetch("/api/self-delete", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert(data.message || "Account deleted successfully");
+      localStorage.removeItem("token");
+      window.location.href = "/";
+    } else {
+      alert(data.message || "Failed to delete account");
+    }
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    alert("An unexpected error occurred. Please try again.");
   }
 }
