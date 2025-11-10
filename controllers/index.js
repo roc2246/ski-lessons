@@ -114,6 +114,50 @@ export async function manageLogout(req, res) {
   }
 }
 
+/**
+ * Controller: selfDeleteAccount
+ *
+ * Allows a user to delete their own account. Requires a valid JWT
+ * in the `Authorization` header (Bearer token). This controller
+ * does not handle logout/blacklisting — tokens should expire naturally
+ * or be blacklisted elsewhere if needed.
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+export async function selfDeleteAccount(req, res) {
+  try {
+    // Validate Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    // Verify JWT
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return utilities.httpErrorMssg(res, 401, "Unauthorized: Invalid token");
+    }
+
+    const username = decoded.username;
+
+    // Delete user
+    const deleteConfirmation = await models.deleteUser(username);
+
+    return res.status(200).json({
+      message: `User "${username}" deleted successfully`,
+      deleteConfirmation,
+    });
+  } catch (error) {
+    return utilities.httpErrorMssg(res, 400, "Failed to delete user", error);
+  }
+}
+
+
 // ======== CRUD FUNCTIONS ======== //
 
 /**
@@ -138,7 +182,11 @@ export async function manageLessonRetrieval(req, res) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+      return utilities.httpErrorMssg(
+        res,
+        401,
+        "Unauthorized: No token provided"
+      );
     }
 
     const token = authHeader.split(" ")[1];
@@ -189,12 +237,20 @@ export async function manageSwitchLessonAssignment(req, res) {
     const { lessonId } = req.params;
 
     if (!lessonId) {
-      return utilities.httpErrorMssg(res, 400, "Missing lessonId in request parameters");
+      return utilities.httpErrorMssg(
+        res,
+        400,
+        "Missing lessonId in request parameters"
+      );
     }
 
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+      return utilities.httpErrorMssg(
+        res,
+        401,
+        "Unauthorized: No token provided"
+      );
     }
 
     const token = authHeader.split(" ")[1];
@@ -208,15 +264,21 @@ export async function manageSwitchLessonAssignment(req, res) {
 
     const newUserId = decoded.userId;
 
-    const updatedLesson = await models.switchLessonAssignment(lessonId, newUserId);
+    const updatedLesson = await models.switchLessonAssignment(
+      lessonId,
+      newUserId
+    );
 
     return res.status(200).json({
       message: "Lesson assignment updated",
       lesson: updatedLesson,
     });
   } catch (error) {
-    return utilities.httpErrorMssg(res, 400, "Failed to switch lesson assignment", error);
+    return utilities.httpErrorMssg(
+      res,
+      400,
+      "Failed to switch lesson assignment",
+      error
+    );
   }
 }
-
-
