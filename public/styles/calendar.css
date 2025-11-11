@@ -1,0 +1,85 @@
+/* Block: calendar-section (layout container) */
+.calendar-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  font-family: Arial, sans-serif;
+}
+
+/* Block: calendar */
+.calendar {
+  width: 340px;
+}
+
+/* Elements */
+.calendar__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.calendar__month-year {
+  font-size: 24px;
+}
+
+.calendar__nav {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.calendar__days,
+.calendar__dates {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.calendar__day,
+.calendar__date {
+  text-align: center;
+  padding: 10px;
+}
+
+.calendar__day {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.calendar__date {
+  border: 1px solid #ddd;
+}
+
+/* Modifier */
+.calendar__date--today {
+  background-color: #cce5ff;
+  border: 2px solid #339af0;
+  font-weight: bold;
+}
+
+/* Instructor controls */
+.instructor__controls {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.instructor__title {
+  margin-bottom: 10px;
+}
+
+.instructor__btn {
+  margin: 5px;
+}
+
+.instructor__link {
+  display: block;
+  margin-top: 10px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.instructor__link:hover {
+  text-decoration: underline;
+}
+
+

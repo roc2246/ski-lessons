@@ -8,12 +8,7 @@ function changeMonth(offset) {
 }
 
 function render() {
-  lib.renderCalendar({
-    date: currentDate,
-    lessonFilter: (lesson) => lesson.upForGrabs,
-    extraDayHTML: () => lib.createEle().addLesson(),
-    onComplete: (filteredLessons) => lib.addLessonBtn(filteredLessons),
-  });
+  lib.renderCalendar({ date: currentDate });
 }
 
 document.getElementById("prevMonth").addEventListener("click", () => changeMonth(-1));

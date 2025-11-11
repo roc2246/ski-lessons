@@ -6,35 +6,42 @@
     <link rel="stylesheet" href="styles/main.css" />
     <title>Snow Pro App - Register</title>
   </head>
+
   <body>
     <main class="new-user">
       <form method="post" class="new-user__form">
         <h2 class="new-user__form-title">Register New User</h2>
 
-        <label for="username" class="new-user__label">Username</label>
-        <input
-          type="text"
-          name="username"
-          id="new-username"
-          class="new-user__input"
-          required
-        />
-        <br />
+        <div class="new-user__field">
+          <label for="new-username" class="new-user__label">Username</label>
+          <input
+            type="text"
+            name="username"
+            id="new-username"
+            class="new-user__input"
+            required
+          />
+        </div>
 
-        <label for="password" class="new-user__label">Password</label>
-        <input
-          type="password"
-          name="password"
-          id="new-password"
-          class="new-user__input"
-          required
-        />
-        <br />
+        <div class="new-user__field">
+          <label for="new-password" class="new-user__label">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="new-password"
+            class="new-user__input"
+            required
+          />
+        </div>
 
-        <input type="submit" value="register" class="btn new-user__submit" />
+        <button type="submit" class="btn btn--primary new-user__submit">
+          Register
+        </button>
       </form>
-      <a href="index.html">Back</a>
+
+      <a href="index.html" class="new-user__link">Back</a>
     </main>
+
     <script type="module" src="scripts/new-user.js"></script>
   </body>
 </html>

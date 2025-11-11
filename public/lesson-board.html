@@ -3,43 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/calendar.css" />
     <title>Lesson Board</title>
-    <link rel="stylesheet" href="styles/calender.css" />
   </head>
-  <script>
-    const token = localStorage.getItem("token");
-    if (!token) window.location.href = "/index.html";
-  </script>
+
   <body>
-    <main>
-      <section class="calander-container">
-        <h1 class="calender-header">Pick Up Lesson</h1>
+    <main class="lesson-board">
+      <section class="calendar-section">
+        <h1 class="lesson-board__title">Pick Up Lesson</h1>
+
         <div class="calendar">
-          <div class="header">
-            <button>←</button>
-            <div class="month-year" id="monthYear"></div>
-            <button>→</button>
+          <div class="calendar__header">
+            <button class="calendar__nav calendar__nav--prev" id="prevMonth" aria-label="Previous month">←</button>
+            <div class="calendar__month-year" id="monthYear"></div>
+            <button class="calendar__nav calendar__nav--next" id="nextMonth" aria-label="Next month">→</button>
           </div>
-          <div class="days">
-            <div class="day">Sun</div>
-            <div class="day">Mon</div>
-            <div class="day">Tue</div>
-            <div class="day">Wed</div>
-            <div class="day">Thu</div>
-            <div class="day">Fri</div>
-            <div class="day">Sat</div>
+
+          <div class="calendar__days">
+            <div class="calendar__day">Sun</div>
+            <div class="calendar__day">Mon</div>
+            <div class="calendar__day">Tue</div>
+            <div class="calendar__day">Wed</div>
+            <div class="calendar__day">Thu</div>
+            <div class="calendar__day">Fri</div>
+            <div class="calendar__day">Sat</div>
           </div>
-          <div class="dates" id="calendarDates"></div>
+
+          <div class="calendar__dates" id="calendarDates"></div>
         </div>
       </section>
 
-      
-      <button id="logoutBtn">Logout</button>
-      <a href="/instructor.html">Back</a>
-    </main>
+      <section class="lesson-board__controls">
+        <button id="logoutBtn" class="btn btn--secondary lesson-board__btn">Logout</button>
+        <a href="/instructor.html" class="lesson-board__link">Back</a>
+      </section>
 
-    <script type="module" src="scripts/lesson-board.js"></script>
-    <script type="module" src="scripts/logout.js"></script>
+      <script type="module">
+        const token = localStorage.getItem("token");
+        if (!token) window.location.href = "/index.html";
+      </script>
+
+      <script type="module" src="scripts/lesson-board.js"></script>
+      <script type="module" src="scripts/logout.js"></script>
+    </main>
   </body>
 </html>
