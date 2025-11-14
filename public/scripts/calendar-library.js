@@ -72,7 +72,7 @@ export function createEle() {
     timeslot: (length) => `<h4 class="date__time-slot">${length}</h4>`,
     type: (type) => `<span class="date__lesson-type">${type}</span>`,
     dayCont: (day) => `<h3 class="date__day">${day}</h3>`,
-    addLesson: () => `<button class="addLesson">Add Lesson</button>`,
+    addLesson: () => `<button class="btn date__button-add-lesson">Add Lesson</button>`,
   };
 }
 
