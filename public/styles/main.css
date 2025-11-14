@@ -1,17 +1,286 @@
-/* Optional global button modifiers */
+/********************************************
+ * MAIN.CSS – ADA Compliant, REM-Based,
+ * Mobile-First, WCAG AA Contrast Friendly
+ ********************************************/
+
+/* ------------------------------------------
+   0. RESET (ADA-friendly)
+------------------------------------------- */
+html {
+  font-size: 100%; /* ADA-compliant base, scalable */
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6; /* ADA recommended */
+  min-height: 100vh;
+}
+
+/* Ensure visible focus for keyboard users */
+:focus-visible {
+  outline: 0.2rem solid var(--color-accent);
+  outline-offset: 0.2rem;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* ------------------------------------------
+   1. VARIABLES – ADA-compliant palette
+------------------------------------------- */
+:root {
+  --color-primary: #0A3D62;         /* Deep Alpine Blue */
+  --color-accent: #3BA6E4;          /* Ice Blue Accent */
+  --color-bg: #F7F9FB;              /* Snow White */
+  --color-panel: #ffffff;
+  --color-ice: #D6E9F8;
+  --color-text: #2F3E46;            /* Dark Slate */
+  --color-danger: #C62828;          /* WCAG AA red */
+  --color-secondary: #5A6B74;       /* Accessible grey */
+
+  --radius: 0.5rem;
+  --shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.10);
+}
+
+
+/* ------------------------------------------
+   2. TYPOGRAPHY
+------------------------------------------- */
+h1, h2, h3 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+
+/* ------------------------------------------
+   3. GLOBAL LAYOUT (mobile-first)
+------------------------------------------- */
+main {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Panels */
+.login,
+.new-user {
+  width: 100%;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--color-panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.instructor,
+.lesson-board {
+  width: 100%;
+  padding: 1.25rem;
+}
+
+
+/* ------------------------------------------
+   4. FORMS
+------------------------------------------- */
+.login__form,
+.new-user__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login__label,
+.new-user__label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.login__input,
+.new-user__input {
+  padding: 0.75rem;
+  border: 0.1rem solid #c4cdd4;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  background: #ffffff;
+}
+
+.login__input:focus-visible,
+.new-user__input:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 0.2rem rgba(59, 166, 228, 0.3);
+}
+
+/* Links */
+.login__link,
+.new-user__link,
+.instructor__link,
+.lesson-board__link {
+  display: inline-block;
+  color: var(--color-accent);
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.login__link:hover,
+.new-user__link:hover,
+.instructor__link:hover,
+.lesson-board__link:hover {
+  text-decoration: underline;
+}
+
+
+/* ------------------------------------------
+   5. BUTTON SYSTEM (ADA)
+------------------------------------------- */
 .btn {
-  padding: 5px 10px;
+  padding: 0.85rem 1.2rem;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
+  width: 100%;
+  min-height: 2.75rem; /* ADA tap size */
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* PRIMARY BUTTON */
+.btn--primary {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn--primary:hover {
+  background: #083653;
+}
+
+/* SECONDARY (WCAG AA grey) */
 .btn--secondary {
-  background-color: #6c757d;
-  color: white;
+  background: var(--color-secondary);
+  color: #ffffff;
 }
 
+.btn--secondary:hover {
+  background: #4c5961;
+}
+
+/* DANGER (WCAG AA red) */
 .btn--danger {
-  background-color: #dc3545;
-  color: white;
+  background: var(--color-danger);
+  color: #ffffff;
+}
+
+.btn--danger:hover {
+  background: #a32222;
+}
+
+
+/* ------------------------------------------
+   6. PAGE SPECIFIC
+------------------------------------------- */
+
+/* LOGIN */
+.login__title {
+  text-align: center;
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+/* REGISTER */
+.new-user__form-title {
+  text-align: center;
+}
+
+/* INSTRUCTOR */
+.instructor__controls {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.instructor__btn {
+  margin: 0.75rem 0;
+}
+
+/* LESSON BOARD */
+.lesson-board__title {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.lesson-board__controls {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+
+.lesson-board__btn {
+  margin: 0.75rem 0;
+}
+
+
+/* ------------------------------------------
+   7. UTILITIES
+------------------------------------------- */
+.center { text-align: center; }
+.mt-20 { margin-top: 1.25rem; }
+.mt-30 { margin-top: 1.875rem; }
+.mb-20 { margin-bottom: 1.25rem; }
+.hidden { display: none !important; }
+
+
+/* ------------------------------------------
+   8. RESPONSIVE BREAKPOINTS
+------------------------------------------- */
+
+/* TABLET */
+@media (min-width: 37.5rem) { /* 600px */
+  .btn {
+    width: auto;
+  }
+
+  .instructor__btn,
+  .lesson-board__btn {
+    width: auto;
+    margin: 0.75rem;
+  }
+}
+
+/* DESKTOP */
+@media (min-width: 56.25rem) { /* 900px */
+  .login,
+  .new-user {
+    max-width: 25rem; /* 400px */
+    padding: 2rem;
+  }
+
+  .instructor,
+  .lesson-board {
+    max-width: 56.25rem;
+    padding: 2rem;
+  }
 }
