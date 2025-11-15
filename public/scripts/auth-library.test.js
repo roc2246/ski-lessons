@@ -125,7 +125,7 @@ describe("register", () => {
   });
 
   it("should alert success message on successful registration", async () => {
-    await lib.register("newuser", "pass");
+    await lib.register("newuser", "pass", false);
 
     expect(alert).toHaveBeenCalledWith("newuser registered");
   });
@@ -137,7 +137,7 @@ describe("register", () => {
       json: async () => ({ error: "Username exists" }),
     });
 
-    await lib.register("newuser", "pass");
+    await lib.register("newuser", "pass", true);
 
     expect(alert).toHaveBeenCalledWith("Username exists");
   });
@@ -146,7 +146,7 @@ describe("register", () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     global.fetch.mockRejectedValueOnce(new Error("Network error"));
 
-    await lib.register("newuser", "pass");
+    await lib.register("newuser", "pass", false);
 
     expect(consoleSpy).toHaveBeenCalledWith(
       "Error during login:",

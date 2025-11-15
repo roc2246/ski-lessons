@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 /**
  * Registers a new user by creating an account with a hashed password.
  *
- * @param {import("express").Request} req - Express request object containing `username` and `password` in `req.body`.
+ * @param {import("express").Request} req - Express request object containing `username`,`password`, and `admin` in `req.body`.
  * @param {import("express").Response} res - Express response object used to send status and data.
  *
  * @returns {void}
@@ -16,7 +16,8 @@ import jwt from "jsonwebtoken";
  * POST /register
  * {
  *   "username": "demoUser",
- *   "password": "securePass"
+ *   "password": "securePass",
+ *   "admin": true
  * }
  *
  * Response:

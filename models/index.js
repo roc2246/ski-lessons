@@ -45,6 +45,7 @@ export async function dbConnect() {
  * Creates a new user with a hashed password.
  * @param {string} username
  * @param {string} password
+ * @param {boolean} admin
  */
 export async function newUser(username, password, admin) {
   try {
