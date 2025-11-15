@@ -170,7 +170,7 @@ describe("createEle", () => {
   });
 
   it("generates addLesson button HTML", () => {
-    expect(ele.addLesson()).toBe('<button class="addLesson">Add Lesson</button>');
+    expect(ele.addLesson()).toBe('<button class="btn date__button-add-lesson">Add Lesson</button>');
   });
 });
 

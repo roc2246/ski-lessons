@@ -271,6 +271,121 @@ describe("selfDeleteAccount", () => {
   });
 });
 
+describe("manageCreateLesson", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = createReq(
+      { lessonData: { type: "Beginner", date: "2025-12-20", timeLength: 90, guests: 6 } },
+      { authorization: "Bearer faketoken" }
+    );
+    res = createRes();
+    vi.clearAllMocks();
+  });
+
+  it("should create a lesson successfully", async () => {
+    const decoded = { userId: "user123" };
+    const createdLesson = { ...req.body.lessonData, assignedTo: "user123", _id: "lesson123" };
+
+    jwt.verify.mockReturnValueOnce(decoded);
+    models.createLesson = vi.fn().mockResolvedValueOnce(createdLesson);
+
+    await controllers.manageCreateLesson(req, res);
+
+    expect(jwt.verify).toHaveBeenCalledWith("faketoken", process.env.JWT_SECRET);
+    expect(models.createLesson).toHaveBeenCalledWith({
+      ...req.body.lessonData,
+      assignedTo: "user123",
+    });
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Lesson created successfully",
+      lesson: createdLesson,
+    });
+  });
+
+  it("should return 401 if Authorization header is missing", async () => {
+    req.headers.authorization = undefined;
+
+    await controllers.manageCreateLesson(req, res);
+
+    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+      res,
+      401,
+      "Unauthorized: No token provided"
+    );
+    expect(models.createLesson).not.toHaveBeenCalled();
+  });
+
+  it("should return 401 if Authorization header is invalid", async () => {
+    req.headers.authorization = "InvalidHeader";
+
+    await controllers.manageCreateLesson(req, res);
+
+    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+      res,
+      401,
+      "Unauthorized: No token provided"
+    );
+    expect(models.createLesson).not.toHaveBeenCalled();
+  });
+
+  it("should return 401 if JWT verification fails", async () => {
+    jwt.verify.mockImplementationOnce(() => { throw new Error("Invalid token"); });
+
+    await controllers.manageCreateLesson(req, res);
+
+    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+      res,
+      401,
+      "Unauthorized: Invalid token"
+    );
+    expect(models.createLesson).not.toHaveBeenCalled();
+  });
+
+  it("should pass error to httpErrorMssg if model.createLesson throws", async () => {
+    const decoded = { userId: "user123" };
+    const dbError = new Error("DB failure");
+
+    jwt.verify.mockReturnValueOnce(decoded);
+    models.createLesson = vi.fn().mockRejectedValueOnce(dbError);
+
+    await controllers.manageCreateLesson(req, res);
+
+    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+      res,
+      422,
+      "Failed to create lesson",
+      dbError
+    );
+  });
+
+  it("should create a lesson with different lessonData payloads", async () => {
+    const decoded = { userId: "user999" };
+    const payloads = [
+      { type: "Advanced", date: "2025-12-25", timeLength: 120, guests: 2 },
+      { type: "Intermediate", date: "2026-01-01", timeLength: 60, guests: 4 },
+    ];
+
+    jwt.verify.mockReturnValue(decoded);
+
+    for (const data of payloads) {
+      req.body.lessonData = data;
+      const createdLesson = { ...data, assignedTo: "user999", _id: "lessonXYZ" };
+      models.createLesson.mockResolvedValueOnce(createdLesson);
+
+      await controllers.manageCreateLesson(req, res);
+
+      expect(models.createLesson).toHaveBeenCalledWith({ ...data, assignedTo: "user999" });
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Lesson created successfully",
+        lesson: createdLesson,
+      });
+    }
+  });
+});
+
+
 describe("manageLessonRetrieval", () => {
   it("should verify token, call retrieveLessons, and respond 200", async () => {
     const fakeUserId = "user123";

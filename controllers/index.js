@@ -130,7 +130,11 @@ export async function selfDeleteAccount(req, res) {
     // Validate Authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+      return utilities.httpErrorMssg(
+        res,
+        401,
+        "Unauthorized: No token provided"
+      );
     }
 
     const token = authHeader.split(" ")[1];
@@ -157,28 +161,76 @@ export async function selfDeleteAccount(req, res) {
   }
 }
 
-
 // ======== CRUD FUNCTIONS ======== //
 
+/**
+ * Handles creation of a new lesson for the authenticated user.
+ *
+ * This controller requires a valid JWT in the `Authorization` header (Bearer token).
+ * The authenticated user's ID will be automatically assigned to the lesson.
+ *
+ * @param {import("express").Request} req - Express request object.
+ *   - Headers: `Authorization: Bearer <JWT token>` (required)
+ *   - Body: `{ lessonData: Object }` (required) — the details of the lesson to create.
+ *
+ * @param {import("express").Response} res - Express response object used to send status and data.
+ *
+ * @returns {void}
+ *
+ * @example
+ * POST /lessons/create
+ * Headers:
+ *   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR...
+ * Body:
+ * {
+ *   "lessonData": {
+ *     "title": "Beginner Snowboarding",
+ *     "date": "2025-12-20",
+ *     "duration": 9-12,
+ *     "location": "Adult Group Lesson"
+ *   }
+ * }
+ *
+ * Response (201 Created):
+ * {
+ *   "message": "lesson created successfully",
+ *   "lessonDetails": {
+ *     "title": "Beginner Snowboarding",
+ *     "date": "2025-12-20",
+ *     "duration": 9-12,
+ *     "location": "Adult Group Lesson",
+ *     "assignedTo": "64d0f64abc1234567890abcd"
+ *   }
+ * }
+ *
+ * @throws Returns HTTP 401 if the token is missing or invalid.
+ * @throws Returns HTTP 422 if lesson creation fails.
+ */
+export async function manageCreateLesson(req, res) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+    }
 
-export function manageCreateLesson(req, res){
-try {
-  // READ AND PULL TOKEN
-  // DECODE TOKEN
-  // GET INSTRUCTOR ID
+    let decoded;
+    try {
+      decoded = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET);
+    } catch {
+      return utilities.httpErrorMssg(res, 401, "Unauthorized: Invalid token");
+    }
 
-  // VARIABLE FOR LESSON DATA, WITH DECODED TOKEN FOR ASSIGNED TO ID
+    const lessonData = { ...req.body.lessonData, assignedTo: decoded.userId };
 
-  // USE CREATE LESSON AND PASS THROUGH 
+    const createdLesson = await models.createLesson(lessonData);
 
-   return res.status(201).json({
-      message: `lesson created successfully`,
-      lessonDetails: {/* Variable for lesson data */},
+    return res.status(201).json({
+      message: "Lesson created successfully",
+      lesson: createdLesson,
     });
-} catch (error) {
-    utilities.httpErrorMssg(res, 422, "Failed to create", error);
-  
-}
+  } catch (error) {
+    utilities.httpErrorMssg(res, 422, "Failed to create lesson", error);
+  }
 }
 
 /**
