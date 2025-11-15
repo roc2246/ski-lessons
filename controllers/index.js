@@ -160,6 +160,27 @@ export async function selfDeleteAccount(req, res) {
 
 // ======== CRUD FUNCTIONS ======== //
 
+
+export function manageCreateLesson(req, res){
+try {
+  // READ AND PULL TOKEN
+  // DECODE TOKEN
+  // GET INSTRUCTOR ID
+
+  // VARIABLE FOR LESSON DATA, WITH DECODED TOKEN FOR ASSIGNED TO ID
+
+  // USE CREATE LESSON AND PASS THROUGH 
+
+   return res.status(201).json({
+      message: `lesson created successfully`,
+      lessonDetails: {/* Variable for lesson data */},
+    });
+} catch (error) {
+    utilities.httpErrorMssg(res, 422, "Failed to create", error);
+  
+}
+}
+
 /**
  * Retrieves all lessons assigned to the currently authenticated user.
  *
