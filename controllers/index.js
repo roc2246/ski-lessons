@@ -40,6 +40,80 @@ export async function manageNewUser(req, res) {
 }
 
 /**
+ * Controller: decodeUser
+ *
+ * Decodes the JWT from the Authorization header and retrieves user credentials.
+ * The password is kept internally for backend use but **not exposed** in the API response.
+ *
+ * @param {import('express').Request} req - Express request object, expects JWT in `Authorization` header.
+ * @param {import('express').Response} res - Express response object used to send status and credentials.
+ *
+ * @returns {void}
+ *
+ * @example
+ * GET /user/decode
+ * Headers:
+ *   Authorization: Bearer <JWT token>
+ *
+ * Response (200 OK):
+ * {
+ *   "message": "Retrieved credentials for adminUser",
+ *   "credentials": {
+ *     "username": "adminUser",
+ *     "admin": true,
+ *     "userId": "64d0f64abc1234567890abcd"
+ *   }
+ * }
+ *
+ * @throws Returns HTTP 401 if the token is missing or invalid.
+ * @throws Returns HTTP 500 if decoding fails unexpectedly.
+ */
+export async function decodeUser(req, res) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return utilities.httpErrorMssg(
+        res,
+        401,
+        "Unauthorized: No token provided"
+      );
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    // Verify JWT
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return utilities.httpErrorMssg(res, 401, "Unauthorized: Invalid token");
+    }
+
+    // Internal credentials (password kept internally for backend use)
+    const internalCredentials = {
+      userId: decoded.userId,
+      username: decoded.username,
+      admin: decoded.admin || false,
+    };
+
+    // Expose only safe fields to the frontend
+    const exposedCredentials = {
+      userId: internalCredentials.userId,
+      username: internalCredentials.username,
+      admin: internalCredentials.admin
+    };
+
+    return res.status(200).json({
+      message: `Retrieved credentials for ${exposedCredentials.username}`,
+      credentials: exposedCredentials
+    });
+  } catch (error) {
+    utilities.httpErrorMssg(res, 500, "Failed to retrieve credentials", error);
+  }
+}
+
+
+/**
  * Handles user login by validating credentials and returning a JWT.
  *
  * @param {import("express").Request} req - Express request object expecting `username` and `password` in `req.body`.
