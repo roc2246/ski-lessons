@@ -66,12 +66,12 @@ describe("manageNewUser", () => {
   it("should respond with 201 and message on success", async () => {
     models.newUser.mockResolvedValueOnce();
 
-    const req = createReq({ username: "user", password: "pass" });
+    const req = createReq({ username: "user", password: "pass", admin: false });
     const res = createRes();
 
     await controllers.manageNewUser(req, res);
 
-    expect(models.newUser).toHaveBeenCalledWith("user", "pass");
+    expect(models.newUser).toHaveBeenCalledWith("user", "pass", false);
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({ message: "user registered" });
   });

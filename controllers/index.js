@@ -26,9 +26,9 @@ import jwt from "jsonwebtoken";
  */
 export async function manageNewUser(req, res) {
   try {
-    const { username, password } = req.body;
+    const { username, password, admin } = req.body;
 
-    await models.newUser(username, password);
+    await models.newUser(username, password, admin);
 
     res.status(201).json({
       message: `${username} registered`,
@@ -210,7 +210,11 @@ export async function manageCreateLesson(req, res) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+      return utilities.httpErrorMssg(
+        res,
+        401,
+        "Unauthorized: No token provided"
+      );
     }
 
     let decoded;
