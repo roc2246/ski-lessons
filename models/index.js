@@ -46,9 +46,9 @@ export async function dbConnect() {
  * @param {string} username
  * @param {string} password
  */
-export async function newUser(username, password) {
+export async function newUser(username, password, admin) {
   try {
-    utilities.argValidation([username, password], ["Username", "Password"]);
+    utilities.argValidation([username, password, admin], ["Username", "Password", "Admin"]);
 
     await dbConnect();
 
@@ -58,7 +58,7 @@ export async function newUser(username, password) {
     if (userInDB.length > 0) throw new Error("User already exists");
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const newUser = new UserModel({ username, password: hashedPassword });
+    const newUser = new UserModel({ username, password: hashedPassword, admin });
 
     await newUser.save();
   } catch (error) {

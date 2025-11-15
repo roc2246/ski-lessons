@@ -27,7 +27,7 @@ import jwt from "jsonwebtoken";
  */
 export function argValidation(args, argNames) {
   for (let i = 0; i < args.length; i++) {
-    if (!args[i]) throw new Error(`${argNames[i]} required`);
+    if (!args[i] && args[i] !==false) throw new Error(`${argNames[i]} required`);
   }
 }
 
@@ -66,6 +66,7 @@ export function schemas() {
     User: new mongoose.Schema({
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
+      admin: {type: Boolean, required: true}
     }),
     Lesson: new mongoose.Schema({
       type: { type: String, required: true },
