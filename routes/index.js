@@ -9,6 +9,7 @@ router.post("/login", controllers.manageLogin);
 router.post("/logout", controllers.manageLogout);
 router.delete("/self-delete", controllers.selfDeleteAccount);
 router.get("/lessons", controllers.manageLessonRetrieval);
+router.post("/create-lesson", controllers.manageCreateLesson);
 router.patch("/lessons/:lessonId/assign", controllers.manageSwitchLessonAssignment);
 
 
