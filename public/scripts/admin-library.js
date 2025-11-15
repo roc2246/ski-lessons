@@ -1,3 +1,30 @@
+export async function isAdmin(token) {
+  if (!token) {
+    throw new Error("No auth token provided");
+  }
+
+  try {
+    const res = await fetch("/api/is-admin", {
+      method: "GET", 
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to retrieve admin status");
+    }
+
+    return Boolean(data.admin);
+  } catch (error) {
+    console.error("Error checking admin status:", error);
+    throw error;
+  }
+}
+
 export async function lessonCreate(newLesson, token) {
   if (!token) {
     throw new Error("No auth token provided");

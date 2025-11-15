@@ -11,6 +11,7 @@ router.delete("/self-delete", controllers.selfDeleteAccount);
 router.get("/lessons", controllers.manageLessonRetrieval);
 router.post("/create-lesson", controllers.manageCreateLesson);
 router.patch("/lessons/:lessonId/assign", controllers.manageSwitchLessonAssignment);
+router.get("/is-admin", controllers.decodeUser);
 
 
 export default router;
