@@ -49,7 +49,10 @@ export async function dbConnect() {
  */
 export async function newUser(username, password, admin) {
   try {
-    utilities.argValidation([username, password, admin], ["Username", "Password", "Admin"]);
+    utilities.argValidation(
+      [username, password, admin],
+      ["Username", "Password", "Admin"]
+    );
 
     await dbConnect();
 
@@ -59,7 +62,11 @@ export async function newUser(username, password, admin) {
     if (userInDB.length > 0) throw new Error("User already exists");
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const newUser = new UserModel({ username, password: hashedPassword, admin });
+    const newUser = new UserModel({
+      username,
+      password: hashedPassword,
+      admin,
+    });
 
     await newUser.save();
   } catch (error) {
@@ -90,7 +97,11 @@ export async function loginUser(username, password) {
     if (!passwordMatch) throw new Error("User or password doesn't match");
 
     const token = jwt.sign(
-      { userId: userCreds[0]._id.toString(), username: userCreds[0].username },
+      {
+        userId: userCreds[0]._id.toString(),
+        username: userCreds[0].username,
+        admin: userCreds[0].admin,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -127,7 +138,8 @@ export async function deleteUser(username) {
     await dbConnect();
     const User = utilities.getModel(utilities.schemas().User, "User");
     const deletedUser = await User.findOneAndDelete({ username });
-    if (!deletedUser) throw new Error(`No user found with username: ${username}`);
+    if (!deletedUser)
+      throw new Error(`No user found with username: ${username}`);
     return deletedUser;
   } catch (error) {
     throw error;

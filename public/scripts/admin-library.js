@@ -18,7 +18,7 @@ export async function isAdmin(token) {
       throw new Error(data.message || "Failed to retrieve admin status");
     }
 
-    return Boolean(data.admin);
+    return data.credentials.admin
   } catch (error) {
     console.error("Error checking admin status:", error);
     throw error;

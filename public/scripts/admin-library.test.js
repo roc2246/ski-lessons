@@ -1,4 +1,13 @@
-import { describe, it, vi, expect, beforeAll, afterAll, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  vi,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+  afterEach,
+} from "vitest";
 import * as lib from "./admin-library.js";
 
 let originalFetch;
@@ -27,7 +36,7 @@ describe("isAdmin", () => {
 
     const mockResponse = {
       ok: true,
-      json: vi.fn().mockResolvedValue({ admin: true }),
+      json: vi.fn().mockResolvedValue({ credentials: { admin: true } }),
     };
     global.fetch.mockResolvedValue(mockResponse);
 
@@ -49,7 +58,7 @@ describe("isAdmin", () => {
 
     const mockResponse = {
       ok: true,
-      json: vi.fn().mockResolvedValue({ admin: false }),
+      json: vi.fn().mockResolvedValue({ credentials: { admin: false } }),
     };
     global.fetch.mockResolvedValue(mockResponse);
 
@@ -78,7 +87,9 @@ describe("isAdmin", () => {
   });
 
   it("should throw an error if token is missing", async () => {
-    await expect(lib.isAdmin(undefined)).rejects.toThrow("No auth token provided");
+    await expect(lib.isAdmin(undefined)).rejects.toThrow(
+      "No auth token provided"
+    );
     await expect(lib.isAdmin(null)).rejects.toThrow("No auth token provided");
   });
 
@@ -90,7 +101,10 @@ describe("isAdmin", () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await expect(lib.isAdmin(fakeToken)).rejects.toThrow("Network failure");
-    expect(consoleSpy).toHaveBeenCalledWith("Error checking admin status:", networkError);
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Error checking admin status:",
+      networkError
+    );
 
     consoleSpy.mockRestore();
   });
@@ -103,7 +117,9 @@ describe("lessonCreate", () => {
 
     const mockResponse = {
       ok: true,
-      json: vi.fn().mockResolvedValue({ lesson: { ...newLesson, assignedTo: "user123" } }),
+      json: vi
+        .fn()
+        .mockResolvedValue({ lesson: { ...newLesson, assignedTo: "user123" } }),
     };
     global.fetch.mockResolvedValue(mockResponse);
 

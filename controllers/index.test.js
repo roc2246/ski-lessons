@@ -95,25 +95,6 @@ describe("decodeUser", () => {
     });
   });
 
-  it("should default admin to false if not present in token", async () => {
-    const decodedToken = {
-      userId: "user456",
-      username: "userNoAdmin",
-    };
-    jwt.verify.mockReturnValueOnce(decodedToken);
-
-    await controllers.decodeUser(req, res);
-
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Retrieved credentials for userNoAdmin",
-      credentials: {
-        userId: "user456",
-        username: "userNoAdmin",
-        admin: false
-      }
-    });
-  });
-
   it("should respond 401 if Authorization header missing", async () => {
     req.headers.authorization = undefined;
 

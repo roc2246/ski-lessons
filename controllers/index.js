@@ -93,7 +93,7 @@ export async function decodeUser(req, res) {
     const internalCredentials = {
       userId: decoded.userId,
       username: decoded.username,
-      admin: decoded.admin || false,
+      admin: decoded.admin ,
     };
 
     // Expose only safe fields to the frontend
