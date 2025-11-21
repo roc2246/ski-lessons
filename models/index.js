@@ -242,6 +242,24 @@ export async function retrieveLessons(id) {
 }
 
 /**
+ * Retrieves users.
+ * @returns {Promise<Array<Object>>}
+ */
+export async function retrieveUsers() {
+  try {
+    const userModel = utilities.getModel(
+      utilities.schemas().Lesson,
+      "Lesson"
+    );
+    const lessons = await userModel.find({}).select('-password') ;
+    return lessons;
+  } catch (error) {
+    await errorEmail("Failed to retrieve users", error.toString());
+    throw error;
+  }
+}
+
+/**
  * Switches the assigned instructor/user for a lesson.
  *
  * @param {string} id - The lesson's ObjectId string

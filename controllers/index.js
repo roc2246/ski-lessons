@@ -93,25 +93,24 @@ export async function decodeUser(req, res) {
     const internalCredentials = {
       userId: decoded.userId,
       username: decoded.username,
-      admin: decoded.admin ,
+      admin: decoded.admin,
     };
 
     // Expose only safe fields to the frontend
     const exposedCredentials = {
       userId: internalCredentials.userId,
       username: internalCredentials.username,
-      admin: internalCredentials.admin
+      admin: internalCredentials.admin,
     };
 
     return res.status(200).json({
       message: `Retrieved credentials for ${exposedCredentials.username}`,
-      credentials: exposedCredentials
+      credentials: exposedCredentials,
     });
   } catch (error) {
     utilities.httpErrorMssg(res, 500, "Failed to retrieve credentials", error);
   }
 }
-
 
 /**
  * Handles user login by validating credentials and returning a JWT.
@@ -282,8 +281,7 @@ export async function selfDeleteAccount(req, res) {
  */
 export async function manageCreateLesson(req, res) {
   try {
-
-    const lessonData = { ...req.body.lessonData};
+    const lessonData = { ...req.body.lessonData };
 
     const createdLesson = await models.createLesson(lessonData);
 
@@ -341,6 +339,36 @@ export async function manageLessonRetrieval(req, res) {
     res.status(200).json({
       message: `Lessons retrieved for user ID ${userId}`,
       lessons,
+    });
+  } catch (error) {
+    utilities.httpErrorMssg(res, 400, "Failed to retrieve lessons", error);
+  }
+}
+
+/**
+ * Retrieves all users.
+ *
+ * @param {import("express").Request} req - Express request object.
+ * @param {import("express").Response} res - Express response object used to send user data.
+ *
+ * @returns {void}
+ *
+ * @example
+ * GET /users
+ *
+ * Response:
+ * {
+ *   "message": "Users retrieved",
+ *   "uers": [ ... ]
+ * }
+ */
+export async function manageUserRetrieval(req, res) {
+  try {
+    const users = await models.retrieveUsers();
+
+    res.status(200).json({
+      message: `Users retrieved`,
+      users,
     });
   } catch (error) {
     utilities.httpErrorMssg(res, 400, "Failed to retrieve lessons", error);

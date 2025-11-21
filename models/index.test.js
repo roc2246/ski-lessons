@@ -218,6 +218,46 @@ describe("retrieveLessons", () => {
   });
 });
 
+describe("retrieveUsers", () => {
+  beforeEach(() => {
+    constructorSpy.find = vi.fn(() => ({
+      select: vi.fn().mockResolvedValue([
+        { username: "user1", admin: false },
+        { username: "user2", admin: true },
+      ]),
+    }));
+  });
+
+  it("should retrieve users and exclude password field", async () => {
+    const result = await models.retrieveUsers();
+
+    expect(utilities.getModel).toHaveBeenCalled();
+
+    expect(constructorSpy.find).toHaveBeenCalledWith({});
+
+    const findReturn = constructorSpy.find.mock.results[0].value;
+    expect(findReturn.select).toHaveBeenCalledWith("-password");
+
+    expect(result).toEqual([
+      { username: "user1", admin: false },
+      { username: "user2", admin: true },
+    ]);
+  });
+
+  it("should call errorEmail and rethrow if model fails", async () => {
+    constructorSpy.find = vi.fn(() => ({
+      select: vi.fn().mockRejectedValue(new Error("DB explode")),
+    }));
+
+    await expect(models.retrieveUsers()).rejects.toThrow("DB explode");
+
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Failed to retrieve users",
+      expect.stringContaining("DB explode")
+    );
+  });
+});
+
 describe("switchLessonAssignment", () => {
   beforeEach(() => {
     constructorSpy.findByIdAndUpdate = vi.fn((id, update) => {

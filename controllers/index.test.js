@@ -414,6 +414,52 @@ describe("manageLessonRetrieval", () => {
   });
 });
 
+describe("manageUserRetrieval", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = createReq();
+    res = createRes();
+    vi.clearAllMocks();
+  });
+
+  it("should call retrieveUsers and respond 200 with user list", async () => {
+    const fakeUsers = [
+      { username: "user1", admin: false },
+      { username: "user2", admin: true },
+    ];
+
+    models.retrieveUsers = vi.fn().mockResolvedValue(fakeUsers);
+
+    await controllers.manageUserRetrieval(req, res);
+
+    // Ensure the model function is called
+    expect(models.retrieveUsers).toHaveBeenCalled();
+
+    // Ensure response is correctly formatted
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Users retrieved",
+      users: fakeUsers,
+    });
+  });
+
+  it("should call httpErrorMssg on failure", async () => {
+    const err = new Error("Database failed");
+
+    models.retrieveUsers = vi.fn().mockRejectedValue(err);
+
+    await controllers.manageUserRetrieval(req, res);
+
+    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
+      res,
+      400,
+      "Failed to retrieve lessons",
+      err
+    );
+  });
+});
+
 describe("manageSwitchLessonAssignment", () => {
   let req, res;
 
