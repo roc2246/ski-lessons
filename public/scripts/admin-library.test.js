@@ -129,7 +129,6 @@ describe("lessonCreate", () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${fakeToken}`,
       },
       body: JSON.stringify({ lessonData: newLesson }),
     });
@@ -160,17 +159,6 @@ describe("lessonCreate", () => {
 
     await expect(lib.lessonCreate(newLesson, fakeToken)).rejects.toThrow(
       "Network failure"
-    );
-  });
-
-  it("should throw an error if token is missing", async () => {
-    const newLesson = { type: "Beginner Snowboarding" };
-
-    await expect(lib.lessonCreate(newLesson, undefined)).rejects.toThrow(
-      "No auth token provided"
-    );
-    await expect(lib.lessonCreate(newLesson, null)).rejects.toThrow(
-      "No auth token provided"
     );
   });
 

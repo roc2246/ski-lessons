@@ -25,16 +25,12 @@ export async function isAdmin(token) {
   }
 }
 
-export async function lessonCreate(newLesson, token) {
-  if (!token) {
-    throw new Error("No auth token provided");
-  }
+export async function lessonCreate(newLesson) {
   try {
     const res = await fetch("/api/create-lesson", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ lessonData: newLesson }),
     });

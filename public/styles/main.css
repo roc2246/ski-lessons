@@ -130,6 +130,31 @@ main {
   box-shadow: 0 0 0 0.2rem rgba(59, 166, 228, 0.3);
 }
 
+/* --- CREATE LESSON FORM (fits into existing FORMS structure) --- */
+.create-lesson__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.create-lesson__label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.create-lesson__input {
+  padding: 0.75rem;
+  border: 0.1rem solid #c4cdd4;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  background: #ffffff;
+}
+
+.create-lesson__input:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 0.2rem rgba(59, 166, 228, 0.3);
+}
+
 .login__link,
 .new-user__link,
 .instructor__link,
@@ -234,7 +259,7 @@ main {
   margin: 0.75rem 0;
 }
 
-/* CALENDAR DATE BLOCKS (INLINE WITH 7-1 STRUCTURE) */
+/* CALENDAR DATE BLOCKS */
 .date {
   display: flex;
   flex-direction: column;
@@ -284,6 +309,32 @@ main {
   outline-offset: 0.2rem;
 }
 
+/* --- CREATE LESSON PAGE-SPECIFIC --- */
+.create-lesson {
+  width: 100%;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--color-panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.create-lesson__header {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.create-lesson__link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.create-lesson__link:hover {
+  text-decoration: underline;
+}
+
 /* ------------------------------------------
    7. UTILITIES
 ------------------------------------------- */
@@ -306,7 +357,6 @@ main {
 /* ------------------------------------------
    8. RESPONSIVE BREAKPOINTS
 ------------------------------------------- */
-
 @media (min-width: 37.5rem) {
   .btn {
     width: auto;
@@ -322,6 +372,11 @@ main {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+  }
+
+  .create-lesson {
+    max-width: 28rem;
+    padding: 2rem;
   }
 }
 
