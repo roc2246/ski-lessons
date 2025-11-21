@@ -253,7 +253,7 @@ export async function selfDeleteAccount(req, res) {
  * @returns {void}
  *
  * @example
- * POST /lessons/create
+ * POST /create-lesson
  * Headers:
  *   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR...
  * Body:
