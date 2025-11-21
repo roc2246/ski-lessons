@@ -48,7 +48,7 @@ vi.mock("../models/index.js", async () => {
     retrieveLessons: vi.fn(),
     switchLessonAssignment: vi.fn(),
   };
-})
+});
 
 vi.mock("../utilities/index.js", async () => {
   const actual = await vi.importActual("../utilities/index.js");
@@ -77,21 +77,24 @@ describe("decodeUser", () => {
       userId: "user123",
       username: "demoUser",
       admin: true,
-      password: "hashed_pass"
+      password: "hashed_pass",
     };
     jwt.verify.mockReturnValueOnce(decodedToken);
 
     await controllers.decodeUser(req, res);
 
-    expect(jwt.verify).toHaveBeenCalledWith("faketoken", process.env.JWT_SECRET);
+    expect(jwt.verify).toHaveBeenCalledWith(
+      "faketoken",
+      process.env.JWT_SECRET
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       message: "Retrieved credentials for demoUser",
       credentials: {
         userId: "user123",
         username: "demoUser",
-        admin: true
-      }
+        admin: true,
+      },
     });
   });
 
@@ -120,7 +123,9 @@ describe("decodeUser", () => {
   });
 
   it("should respond 401 if JWT verification fails", async () => {
-    jwt.verify.mockImplementationOnce(() => { throw new Error("Invalid token"); });
+    jwt.verify.mockImplementationOnce(() => {
+      throw new Error("Invalid token");
+    });
 
     await controllers.decodeUser(req, res);
 
@@ -312,7 +317,9 @@ describe("selfDeleteAccount", () => {
   });
 
   it("should respond 401 if token verification fails", async () => {
-    jwt.verify.mockImplementationOnce(() => { throw new Error("Invalid token"); });
+    jwt.verify.mockImplementationOnce(() => {
+      throw new Error("Invalid token");
+    });
 
     await controllers.selfDeleteAccount(req, res);
 
@@ -346,27 +353,33 @@ describe("manageCreateLesson", () => {
   let req, res;
 
   beforeEach(() => {
-    req = createReq(
-      { lessonData: { type: "Beginner", date: "2025-12-20", timeLength: 90, guests: 6 } },
-      { authorization: "Bearer faketoken" }
-    );
+    req = createReq({
+      lessonData: {
+        type: "Beginner",
+        date: "2025-12-20",
+        timeLength: 90,
+        guests: 6,
+      },
+    });
     res = createRes();
     vi.clearAllMocks();
   });
 
   it("should create a lesson successfully", async () => {
     const decoded = { userId: "user123" };
-    const createdLesson = { ...req.body.lessonData, assignedTo: "user123", _id: "lesson123" };
+    const createdLesson = {
+      ...req.body.lessonData,
+      assignedTo: "None",
+      _id: "lesson123",
+    };
 
     jwt.verify.mockReturnValueOnce(decoded);
     models.createLesson = vi.fn().mockResolvedValueOnce(createdLesson);
 
     await controllers.manageCreateLesson(req, res);
 
-    expect(jwt.verify).toHaveBeenCalledWith("faketoken", process.env.JWT_SECRET);
     expect(models.createLesson).toHaveBeenCalledWith({
       ...req.body.lessonData,
-      assignedTo: "user123",
     });
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({
@@ -388,7 +401,10 @@ describe("manageLessonRetrieval", () => {
 
     await controllers.manageLessonRetrieval(req, res);
 
-    expect(jwt.verify).toHaveBeenCalledWith("faketoken", process.env.JWT_SECRET);
+    expect(jwt.verify).toHaveBeenCalledWith(
+      "faketoken",
+      process.env.JWT_SECRET
+    );
     expect(models.retrieveLessons).toHaveBeenCalledWith(fakeUserId);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
@@ -420,8 +436,14 @@ describe("manageSwitchLessonAssignment", () => {
 
     await controllers.manageSwitchLessonAssignment(req, res);
 
-    expect(jwt.verify).toHaveBeenCalledWith("faketoken", process.env.JWT_SECRET);
-    expect(models.switchLessonAssignment).toHaveBeenCalledWith("12345", "67890");
+    expect(jwt.verify).toHaveBeenCalledWith(
+      "faketoken",
+      process.env.JWT_SECRET
+    );
+    expect(models.switchLessonAssignment).toHaveBeenCalledWith(
+      "12345",
+      "user123"
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       message: "Lesson assignment updated",

@@ -278,28 +278,12 @@ export async function selfDeleteAccount(req, res) {
  *   }
  * }
  *
- * @throws Returns HTTP 401 if the token is missing or invalid.
  * @throws Returns HTTP 422 if lesson creation fails.
  */
 export async function manageCreateLesson(req, res) {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.httpErrorMssg(
-        res,
-        401,
-        "Unauthorized: No token provided"
-      );
-    }
 
-    let decoded;
-    try {
-      decoded = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET);
-    } catch {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: Invalid token");
-    }
-
-    const lessonData = { ...req.body.lessonData, assignedTo: decoded.userId };
+    const lessonData = { ...req.body.lessonData};
 
     const createdLesson = await models.createLesson(lessonData);
 
