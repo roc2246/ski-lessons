@@ -359,7 +359,7 @@ export async function manageLessonRetrieval(req, res) {
  * Response:
  * {
  *   "message": "Users retrieved",
- *   "uers": [ ... ]
+ *   "users": [ ... ]
  * }
  */
 export async function manageUserRetrieval(req, res) {

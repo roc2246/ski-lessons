@@ -12,6 +12,7 @@ router.get("/lessons", controllers.manageLessonRetrieval);
 router.post("/create-lesson", controllers.manageCreateLesson);
 router.patch("/lessons/:lessonId/assign", controllers.manageSwitchLessonAssignment);
 router.get("/is-admin", controllers.decodeUser);
+router.get("/user-retrieval", controllers.manageUserRetrieval);
 
 
 export default router;

@@ -5,7 +5,7 @@ export async function isAdmin(token) {
 
   try {
     const res = await fetch("/api/is-admin", {
-      method: "GET", 
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -18,9 +18,35 @@ export async function isAdmin(token) {
       throw new Error(data.message || "Failed to retrieve admin status");
     }
 
-    return data.credentials.admin
+    return data.credentials.admin;
   } catch (error) {
     console.error("Error checking admin status:", error);
+    throw error;
+  }
+}
+
+export async function getUsers() {
+  try {
+    const res = await fetch("/api/user-retrieval", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to retrieve users");
+    }
+
+    if (!data || !Array.isArray(data.users)) {
+      throw new Error("Malformed response: missing users field");
+    }
+
+    return data.users;
+  } catch (error) {
+    console.error("Error retrieving users:", error);
     throw error;
   }
 }

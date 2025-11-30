@@ -182,3 +182,98 @@ describe("lessonCreate", () => {
     consoleSpy.mockRestore();
   });
 });
+
+describe("getUsers", () => {
+  it("should call fetch with correct arguments", async () => {
+    const mockResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        message: "Users retrieved",
+        users: [{ name: "John" }, { name: "Sarah" }],
+      }),
+    };
+
+    global.fetch.mockResolvedValue(mockResponse);
+
+    const result = await lib.getUsers();
+
+    expect(global.fetch).toHaveBeenCalledWith("/api/user-retrieval", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    expect(result).toEqual([{ name: "John" }, { name: "Sarah" }]);
+  });
+
+  it("should throw an error if fetch returns non-ok", async () => {
+    global.fetch.mockResolvedValue({
+      ok: false,
+      json: vi.fn().mockResolvedValue({ message: "Failed to retrieve users" }),
+    });
+
+    await expect(lib.getUsers()).rejects.toThrow("Failed to retrieve users");
+  });
+
+  it("should throw an error if the users field is missing", async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ message: "Users retrieved" }),
+    });
+
+    await expect(lib.getUsers()).rejects.toThrow(
+      "Malformed response: missing users field"
+    );
+  });
+
+  it("should throw an error for malformed JSON structure", async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ somethingElse: 123 }),
+    });
+
+    await expect(lib.getUsers()).rejects.toThrow(
+      "Malformed response: missing users field"
+    );
+  });
+
+  it("should throw on network failure", async () => {
+    const networkError = new Error("Network failure");
+
+    global.fetch.mockRejectedValue(networkError);
+
+    await expect(lib.getUsers()).rejects.toThrow("Network failure");
+  });
+
+  it("should log an error to console when fetch rejects", async () => {
+    const networkError = new Error("Network failure");
+
+    global.fetch.mockRejectedValue(networkError);
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await expect(lib.getUsers()).rejects.toThrow("Network failure");
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Error retrieving users:",
+      networkError
+    );
+
+    consoleSpy.mockRestore();
+  });
+
+  it("should return the users array exactly as provided by backend", async () => {
+    const fakeUsers = [
+      { id: 1, name: "Test A" },
+      { id: 2, name: "Test B" },
+    ];
+
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ message: "Users retrieved", users: fakeUsers }),
+    });
+
+    const result = await lib.getUsers();
+    expect(result).toEqual(fakeUsers);
+  });
+});
