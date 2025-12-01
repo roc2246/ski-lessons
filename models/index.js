@@ -54,8 +54,6 @@ export async function newUser(username, password, admin) {
       ["Username", "Password", "Admin"]
     );
 
-    await dbConnect();
-
     const UserModel = utilities.getModel(utilities.schemas().User, "User");
 
     const userInDB = await UserModel.find({ username });
@@ -84,8 +82,6 @@ export async function newUser(username, password, admin) {
 export async function loginUser(username, password) {
   try {
     utilities.argValidation([username, password], ["Username", "Password"]);
-
-    await dbConnect();
 
     const UserModel = utilities.getModel(utilities.schemas().User, "User");
 
@@ -135,7 +131,7 @@ export async function loginUser(username, password) {
 export async function deleteUser(username) {
   try {
     utilities.argValidation([username], [`Username`]);
-    await dbConnect();
+
     const User = utilities.getModel(utilities.schemas().User, "User");
     const deletedUser = await User.findOneAndDelete({ username });
     if (!deletedUser)
@@ -247,12 +243,9 @@ export async function retrieveLessons(id) {
  */
 export async function retrieveUsers() {
   try {
-    const userModel = utilities.getModel(
-      utilities.schemas().User,
-      "User"
-    );
-    
-    const users = await userModel.find({}).select('-password') ;
+    const userModel = utilities.getModel(utilities.schemas().User, "User");
+
+    const users = await userModel.find({}).select("-password");
     return users;
   } catch (error) {
     await errorEmail("Failed to retrieve users", error.toString());
