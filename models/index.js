@@ -248,11 +248,12 @@ export async function retrieveLessons(id) {
 export async function retrieveUsers() {
   try {
     const userModel = utilities.getModel(
-      utilities.schemas().Lesson,
-      "Lesson"
+      utilities.schemas().User,
+      "User"
     );
-    const lessons = await userModel.find({}).select('-password') ;
-    return lessons;
+    
+    const users = await userModel.find({}).select('-password') ;
+    return users;
   } catch (error) {
     await errorEmail("Failed to retrieve users", error.toString());
     throw error;

@@ -371,7 +371,7 @@ export async function manageUserRetrieval(req, res) {
       users,
     });
   } catch (error) {
-    utilities.httpErrorMssg(res, 400, "Failed to retrieve lessons", error);
+    utilities.httpErrorMssg(res, 400, "Failed to retrieve users", error);
   }
 }
 

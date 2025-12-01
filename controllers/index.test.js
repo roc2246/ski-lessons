@@ -454,7 +454,7 @@ describe("manageUserRetrieval", () => {
     expect(utilities.httpErrorMssg).toHaveBeenCalledWith(
       res,
       400,
-      "Failed to retrieve lessons",
+      "Failed to retrieve users",
       err
     );
   });
