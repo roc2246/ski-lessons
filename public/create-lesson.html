@@ -10,6 +10,10 @@
   <body>
     <main class="create-lesson">
       <h1 class="create-lesson__header">Create Lesson</h1>
+
+      <!-- status area for loader / errors -->
+      <div id="instructor-status" aria-live="polite" style="margin-bottom: .75rem"></div>
+
       <form id="lesson-form" class="create-lesson__form">
         <label>
           Lesson Type:
@@ -39,10 +43,13 @@
 
         <label>
           Assigned Instructor:
-          <input type="text" id="assignedTo" name="assignedTo" required />
+          <!-- replaced text input with select -->
+          <select id="assignedTo" name="assignedTo" required>
+            <option value="None" selected>None</option>
+          </select>
         </label>
 
-        <button type="submit">Create Lesson</button>
+        <button type="submit" id="create-btn" >Create Lesson</button>
       </form>
       <a href="admin.html" class="create-lesson__link">Back</a>
     </main>
@@ -53,12 +60,21 @@
       const token = localStorage.getItem("token");
       if (!token) window.location.href = "/index.html";
 
-      const isAdmin = await lib.isAdmin(token);
-      if (!isAdmin) {
-        alert("You must have admin priveleges to access this page");
-        window.location.href = "/instructor.html";
+      try {
+        const isAdmin = await lib.isAdmin(token);
+        if (!isAdmin) {
+          alert("You must have admin priveleges to access this page");
+          window.location.href = "/instructor.html";
+        }
+      } catch (err) {
+        // If the admin check fails for network or other reasons, redirect back to login
+        console.error("Admin check failed:", err);
+        alert("Unable to verify admin status. Please login again.");
+        window.location.href = "/index.html";
       }
     </script>
+
+    <!-- page logic -->
     <script type="module" src="./scripts/create-lesson.js"></script>
   </body>
 </html>
