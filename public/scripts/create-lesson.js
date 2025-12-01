@@ -1,18 +1,17 @@
-import * as lib from "./admin-library.js";
+import * as adminLib from "./admin-library.js";
+import * as domLib from "./dom-library.js";
 
 // -----------------------------
 // FORM SUBMIT HANDLER
 // -----------------------------
 const form = document.getElementById("lesson-form");
+
 (async () => {
   try {
     const dropdown = document.getElementById("assignedTo");
-    const users = await lib.getUsers();
+    const users = await adminLib.getUsers();
     for (let x = 0; x < users.length; x++) {
-      const opt = document.createElement("option");
-      opt.value = users[x]._id
-      opt.innerText = users[x].username;
-      dropdown.appendChild(opt);
+      domLib.createOption(dropdown, users[x]._ids, users[x].username);
     }
   } catch (err) {
     console.error("Failed to fetch users:", err);
@@ -30,7 +29,7 @@ form.addEventListener("submit", async (e) => {
   };
 
   try {
-    const createdLesson = await lib.lessonCreate(lessonData);
+    const createdLesson = await adminLib.lessonCreate(lessonData);
     alert("Lesson created successfully!");
     console.log(createdLesson);
 
