@@ -84,7 +84,7 @@ export async function loginUser(username, password) {
     utilities.argValidation([username, password], ["Username", "Password"]);
 
     const UserModel = utilities.getModel(utilities.schemas().User, "User");
-
+    await dbConnect();
     const userCreds = await UserModel.find({ username });
     if (userCreds.length === 0)
       throw new Error("User or password doesn't match");

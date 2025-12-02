@@ -11,7 +11,7 @@ const form = document.getElementById("lesson-form");
     const dropdown = document.getElementById("assignedTo");
     const users = await adminLib.getUsers();
     for (let x = 0; x < users.length; x++) {
-      domLib.createOption(dropdown, users[x]._ids, users[x].username);
+      domLib.createOption(dropdown, users[x]._id, users[x].username);
     }
   } catch (err) {
     console.error("Failed to fetch users:", err);

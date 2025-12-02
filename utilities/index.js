@@ -74,7 +74,6 @@ export function schemas() {
       timeLength: { type: String, required: true },
       guests: { type: Number, required: true },
       assignedTo: { type: String, required: true, ref: "User" }, // fixed this too
-      upForGrabs: { type: Boolean, required: true}, // fixed this too
     }),
   };
 }

@@ -10,7 +10,7 @@ function changeMonth(offset) {
 function render() {
   lib.renderCalendar({
     date: currentDate,
-    lessonFilter: (lesson) => lesson.upForGrabs,
+    lessonFilter: (lesson) => lesson.assignedTo === "None",
     extraDayHTML: () => lib.createEle().addLesson(),
     onComplete: (filteredLessons) => lib.addLessonBtn(filteredLessons),
   });
