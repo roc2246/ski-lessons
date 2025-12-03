@@ -208,12 +208,12 @@ describe("createLesson", () => {
 
 describe("retrieveLessons", () => {
   it("returns lessons for valid ID", async () => {
-    const results = await models.retrieveLessons("2");
+    const results = await models.retrieveLessons({assignedTo: "2"});
     expect(results).toEqual([{ lesson: "lesson" }]);
   });
 
-  it("throws if ID not string", async () => {
-    await expect(models.retrieveLessons(88)).rejects.toThrow("ID must be a string");
+  it("throws if ID not an object", async () => {
+    await expect(models.retrieveLessons(88)).rejects.toThrow("ID must be an object");
     expect(errorEmail).toHaveBeenCalled();
   });
 });

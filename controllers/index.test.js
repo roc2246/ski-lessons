@@ -391,9 +391,9 @@ describe("manageCreateLesson", () => {
 
 describe("manageLessonRetrieval", () => {
   it("should verify token, call retrieveLessons, and respond 200", async () => {
-    const fakeUserId = "user123";
+    const fakeUserId = {assignedTo:"user123"};
     const fakeLessons = [{ id: 1 }];
-    jwt.verify.mockReturnValueOnce({ userId: fakeUserId });
+    jwt.verify.mockReturnValueOnce({ userId: fakeUserId.assignedTo });
     models.retrieveLessons.mockResolvedValueOnce(fakeLessons);
 
     const req = createReq({}, { authorization: "Bearer faketoken" });
@@ -408,7 +408,7 @@ describe("manageLessonRetrieval", () => {
     expect(models.retrieveLessons).toHaveBeenCalledWith(fakeUserId);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
-      message: `Lessons retrieved for user ID ${fakeUserId}`,
+      message: `Lessons retrieved for user ID ${fakeUserId.assignedTo}`,
       lessons: fakeLessons,
     });
   });

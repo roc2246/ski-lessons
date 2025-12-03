@@ -338,7 +338,7 @@ export async function manageLessonRetrieval(req, res) {
 
     const lessons = availableHeader
       ? await models.retrieveLessons({})
-      : await models.retrieveLessons({ assignedTO: userId });
+      : await models.retrieveLessons({ assignedTo: userId });
 
     res.status(200).json({
       message: `Lessons retrieved for user ID ${userId}`,
