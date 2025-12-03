@@ -62,21 +62,30 @@ export function getModel(schemaDefinition, modelName) {
  *   const userSchema = schemas().User;
  */
 export function schemas() {
+  const LessonSchema = new mongoose.Schema({
+    type: { type: String, required: true },
+    date: { type: String, required: true },
+    timeLength: { type: String, required: true },
+    guests: { type: Number, required: true },
+    assignedTo: { type: String, required: true, ref: "User" },
+  });
+
+  // 🔥 Add the compound unique index here
+  LessonSchema.index(
+    { date: 1, assignedTo: 1 },
+    { unique: true }
+  );
+
   return {
     User: new mongoose.Schema({
       username: { type: String, required: true, unique: true },
       password: { type: String, required: true },
-      admin: {type: Boolean, required: true}
+      admin: { type: Boolean, required: true }
     }),
-    Lesson: new mongoose.Schema({
-      type: { type: String, required: true },
-      date: { type: String, required: true },
-      timeLength: { type: String, required: true },
-      guests: { type: Number, required: true },
-      assignedTo: { type: String, required: true, ref: "User" }, // fixed this too
-    }),
+    Lesson: LessonSchema,
   };
 }
+
 
 /**
  * TokenBlacklist class to track blacklisted tokens with expiration,
