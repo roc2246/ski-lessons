@@ -8,7 +8,7 @@ function changeMonth(offset) {
 }
 
 function render() {
-  lib.renderCalendar({ date: currentDate });
+  lib.renderCalendar({ date: currentDate }, false);
 }
 
 document.getElementById("prevMonth").addEventListener("click", () => changeMonth(-1));

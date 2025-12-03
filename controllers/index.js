@@ -315,6 +315,8 @@ export async function manageCreateLesson(req, res) {
 export async function manageLessonRetrieval(req, res) {
   try {
     const authHeader = req.headers.authorization;
+    const availableHeader = req.headers.available;
+
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return utilities.httpErrorMssg(
         res,
@@ -334,7 +336,9 @@ export async function manageLessonRetrieval(req, res) {
 
     const userId = decoded.userId;
 
-    const lessons = await models.retrieveLessons(userId);
+    const lessons = availableHeader
+      ? await models.retrieveLessons({})
+      : await models.retrieveLessons({ assignedTO: userId });
 
     res.status(200).json({
       message: `Lessons retrieved for user ID ${userId}`,

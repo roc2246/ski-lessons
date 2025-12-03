@@ -13,7 +13,7 @@ function render() {
     lessonFilter: (lesson) => lesson.assignedTo === "None",
     extraDayHTML: () => lib.createEle().addLesson(),
     onComplete: (filteredLessons) => lib.addLessonBtn(filteredLessons),
-  });
+  }, true);
 }
 
 document.getElementById("prevMonth").addEventListener("click", () => changeMonth(-1));

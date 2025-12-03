@@ -220,16 +220,16 @@ export async function createLesson(lessonData) {
  * @param {string} id - The instructor's user ID
  * @returns {Promise<Array<Object>>}
  */
-export async function retrieveLessons(id) {
+export async function retrieveLessons(param) {
   try {
-    utilities.argValidation([id], ["ID"]);
-    if (typeof id !== "string") throw new Error("ID must be a string");
+    utilities.argValidation([param], ["Param"]);
+    if (typeof param !== "object") throw new Error("ID must be an object");
 
     const lessonModel = utilities.getModel(
       utilities.schemas().Lesson,
       "Lesson"
     );
-    const lessons = await lessonModel.find({ assignedTo: id });
+    const lessons = await lessonModel.find(param);
     return lessons;
   } catch (error) {
     await errorEmail("Failed to retrieve lessons", error.toString());

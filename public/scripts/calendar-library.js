@@ -5,11 +5,11 @@
 /**
  * Fetch all lessons from the API
  */
-export async function getLessons() {
+export async function getLessons(available) {
   try {
     const token = localStorage.getItem("token");
     const response = await fetch("/api/lessons", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}`, available },
     });
     if (!response.ok) {
       const error = await response.json();
@@ -41,7 +41,6 @@ export function preprocessLessons(lessons) {
   });
 }
 
-
 /**
  * Return calendar context including month, year, firstDay, daysInMonth, DOM references
  */
@@ -54,8 +53,18 @@ export function getCalendarContext(date) {
     firstDay: new Date(year, month, 1).getDay(),
     daysInMonth: new Date(year, month + 1, 0).getDate(),
     monthNames: [
-      "January","February","March","April","May","June",
-      "July","August","September","October","November","December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ],
     dom: {
       monthYear: document.getElementById("monthYear"),
@@ -72,7 +81,8 @@ export function createEle() {
     timeslot: (length) => `<h4 class="date__time-slot">${length}</h4>`,
     type: (type) => `<span class="date__lesson-type">${type}</span>`,
     dayCont: (day) => `<h3 class="date__day">${day}</h3>`,
-    addLesson: () => `<button class="btn date__button-add-lesson">Add Lesson</button>`,
+    addLesson: () =>
+      `<button class="btn date__button-add-lesson">Add Lesson</button>`,
   };
 }
 
@@ -100,7 +110,8 @@ export async function assignLesson(lessonId, token) {
       },
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data?.message || "Failed to assign lesson");
+    if (!response.ok)
+      throw new Error(data?.message || "Failed to assign lesson");
     console.log("Lesson assignment updated:", data.lesson);
     return data.lesson;
   } catch (error) {
@@ -124,7 +135,7 @@ export async function addLessonBtn(lessons) {
 
 /**
  * Generic calendar renderer
- * 
+ *
  * @param {Object} options
  * options.date - Date object to render
  * options.lessonFilter - function(lesson) => boolean
@@ -136,7 +147,7 @@ export async function renderCalendar({
   lessonFilter = () => true,
   extraDayHTML = () => "",
   onComplete = () => {},
-}) {
+}, available) {
   const context = getCalendarContext(date);
   const { year, month, firstDay, daysInMonth, monthNames, dom } = context;
 
@@ -147,7 +158,7 @@ export async function renderCalendar({
   blankDays(firstDay, dom);
 
   // Fetch and preprocess lessons
-  const lessons = await getLessons();
+  const lessons = await getLessons(available);
   const preprocessedLessons = preprocessLessons(lessons);
   const filteredLessons = preprocessedLessons
     .filter((lesson) => lesson._month === month + 1 && lesson._year === year)
