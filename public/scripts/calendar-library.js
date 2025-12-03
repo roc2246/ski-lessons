@@ -125,7 +125,7 @@ export async function assignLesson(lessonId, token) {
  */
 export async function addLessonBtn(lessons) {
   const token = localStorage.getItem("token");
-  const lessonBtn = document.getElementsByClassName("addLesson");
+  const lessonBtn = document.getElementsByClassName("date__button-add-lesson");
   for (let x = 0; x < lessonBtn.length; x++) {
     lessonBtn[x].addEventListener("click", async () => {
       await assignLesson(lessons[x]._id, token);
