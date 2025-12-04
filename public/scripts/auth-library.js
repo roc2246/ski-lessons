@@ -70,6 +70,7 @@ export async function selfDeleteFrontend(token) {
     const data = await res.json();
 
     if (res.ok) {
+      window.location.href = "/index.html"
       alert(data.message || "Account deleted successfully");
       localStorage.removeItem("token");
     } else {

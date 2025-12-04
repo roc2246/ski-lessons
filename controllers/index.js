@@ -222,15 +222,23 @@ export async function selfDeleteAccount(req, res) {
     }
 
     const username = decoded.username;
+    const id = decoded.userId
+
+    const lessons = await models.retrieveLessons({assignedTo: id})
+
+    for (let x = 0; x < lessons.length; x++){
+       await models.switchLessonAssignment(lessons[x]._id+ "", "None")
+    }
 
     // Delete user
     const deleteConfirmation = await models.deleteUser(username);
 
     return res.status(200).json({
       message: `User "${username}" deleted successfully`,
-      deleteConfirmation,
+      // deleteConfirmation,
     });
   } catch (error) {
+    console.log(error)
     return utilities.httpErrorMssg(res, 400, "Failed to delete user", error);
   }
 }
