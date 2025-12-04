@@ -126,9 +126,14 @@ export async function assignLesson(lessonId, token) {
 export async function addLessonBtn(lessons) {
   const token = localStorage.getItem("token");
   const lessonBtn = document.getElementsByClassName("date__button-add-lesson");
+  const timeslot = document.getElementsByClassName("date__time-slot")
+  const lessonType = document.getElementsByClassName("date__lesson-type")
   for (let x = 0; x < lessonBtn.length; x++) {
     lessonBtn[x].addEventListener("click", async () => {
       await assignLesson(lessons[x]._id, token);
+      timeslot[x].remove()
+      lessonType[x].remove()
+      lessonBtn[x].remove()
     });
   }
 }
