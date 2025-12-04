@@ -31,6 +31,25 @@ export function argValidation(args, argNames) {
   }
 }
 
+
+/**
+ * Validates a list of arguments to ensure they are the correct data type.
+ *
+ * @param {Array} args - The list of argument values to validate.
+ * @param {Array} types - The corresponding types the args need to be.
+ *
+ * @throws {Error} - If any argument isn't the correct data type, an error is thrown
+ *                   with a message like "Username must be a string".
+ *
+ * @example
+ *   argValidation([username, password], ["string", "string"]);
+ */
+export function dataTypeValidation(args, types){
+  for (let i = 0; i < args.length; i++) {
+    if (typeof args[x] !== types[x]) throw new Error(`${args[x]} must be a ${types[x]}`);
+  }
+}
+
 // ======== MONGOOSE ======== //
 
 /**

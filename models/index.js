@@ -223,7 +223,7 @@ export async function createLesson(lessonData) {
 export async function retrieveLessons(param) {
   try {
     utilities.argValidation([param], ["Param"]);
-    if (typeof param !== "object") throw new Error("ID must be an object");
+    utilities.dataTypeValidation([param], ["object"])
 
     const lessonModel = utilities.getModel(
       utilities.schemas().Lesson,
@@ -263,9 +263,7 @@ export async function retrieveUsers() {
 export async function switchLessonAssignment(id, newUserId) {
   try {
     utilities.argValidation([id, newUserId], ["Lesson ID", "New User ID"]);
-    if (typeof id !== "string") throw new Error("Lesson ID must be a string");
-    if (typeof newUserId !== "string")
-      throw new Error("New User ID must be a string");
+    utilities.dataTypeValidation([id, newUserId], ["string", "string"])
 
     const lessonModel = utilities.getModel(
       utilities.schemas().Lesson,
@@ -296,7 +294,7 @@ export async function switchLessonAssignment(id, newUserId) {
 export async function removeLesson(id) {
   try {
     utilities.argValidation([id], ["Lesson ID"]);
-    if (typeof id !== "string") throw new Error("Lesson ID must be a string");
+    utilities.dataTypeValidation([id], ["string"])
 
     const lessonModel = utilities.getModel(
       utilities.schemas().Lesson,
