@@ -44,9 +44,11 @@ export function argValidation(args, argNames) {
  * @example
  *   argValidation([username, password], ["string", "string"]);
  */
-export function dataTypeValidation(args, types){
+export function dataTypeValidation(args, argStrings, types) {
   for (let i = 0; i < args.length; i++) {
-    if (typeof args[x] !== types[x]) throw new Error(`${args[x]} must be a ${types[x]}`);
+    if (typeof args[i] !== types[i]) {
+      throw new Error(`${argStrings[i]} must be a ${types[i]}`);
+    }
   }
 }
 
@@ -89,19 +91,20 @@ export function schemas() {
     assignedTo: { type: String, required: true, ref: "User" },
   });
 
-  // 🔥 Add the compound unique index here
   LessonSchema.index(
     { date: 1, assignedTo: 1 },
     { unique: true }
   );
 
+  const UserSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    admin: { type: Boolean, required: true }
+  });
+
   return {
-    User: new mongoose.Schema({
-      username: { type: String, required: true, unique: true },
-      password: { type: String, required: true },
-      admin: { type: Boolean, required: true }
-    }),
     Lesson: LessonSchema,
+    User: UserSchema
   };
 }
 

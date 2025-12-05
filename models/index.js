@@ -217,13 +217,13 @@ export async function createLesson(lessonData) {
 /**
  * Retrieves all lessons assigned to a specific user/instructor by ID.
  *
- * @param {string} id - The instructor's user ID
+ * @param {object} id - The instructor's user ID or a blank object for all lessons
  * @returns {Promise<Array<Object>>}
  */
 export async function retrieveLessons(param) {
   try {
     utilities.argValidation([param], ["Param"]);
-    utilities.dataTypeValidation([param], ["object"])
+    utilities.dataTypeValidation([param], ["Param"],["object"]);
 
     const lessonModel = utilities.getModel(
       utilities.schemas().Lesson,
@@ -263,7 +263,11 @@ export async function retrieveUsers() {
 export async function switchLessonAssignment(id, newUserId) {
   try {
     utilities.argValidation([id, newUserId], ["Lesson ID", "New User ID"]);
-    utilities.dataTypeValidation([id, newUserId], ["string", "string"])
+    utilities.dataTypeValidation(
+      [id, newUserId],
+      ["ID", "New user ID"],
+      ["string", "string"]
+    );
 
     const lessonModel = utilities.getModel(
       utilities.schemas().Lesson,
@@ -294,7 +298,7 @@ export async function switchLessonAssignment(id, newUserId) {
 export async function removeLesson(id) {
   try {
     utilities.argValidation([id], ["Lesson ID"]);
-    utilities.dataTypeValidation([id], ["string"])
+    utilities.dataTypeValidation([id], ["ID"],["string"]);
 
     const lessonModel = utilities.getModel(
       utilities.schemas().Lesson,

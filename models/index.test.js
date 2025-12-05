@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import * as models from ".";
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import { errorEmail } from "../email";
 import * as utilities from "../utilities";
 
@@ -29,7 +29,12 @@ constructorSpy.find = vi.fn((param) => {
     return Promise.resolve([param]);
   } else if (param.username === "existusername") {
     return Promise.resolve([
-      { username: "existusername", password: "hashed_password", _id: "user123", admin: true },
+      {
+        username: "existusername",
+        password: "hashed_password",
+        _id: "user123",
+        admin: true,
+      },
     ]);
   } else {
     return Promise.resolve([]);
@@ -48,22 +53,14 @@ vi.mock("bcrypt", () => {
 });
 
 // Mock mongoose
-vi.mock("mongoose", () => {
-  const connectMock = vi.fn((uri) => {
-    if (uri === "fail") throw new Error("DB failed");
-  });
-
+vi.mock("mongoose", async () => {
+  const actual = await vi.importActual("mongoose");
   return {
-    connect: connectMock,
-    Schema: vi.fn(),
-    model: vi.fn(() => constructorSpy),
-    disconnect: vi.fn(),
-    default: {
-      connect: connectMock,
-      Schema: vi.fn(),
-      model: vi.fn(() => constructorSpy),
-      disconnect: vi.fn(),
-    },
+    ...actual,
+    connect: vi.fn(async(URI, db) => `${URI} used to connect to ${db.dbName}`),
+    model: actual.model.bind(actual),
+    Schema: actual.Schema, // make sure Schema exists
+    models: actual.models,
   };
 });
 
@@ -71,10 +68,16 @@ vi.mock("mongoose", () => {
 vi.mock("jsonwebtoken", () => ({
   default: {
     sign: vi.fn(() => "mocked.token"),
-    decode: vi.fn(() => ({ exp: Math.floor(Date.now() / 1000) + 3600, admin: true })),
+    decode: vi.fn(() => ({
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      admin: true,
+    })),
   },
   sign: vi.fn(() => "mocked.token"),
-  decode: vi.fn(() => ({ exp: Math.floor(Date.now() / 1000) + 3600, admin: true })),
+  decode: vi.fn(() => ({
+    exp: Math.floor(Date.now() / 1000) + 3600,
+    admin: true,
+  })),
 }));
 
 // Mock email
@@ -90,6 +93,7 @@ vi.mock("../utilities/index.js", async () => {
     getModel: vi.fn(() => constructorSpy),
     schemas: actual.schemas,
     argValidation: actual.argValidation,
+    dataTypeValidation: actual.dataTypeValidation,
     TokenBlacklist: actual.TokenBlacklist,
   };
 });
@@ -103,6 +107,7 @@ beforeEach(() => {
   process.env.JWT_SECRET = "testsecret";
   instance = undefined;
   vi.clearAllMocks();
+  vi.spyOn(mongoose, "connect").mockImplementation(async () => "mocked");
 });
 
 afterEach(() => {
@@ -115,7 +120,9 @@ describe("dbConnect", () => {
   it("should call mongoose.connect with correct args", async () => {
     await models.dbConnect();
     expect(mongoose.connect).toHaveBeenCalledOnce();
-    expect(mongoose.connect).toHaveBeenCalledWith(process.env.URI, { dbName: "ski-lessons" });
+    expect(mongoose.connect).toHaveBeenCalledWith(process.env.URI, {
+      dbName: "ski-lessons",
+    });
   });
 
   it("should throw error and email if connection fails", async () => {
@@ -138,14 +145,22 @@ describe("newUser", () => {
   });
 
   it("should throw error if user exists", async () => {
-    await expect(models.newUser("exists", "password", false)).rejects.toThrow("User already exists");
+    await expect(models.newUser("exists", "password", false)).rejects.toThrow(
+      "User already exists"
+    );
     expect(errorEmail).toHaveBeenCalled();
   });
 
   it("should throw error if args are missing", async () => {
-    await expect(models.newUser(null, "", false)).rejects.toThrow("Username required");
-    await expect(models.newUser(" ", null, false)).rejects.toThrow("Password required");
-    await expect(models.newUser(" ", "password", null)).rejects.toThrow("Admin required");
+    await expect(models.newUser(null, "", false)).rejects.toThrow(
+      "Username required"
+    );
+    await expect(models.newUser(" ", null, false)).rejects.toThrow(
+      "Password required"
+    );
+    await expect(models.newUser(" ", "password", null)).rejects.toThrow(
+      "Admin required"
+    );
     expect(errorEmail).toHaveBeenCalled();
   });
 });
@@ -158,7 +173,9 @@ describe("loginUser", () => {
   });
 
   it("should throw if credentials are wrong", async () => {
-    await expect(models.loginUser("existusername", "wrongpass")).rejects.toThrow("User or password doesn't match");
+    await expect(
+      models.loginUser("existusername", "wrongpass")
+    ).rejects.toThrow("User or password doesn't match");
   });
 });
 
@@ -166,7 +183,8 @@ describe("loginUser", () => {
 describe("deleteUser", () => {
   beforeEach(() => {
     constructorSpy.findOneAndDelete = vi.fn(async (query) => {
-      if (query.username === "existentUser") return { username: "existentUser", _id: "user123" };
+      if (query.username === "existentUser")
+        return { username: "existentUser", _id: "user123" };
       return null;
     });
   });
@@ -177,7 +195,9 @@ describe("deleteUser", () => {
   });
 
   it("throws if user not found", async () => {
-    await expect(models.deleteUser("nonexistent")).rejects.toThrow("No user found with username: nonexistent");
+    await expect(models.deleteUser("nonexistent")).rejects.toThrow(
+      "No user found with username: nonexistent"
+    );
   });
 });
 
@@ -193,27 +213,43 @@ describe("logoutUser", () => {
 // ===== LESSON CRUD =====
 describe("createLesson", () => {
   it("creates a lesson", async () => {
-    const lessonInput = { type: "private", date: "2025-12-01", timeLength: "2 hours", guests: 2, assignedTo: "user123" };
+    const lessonInput = {
+      type: "private",
+      date: "2025-12-01",
+      timeLength: "2 hours",
+      guests: 2,
+      assignedTo: "user123",
+    };
     const result = await models.createLesson(lessonInput);
     expect(result).toBe(instance);
     expect(instance.save).toHaveBeenCalled();
   });
 
   it("throws if required field missing", async () => {
-    await expect(models.createLesson({ type: "group", date: "", timeLength: "1 hour", guests: 4, assignedTo: "abc" }))
-      .rejects.toThrow("Date required");
+    await expect(
+      models.createLesson({
+        type: "group",
+        date: "",
+        timeLength: "1 hour",
+        guests: 4,
+        assignedTo: "abc",
+      })
+    ).rejects.toThrow("Date required");
     expect(errorEmail).toHaveBeenCalled();
   });
 });
 
 describe("retrieveLessons", () => {
   it("returns lessons for valid ID", async () => {
-    const results = await models.retrieveLessons({assignedTo: "2"});
+    const results = await models.retrieveLessons({ assignedTo: "2" });
     expect(results).toEqual([{ lesson: "lesson" }]);
   });
 
   it("throws if ID not an object", async () => {
-    await expect(models.retrieveLessons(88)).rejects.toThrow("ID must be an object");
+    const badParam = "FAIL";
+    await expect(models.retrieveLessons(badParam)).rejects.toThrow(
+      `Param must be a object`
+    );
     expect(errorEmail).toHaveBeenCalled();
   });
 });
@@ -261,25 +297,32 @@ describe("retrieveUsers", () => {
 describe("switchLessonAssignment", () => {
   beforeEach(() => {
     constructorSpy.findByIdAndUpdate = vi.fn((id, update) => {
-      if (id === "validLessonId") return Promise.resolve({ _id: id, assignedTo: update.assignedTo });
+      if (id === "validLessonId")
+        return Promise.resolve({ _id: id, assignedTo: update.assignedTo });
       return Promise.resolve(null);
     });
   });
 
   it("switches assigned instructor", async () => {
-    const lesson = await models.switchLessonAssignment("validLessonId", "newUser123");
+    const lesson = await models.switchLessonAssignment(
+      "validLessonId",
+      "newUser123"
+    );
     expect(lesson.assignedTo).toBe("newUser123");
   });
 
   it("throws if lesson not found", async () => {
-    await expect(models.switchLessonAssignment("badId", "newUser")).rejects.toThrow("Lesson not found");
+    await expect(
+      models.switchLessonAssignment("badId", "newUser")
+    ).rejects.toThrow("Lesson not found");
   });
 });
 
 describe("removeLesson", () => {
   beforeEach(() => {
     constructorSpy.findByIdAndDelete = vi.fn((id) => {
-      if (id === "validLessonId") return Promise.resolve({ _id: id, title: "Test Lesson" });
+      if (id === "validLessonId")
+        return Promise.resolve({ _id: id, title: "Test Lesson" });
       return Promise.resolve(null);
     });
   });
@@ -291,7 +334,9 @@ describe("removeLesson", () => {
   });
 
   it("throws if lesson not found", async () => {
-    await expect(models.removeLesson("notFound")).rejects.toThrow("Lesson not found or already deleted");
+    await expect(models.removeLesson("notFound")).rejects.toThrow(
+      "Lesson not found or already deleted"
+    );
   });
 });
 
