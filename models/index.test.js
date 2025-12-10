@@ -90,8 +90,9 @@ vi.mock("../utilities/index.js", async () => {
   const actual = await vi.importActual("../utilities/index.js");
   return {
     ...actual,
-    getModel: vi.fn(() => constructorSpy),
-    schemas: actual.schemas,
+    getModel: vi.fn((schema) => constructorSpy),
+    UserSchema: actual.UserSchema,
+    LessonSchema: actual.LessonSchema,
     argValidation: actual.argValidation,
     dataTypeValidation: actual.dataTypeValidation,
     TokenBlacklist: actual.TokenBlacklist,
@@ -236,12 +237,13 @@ describe("createLesson", () => {
     await expect(
       models.createLesson({
         type: "group",
-        date: "",
+        date: undefined,
         timeLength: "1 hour",
         guests: 4,
         assignedTo: "abc",
       })
     ).rejects.toThrow("Date required");
+
     expect(errorEmail).toHaveBeenCalled();
   });
 });

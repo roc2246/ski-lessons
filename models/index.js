@@ -41,12 +41,6 @@ export async function dbConnect() {
 
 // ======== AUTHENTICATION FUNCTIONS ======== //
 
-/**
- * Creates a new user with a hashed password.
- * @param {string} username
- * @param {string} password
- * @param {boolean} admin
- */
 export async function newUser(username, password, admin) {
   try {
     utilities.argValidation(
@@ -54,7 +48,7 @@ export async function newUser(username, password, admin) {
       ["Username", "Password", "Admin"]
     );
 
-    const UserModel = utilities.getModel(utilities.schemas().User, "User");
+    const UserModel = utilities.getModel(utilities.UserSchema, "User");
 
     const userInDB = await UserModel.find({ username });
     if (userInDB.length > 0) throw new Error("User already exists");
@@ -73,17 +67,11 @@ export async function newUser(username, password, admin) {
   }
 }
 
-/**
- * Logs in a user by verifying their credentials and returning a JWT.
- * @param {string} username
- * @param {string} password
- * @returns {string} JWT
- */
 export async function loginUser(username, password) {
   try {
     utilities.argValidation([username, password], ["Username", "Password"]);
 
-    const UserModel = utilities.getModel(utilities.schemas().User, "User");
+    const UserModel = utilities.getModel(utilities.UserSchema, "User");
     await dbConnect();
     const userCreds = await UserModel.find({ username });
     if (userCreds.length === 0)
@@ -108,31 +96,11 @@ export async function loginUser(username, password) {
   }
 }
 
-/**
- * Deletes a user from the database by their username.
- *
- * This function is intended for general user deletion and can be
- * used for both admin-initiated deletions or self-deletion logic.
- * It does **not** handle logout or token invalidation — that should
- * be done separately if needed.
- *
- * @param {string} username - The username of the user to delete.
- * @returns {Promise<Object>} The deleted user document.
- *
- * @throws {Error} Throws an error if:
- *   - The username argument is missing or invalid.
- *   - The database operation fails.
- *   - No user with the given username is found.
- *
- * @example
- * const deleted = await deleteUser("john_doe");
- * console.log(deleted);
- */
 export async function deleteUser(username) {
   try {
     utilities.argValidation([username], [`Username`]);
 
-    const User = utilities.getModel(utilities.schemas().User, "User");
+    const User = utilities.getModel(utilities.UserSchema, "User");
     const deletedUser = await User.findOneAndDelete({ username });
     if (!deletedUser)
       throw new Error(`No user found with username: ${username}`);
@@ -142,12 +110,6 @@ export async function deleteUser(username) {
   }
 }
 
-/**
- * Logout user by blacklisting the token.
- * Requires an instance of TokenBlacklist to manage blacklisted tokens.
- * @param {TokenBlacklist} blacklist Instance of TokenBlacklist
- * @param {string} token JWT token string to blacklist
- */
 export async function logoutUser(blacklist, token) {
   try {
     utilities.argValidation([blacklist, token], [`Blacklist`, `Token`]);
@@ -159,24 +121,12 @@ export async function logoutUser(blacklist, token) {
   }
 }
 
-// Export a factory to create new blacklist instances
 export function createTokenBlacklist() {
   return new utilities.TokenBlacklist();
 }
 
 // ======== CRUD FUNCTIONS ======== //
 
-/**
- * Creates a new lesson document in the database.
- *
- * @param {Object} lessonData - Lesson info
- * @param {string} lessonData.type
- * @param {string} lessonData.date
- * @param {string} lessonData.timeLength
- * @param {number} lessonData.guests
- * @param {string} lessonData.assignedTo
- * @returns {Promise<Object>}
- */
 export async function createLesson(lessonData) {
   try {
     const requiredFields = [
@@ -192,10 +142,7 @@ export async function createLesson(lessonData) {
       requiredFields.map((f) => f[0].toUpperCase() + f.slice(1))
     );
 
-    const lessonModel = utilities.getModel(
-      utilities.schemas().Lesson,
-      "Lesson"
-    );
+    const lessonModel = utilities.getModel(utilities.LessonSchema, "Lesson");
 
     const newLesson = new lessonModel({
       type: lessonData.type,
@@ -214,21 +161,12 @@ export async function createLesson(lessonData) {
   }
 }
 
-/**
- * Retrieves all lessons assigned to a specific user/instructor by ID.
- *
- * @param {object} id - The instructor's user ID or a blank object for all lessons
- * @returns {Promise<Array<Object>>}
- */
 export async function retrieveLessons(param) {
   try {
     utilities.argValidation([param], ["Param"]);
-    utilities.dataTypeValidation([param], ["Param"],["object"]);
+    utilities.dataTypeValidation([param], ["Param"], ["object"]);
 
-    const lessonModel = utilities.getModel(
-      utilities.schemas().Lesson,
-      "Lesson"
-    );
+    const lessonModel = utilities.getModel(utilities.LessonSchema, "Lesson");
     const lessons = await lessonModel.find(param);
     return lessons;
   } catch (error) {
@@ -237,13 +175,9 @@ export async function retrieveLessons(param) {
   }
 }
 
-/**
- * Retrieves users.
- * @returns {Promise<Array<Object>>}
- */
 export async function retrieveUsers() {
   try {
-    const userModel = utilities.getModel(utilities.schemas().User, "User");
+    const userModel = utilities.getModel(utilities.UserSchema, "User");
 
     const users = await userModel.find({}).select("-password");
     return users;
@@ -253,13 +187,6 @@ export async function retrieveUsers() {
   }
 }
 
-/**
- * Switches the assigned instructor/user for a lesson.
- *
- * @param {string} id - The lesson's ObjectId string
- * @param {string} newUserId - The new user's ObjectId string
- * @returns {Promise<Object>} - Updated lesson document
- */
 export async function switchLessonAssignment(id, newUserId) {
   try {
     utilities.argValidation([id, newUserId], ["Lesson ID", "New User ID"]);
@@ -269,10 +196,7 @@ export async function switchLessonAssignment(id, newUserId) {
       ["string", "string"]
     );
 
-    const lessonModel = utilities.getModel(
-      utilities.schemas().Lesson,
-      "Lesson"
-    );
+    const lessonModel = utilities.getModel(utilities.LessonSchema, "Lesson");
 
     const updatedLesson = await lessonModel.findByIdAndUpdate(
       id,
@@ -289,21 +213,12 @@ export async function switchLessonAssignment(id, newUserId) {
   }
 }
 
-/**
- * Deletes a lesson from the database by its unique ID.
- *
- * @param {string} id - The lesson ID to delete
- * @returns {Promise<Object>} - Deletion confirmation and deleted lesson
- */
 export async function removeLesson(id) {
   try {
     utilities.argValidation([id], ["Lesson ID"]);
-    utilities.dataTypeValidation([id], ["ID"],["string"]);
+    utilities.dataTypeValidation([id], ["ID"], ["string"]);
 
-    const lessonModel = utilities.getModel(
-      utilities.schemas().Lesson,
-      "Lesson"
-    );
+    const lessonModel = utilities.getModel(utilities.LessonSchema, "Lesson");
 
     const deletedLesson = await lessonModel.findByIdAndDelete(id);
     if (!deletedLesson) throw new Error("Lesson not found or already deleted");
