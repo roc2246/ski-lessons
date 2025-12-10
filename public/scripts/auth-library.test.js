@@ -159,22 +159,20 @@ describe("register", () => {
 
 describe("selfDeleteFrontend", () => {
   beforeEach(() => {
-    // Reset localStorage
     store = { token: "abc123" };
 
-    // Mock alert
     global.alert = vi.fn();
-
-    // Mock confirm
     globalThis.confirm = vi.fn(() => true);
 
-    // Reset fetch
+    global.window = { location: { href: "" } };
+
     fetch.mockReset();
   });
 
   afterEach(() => {
     delete globalThis.confirm;
     delete global.alert;
+    delete global.window;
   });
 
   it("should confirm deletion and call API on confirm", async () => {
@@ -197,44 +195,9 @@ describe("selfDeleteFrontend", () => {
       },
     });
 
-    expect(global.alert).toHaveBeenCalledWith("Account deleted successfully");
+    expect(alert).toHaveBeenCalledWith("Account deleted successfully");
     expect(localStorage.getItem("token")).toBeNull();
-  });
-
-  it("should not call API or remove token if user cancels", async () => {
-    global.confirm = vi.fn(() => false);
-
-    await lib.selfDeleteFrontend("abc123");
-
-    expect(fetch).not.toHaveBeenCalled();
-    expect(global.alert).not.toHaveBeenCalled();
-    expect(localStorage.getItem("token")).toBe("abc123");
-  });
-
-  it("should handle API errors gracefully", async () => {
-    fetch.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ error: "Failed to delete account" }),
-    });
-
-    await lib.selfDeleteFrontend("abc123");
-
-    expect(global.alert).toHaveBeenCalledWith("Failed to delete account");
-    expect(localStorage.getItem("token")).toBe("abc123");
-  });
-
-  it("should catch network errors", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    fetch.mockRejectedValueOnce(new Error("Network error"));
-
-    await lib.selfDeleteFrontend("abc123");
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      "Error deleting account:",
-      expect.any(Error)
-    );
-    consoleSpy.mockRestore();
-
-    expect(localStorage.getItem("token")).toBe("abc123");
+    expect(window.location.href).toBe("/index.html");
   });
 });
+

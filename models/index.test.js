@@ -57,7 +57,7 @@ vi.mock("mongoose", async () => {
   const actual = await vi.importActual("mongoose");
   return {
     ...actual,
-    connect: vi.fn(async(URI, db) => `${URI} used to connect to ${db.dbName}`),
+    connect: vi.fn(),
     model: actual.model.bind(actual),
     Schema: actual.Schema, // make sure Schema exists
     models: actual.models,
@@ -126,9 +126,16 @@ describe("dbConnect", () => {
   });
 
   it("should throw error and email if connection fails", async () => {
-    process.env.URI = "fail";
+    const error = new Error("DB failed");
+
+    mongoose.connect.mockRejectedValue(error);
+
     await expect(models.dbConnect()).rejects.toThrow("DB failed");
-    expect(errorEmail).toHaveBeenCalled();
+
+    expect(errorEmail).toHaveBeenCalledWith(
+      "Connection Failed",
+      "Error: DB failed"
+    );
   });
 });
 
