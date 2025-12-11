@@ -1,15 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as models from "./index.js";
 import mongoose from "mongoose";
-import { errorEmail } from "../email";
+import * as emailModule from "../email"; // import the whole module to spy
 
-// Environment setup
 const originalURI = process.env.URI;
 
 beforeEach(() => {
   process.env.URI = "mongodb://localhost:27017/test";
   vi.clearAllMocks();
   vi.spyOn(mongoose, "connect").mockImplementation(async () => "mocked");
+  // Spy on errorEmail
+  vi.spyOn(emailModule, "errorEmail").mockImplementation(async () => {});
 });
 
 afterEach(() => {
@@ -30,7 +31,7 @@ describe("dbConnect", () => {
     mongoose.connect.mockRejectedValue(error);
 
     await expect(models.dbConnect()).rejects.toThrow("DB failed");
-    expect(errorEmail).toHaveBeenCalledWith(
+    expect(emailModule.errorEmail).toHaveBeenCalledWith(
       "Connection Failed",
       "Error: DB failed"
     );
