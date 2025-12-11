@@ -8,7 +8,7 @@ export async function manageNewUser(req, res) {
     await models.newUser(username, password, admin);
     res.status(201).json({ message: `${username} registered` });
   } catch (error) {
-    utilities.httpErrorMssg(res, 401, "Failed to register user", error);
+    utilities.sendError(res, 401, "Failed to register user", error);
   }
 }
 
@@ -18,7 +18,7 @@ export async function manageLogin(req, res) {
     const token = await models.loginUser(username, password);
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
-    utilities.httpErrorMssg(res, 401, "Login failed", error);
+    utilities.sendError(res, 401, "Login failed", error);
   }
 }
 
@@ -26,14 +26,14 @@ export async function manageLogout(req, res) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.httpErrorMssg(res, 400, "Logout failed", "Missing or invalid Authorization header");
+      return utilities.sendError(res, 400, "Logout failed", "Missing or invalid Authorization header");
     }
     const token = authHeader.split(" ")[1];
     const blacklist = models.createTokenBlacklist();
     await models.logoutUser(blacklist, token);
     res.status(200).json({ message: "Successfully logged out" });
   } catch (error) {
-    utilities.httpErrorMssg(res, 400, "Logout failed", error);
+    utilities.sendError(res, 400, "Logout failed", error);
   }
 }
 
@@ -41,14 +41,14 @@ export async function decodeUser(req, res) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+      return utilities.sendError(res, 401, "Unauthorized: No token provided");
     }
     const token = authHeader.split(" ")[1];
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: Invalid token");
+      return utilities.sendError(res, 401, "Unauthorized: Invalid token");
     }
     const exposedCredentials = {
       userId: decoded.userId,
@@ -60,7 +60,7 @@ export async function decodeUser(req, res) {
       credentials: exposedCredentials,
     });
   } catch (error) {
-    utilities.httpErrorMssg(res, 500, "Failed to retrieve credentials", error);
+    utilities.sendError(res, 500, "Failed to retrieve credentials", error);
   }
 }
 
@@ -68,14 +68,14 @@ export async function selfDeleteAccount(req, res) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+      return utilities.sendError(res, 401, "Unauthorized: No token provided");
     }
     const token = authHeader.split(" ")[1];
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: Invalid token");
+      return utilities.sendError(res, 401, "Unauthorized: Invalid token");
     }
 
     const username = decoded.username;
@@ -91,6 +91,6 @@ export async function selfDeleteAccount(req, res) {
     res.status(200).json({ message: `User "${username}" deleted successfully` });
   } catch (error) {
     console.log(error);
-    utilities.httpErrorMssg(res, 400, "Failed to delete user", error);
+    utilities.sendError(res, 400, "Failed to delete user", error);
   }
 }

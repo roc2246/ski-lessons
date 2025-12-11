@@ -20,7 +20,7 @@ vi.mock("../models/index.js", async () => {
 });
 vi.mock("../utilities/index.js", async () => {
   const actual = await vi.importActual("../utilities/index.js");
-  return { ...actual, httpErrorMssg: vi.fn() };
+  return { ...actual, sendError: vi.fn() };
 });
 
 beforeEach(() => vi.clearAllMocks());

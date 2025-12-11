@@ -18,7 +18,7 @@ vi.mock("../models/index.js", async () => {
 });
 vi.mock("../utilities/index.js", async () => {
   const actual = await vi.importActual("../utilities/index.js");
-  return { ...actual, httpErrorMssg: vi.fn() };
+  return { ...actual, sendError: vi.fn() };
 });
 
 beforeEach(() => vi.clearAllMocks());
@@ -37,7 +37,7 @@ describe("manageUserRetrieval", () => {
     expect(res.json).toHaveBeenCalledWith({ message: "Users retrieved", users: fakeUsers });
   });
 
-  it("should call httpErrorMssg on failure", async () => {
+  it("should call sendError on failure", async () => {
     const err = new Error("fail");
     models.retrieveUsers.mockRejectedValueOnce(err);
 
@@ -46,6 +46,6 @@ describe("manageUserRetrieval", () => {
 
     await controllers.manageUserRetrieval(req, res);
 
-    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(res, 400, "Failed to retrieve users", err);
+    expect(utilities.sendError).toHaveBeenCalledWith(res, 400, "Failed to retrieve users", err);
   });
 });

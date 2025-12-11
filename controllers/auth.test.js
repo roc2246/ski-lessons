@@ -36,7 +36,7 @@ vi.mock("../models/index.js", async () => {
 });
 vi.mock("../utilities/index.js", async () => {
   const actual = await vi.importActual("../utilities/index.js");
-  return { ...actual, httpErrorMssg: vi.fn() };
+  return { ...actual, sendError: vi.fn() };
 });
 
 beforeEach(() => vi.clearAllMocks());
@@ -66,7 +66,7 @@ describe("decodeUser", () => {
   it("should respond 401 if Authorization header missing", async () => {
     req.headers.authorization = undefined;
     await controllers.decodeUser(req, res);
-    expect(utilities.httpErrorMssg).toHaveBeenCalledWith(res, 401, "Unauthorized: No token provided");
+    expect(utilities.sendError).toHaveBeenCalledWith(res, 401, "Unauthorized: No token provided");
   });
 });
 

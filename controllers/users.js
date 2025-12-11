@@ -9,6 +9,6 @@ export async function manageUserRetrieval(req, res) {
       users,
     });
   } catch (error) {
-    utilities.httpErrorMssg(res, 400, "Failed to retrieve users", error);
+    utilities.sendError(res, 400, "Failed to retrieve users", error);
   }
 }

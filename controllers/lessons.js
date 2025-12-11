@@ -11,7 +11,7 @@ export async function manageCreateLesson(req, res) {
       lesson: createdLesson,
     });
   } catch (error) {
-    utilities.httpErrorMssg(res, 422, "Failed to create lesson", error);
+    utilities.sendError(res, 422, "Failed to create lesson", error);
   }
 }
 
@@ -21,7 +21,7 @@ export async function manageLessonRetrieval(req, res) {
     const availableHeader = req.headers.available;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+      return utilities.sendError(res, 401, "Unauthorized: No token provided");
     }
 
     const token = authHeader.split(" ")[1];
@@ -29,7 +29,7 @@ export async function manageLessonRetrieval(req, res) {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: Invalid token");
+      return utilities.sendError(res, 401, "Unauthorized: Invalid token");
     }
 
     const userId = decoded.userId;
@@ -42,7 +42,7 @@ export async function manageLessonRetrieval(req, res) {
       lessons,
     });
   } catch (error) {
-    utilities.httpErrorMssg(res, 400, "Failed to retrieve lessons", error);
+    utilities.sendError(res, 400, "Failed to retrieve lessons", error);
   }
 }
 
@@ -50,12 +50,12 @@ export async function manageSwitchLessonAssignment(req, res) {
   try {
     const { lessonId } = req.params;
     if (!lessonId) {
-      return utilities.httpErrorMssg(res, 400, "Missing lessonId in request parameters");
+      return utilities.sendError(res, 400, "Missing lessonId in request parameters");
     }
 
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: No token provided");
+      return utilities.sendError(res, 401, "Unauthorized: No token provided");
     }
 
     const token = authHeader.split(" ")[1];
@@ -63,7 +63,7 @@ export async function manageSwitchLessonAssignment(req, res) {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return utilities.httpErrorMssg(res, 401, "Unauthorized: Invalid token");
+      return utilities.sendError(res, 401, "Unauthorized: Invalid token");
     }
 
     const newUserId = decoded.userId;
@@ -74,6 +74,6 @@ export async function manageSwitchLessonAssignment(req, res) {
       lesson: updatedLesson,
     });
   } catch (error) {
-    utilities.httpErrorMssg(res, 400, "Failed to switch lesson assignment", error);
+    utilities.sendError(res, 400, "Failed to switch lesson assignment", error);
   }
 }
