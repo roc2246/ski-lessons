@@ -1,62 +1,16 @@
-# Lessons App README
+# React + Vite
 
-## Overview
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-The Lessons App is designed to empower ski and snowboard instructors by giving them greater autonomy over their own schedules. Rather than relying on managers or supervisors for lesson changes, instructors can directly manage, trade, and request lessons through an intuitive interface.
+Currently, two official plugins are available:
 
-This project aims to streamline communication, reduce bottlenecks, and improve transparency and fairness in lesson allocation.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Key Features
+## React Compiler
 
-- **Lesson Viewing:** Instructors can view upcoming lessons, including details like client names, skill level, and time slots.
-- **Lesson Trading:** Instructors can request to trade lessons with other instructors based on availability and preference.
-- **Drop Requests:** Instructors can request to be taken off a lesson, making the spot available for others to pick up.
-- **Private Requests:** Instructors can view and manage client requests for private lessons.
-- **Authentication:** Secure login and token-based authentication to ensure only authorized users can access and modify their lesson data.
-- **Token Blacklisting on Logout:** Ensures that logging out invalidates the token and prevents reuse.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Tech Stack
+## Expanding the ESLint configuration
 
-- **Frontend:** Vanilla HTML and Vanilla JS
-- **Backend:** Node.js with Express
-- **Database:** MongoDB (Mongoose ODM)
-- **Authentication:** JWT with token blacklisting
-
-## Folder Structure (planned or evolving)
-
-```
-lessons-app/
-├── controllers/
-├── models/
-├── routes/
-├── utilities/
-├── app.js
-├── server.js
-├── .env
-```
-
-## Future Improvements
-
-- Build out full frontend interface
-- Notification system for trade and drop requests
-- Admin panel for overrides and higher-level adjustments
-- UI for filtering by ability level, age, and request type
-
-## Purpose and Vision
-
-This app is built out of a desire to simplify lesson management for snow sports instructors. At most resorts, instructors have little control over their daily assignments and must rely on management for even minor changes. This system offers a decentralized, instructor-friendly alternative that still respects operational needs.
-
-By giving instructors better tools, we hope to:
-
-- Improve satisfaction and engagement
-- Enhance client experience through better-matched lessons
-- Save managers time and reduce human error in assignments
-
-## Author
-
-Riley Childs – Snowboard Instructor and Web Developer
-
----
-
-*This is a work in progress. Contributions and feedback are welcome.*
-
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
