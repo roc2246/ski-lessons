@@ -7,6 +7,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  // Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) navigate("/instructor");
@@ -14,7 +15,17 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await lib.login(username, password); // redirects on success
+
+    try {
+      const data = await lib.login(username, password); // returns token on success
+      if (data?.token) {
+        localStorage.setItem("token", data.token);
+        navigate("/instructor"); // SPA navigation
+      }
+    } catch (err) {
+      console.error("Login failed", err);
+      alert("Login failed. Check your credentials.");
+    }
   };
 
   return (

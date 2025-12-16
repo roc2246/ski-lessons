@@ -2,24 +2,24 @@ export async function login(username, password) {
   try {
     const res = await fetch("/api/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
 
-    const data = await res.json();
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
 
-    if (res.ok) {
-      localStorage.setItem("token", data.token);
-      window.location.href = "/instructor.html";
-    } else {
-      alert(data.error || "Login failed");
+    if (!res.ok) {
+      alert(data?.error || "Login failed");
     }
+
+    return data;
   } catch (error) {
     console.error("Error during login:", error);
+    alert("Something went wrong during login");
   }
 }
+
 
 export async function logout(token) {
   try {
