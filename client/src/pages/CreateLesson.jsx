@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import * as adminLib from "../utils/admin-library.js";
 // import * as domLib from "../utils/dom-library.js";
-import "../styles/main.css";
+// import "../styles/main.css";
 
 function CreateLesson() {
   const navigate = useNavigate();
@@ -161,7 +161,7 @@ function CreateLesson() {
         </button>
       </form>
 
-      <Link to="/admin" className="create-lesson__link">
+      <Link to="/admin-home" className="create-lesson__link">
         Back
       </Link>
     </main>
