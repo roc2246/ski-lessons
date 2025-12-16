@@ -7,7 +7,6 @@ import CreateLesson from "./pages/CreateLesson";
 import LessonBoard from "./pages/LessonBoard";
 import "./styles/main.css";
 
-
 function App() {
   const token = localStorage.getItem("token");
 

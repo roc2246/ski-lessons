@@ -1,12 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Calendar from "../components/Calendar"; // modular calendar component
-import * as lib from "../utils/auth-library"; // auth logic
+import Calendar from "../components/Calendar";
+import * as lib from "../utils/auth-library";
 
 function Instructor() {
   const navigate = useNavigate();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [lessons, setLessons] = useState([]); // optional if showing calendar lessons
 
-  // Redirect if not logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/");
@@ -14,12 +15,16 @@ function Instructor() {
 
   return (
     <main className="instructor">
-      {/* Calendar Section */}
       <section className="calendar-section">
-        <Calendar />
+        <Calendar
+          currentDate={currentDate}
+          onMonthChange={setCurrentDate}
+          lessons={lessons}
+          onAddLesson={(lesson) => console.log("Instructor clicked:", lesson)}
+          title="Instructor Calendar"
+        />
       </section>
 
-      {/* Controls Section */}
       <section className="instructor__controls">
         <h1 className="instructor__title">Logged In</h1>
 
@@ -43,8 +48,6 @@ function Instructor() {
         <Link to="/lesson-board" className="instructor__link">
           Lesson Board
         </Link>
-
-        {/* Ensure the route matches exactly in your Router setup */}
         <Link to="/admin-home" className="instructor__link">
           Admin
         </Link>

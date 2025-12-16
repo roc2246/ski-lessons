@@ -125,3 +125,36 @@ export function nextMonth(currentMonthYear) {
     newDates: getDatesForMonth(newDate)
   };
 }
+
+/**
+ * Fetch lessons for a specific month
+ * @param {Date} date - Any date in the month you want lessons for
+ * @param {string} token - Optional auth token
+ */
+export async function getLessonsForMonth(date, token) {
+  try {
+    if (!token) token = localStorage.getItem("token");
+    const response = await fetch("/api/lessons", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.message || "Failed to fetch lessons");
+    }
+    const { lessons } = await response.json();
+
+    // Filter lessons for the month
+    const month = date.getMonth();
+    const year = date.getFullYear();
+
+    return lessons.filter((lesson) => {
+      const lessonDate = new Date(lesson.date);
+      return lessonDate.getMonth() === month && lessonDate.getFullYear() === year;
+    });
+  } catch (err) {
+    console.error("Error in getLessonsForMonth:", err);
+    return [];
+  }
+}
