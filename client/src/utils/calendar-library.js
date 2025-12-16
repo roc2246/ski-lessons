@@ -63,6 +63,20 @@ export function getDatesForMonth(date) {
 }
 
 /**
+ * Generate array of Date objects for a month
+ */
+export function generateCalendarDates(date) {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const dates = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    dates.push(new Date(year, month, day));
+  }
+  return dates;
+}
+
+/**
  * Navigate to previous month
  */
 export function prevMonth(currentMonthYear) {

@@ -4,6 +4,7 @@ import Instructor from "./pages/Instructor";
 import Register from "./pages/Register";
 import AdminHome from "./pages/AdminHome";
 import CreateLesson from "./pages/CreateLesson";
+import LessonBoard from "./pages/LessonBoard";
 import "./styles/main.css";
 
 
@@ -22,6 +23,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/admin-home" element={<AdminHome />} />
       <Route path="/create-lesson" element={<CreateLesson />} />
+      <Route path="/lesson-board" element={<LessonBoard />} />
     </Routes>
   );
 }
