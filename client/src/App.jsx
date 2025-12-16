@@ -4,6 +4,8 @@ import Instructor from "./pages/Instructor";
 import Register from "./pages/Register";
 import AdminHome from "./pages/AdminHome";
 import CreateLesson from "./pages/CreateLesson";
+import "./styles/main.css";
+
 
 function App() {
   const token = localStorage.getItem("token");

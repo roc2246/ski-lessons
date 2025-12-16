@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import * as lib from "../utils/calendar-library";
+import "../styles/calendar.css";
 
 function Calendar() {
   const [calendar, setCalendar] = useState({ monthYear: "", dates: [] });
