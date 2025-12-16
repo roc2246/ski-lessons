@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Instructor from "./pages/Instructor";
 import Register from "./pages/Register";
+import AdminHome from "./pages/AdminHome";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -16,6 +17,7 @@ function App() {
 
       <Route path="/instructor" element={<Instructor />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/admin-home" element={<AdminHome />} />
     </Routes>
   );
 }
