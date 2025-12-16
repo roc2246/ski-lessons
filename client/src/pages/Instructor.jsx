@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Calendar from "../components/Calendar";
+import Calendar from "../components/calendar-dir/Calendar";
 import * as lib from "../utils/auth-library";
 
 function Instructor() {
