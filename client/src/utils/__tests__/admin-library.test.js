@@ -6,28 +6,27 @@ import {
   beforeAll,
   afterAll,
   beforeEach,
-  afterEach,
 } from "vitest";
-import * as lib from "./admin-library.js";
+import * as lib from "../admin-library.js";
 
 let originalFetch;
 
 beforeAll(() => {
   // Save original fetch
-  originalFetch = global.fetch;
+  originalFetch = window.fetch;
 
-  // Mock globally for all tests
-  global.fetch = vi.fn();
+  // Mock windowly for all tests
+  window.fetch = vi.fn();
 });
 
 afterAll(() => {
   // Restore original fetch after all tests
-  global.fetch = originalFetch;
+  window.fetch = originalFetch;
 });
 
 beforeEach(() => {
   // Reset call history before each test
-  global.fetch.mockReset();
+  window.fetch.mockReset();
 });
 
 describe("isAdmin", () => {
@@ -38,11 +37,11 @@ describe("isAdmin", () => {
       ok: true,
       json: vi.fn().mockResolvedValue({ credentials: { admin: true } }),
     };
-    global.fetch.mockResolvedValue(mockResponse);
+    window.fetch.mockResolvedValue(mockResponse);
 
     const result = await lib.isAdmin(fakeToken);
 
-    expect(global.fetch).toHaveBeenCalledWith("/api/is-admin", {
+    expect(window.fetch).toHaveBeenCalledWith("/api/is-admin", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -60,7 +59,7 @@ describe("isAdmin", () => {
       ok: true,
       json: vi.fn().mockResolvedValue({ credentials: { admin: false } }),
     };
-    global.fetch.mockResolvedValue(mockResponse);
+    window.fetch.mockResolvedValue(mockResponse);
 
     const result = await lib.isAdmin(fakeToken);
     expect(result).toBe(false);
@@ -69,7 +68,7 @@ describe("isAdmin", () => {
   it("should throw an error if fetch returns non-ok", async () => {
     const fakeToken = "fakeToken789";
 
-    global.fetch.mockResolvedValue({
+    window.fetch.mockResolvedValue({
       ok: false,
       json: vi.fn().mockResolvedValue({ message: "Unauthorized access" }),
     });
@@ -81,7 +80,7 @@ describe("isAdmin", () => {
     const fakeToken = "fakeToken999";
     const networkError = new Error("Network failure");
 
-    global.fetch.mockRejectedValue(networkError);
+    window.fetch.mockRejectedValue(networkError);
 
     await expect(lib.isAdmin(fakeToken)).rejects.toThrow("Network failure");
   });
@@ -97,7 +96,7 @@ describe("isAdmin", () => {
     const fakeToken = "fakeToken321";
     const networkError = new Error("Network failure");
 
-    global.fetch.mockRejectedValue(networkError);
+    window.fetch.mockRejectedValue(networkError);
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await expect(lib.isAdmin(fakeToken)).rejects.toThrow("Network failure");
@@ -121,11 +120,11 @@ describe("lessonCreate", () => {
         .fn()
         .mockResolvedValue({ lesson: { ...newLesson, assignedTo: "user123" } }),
     };
-    global.fetch.mockResolvedValue(mockResponse);
+    window.fetch.mockResolvedValue(mockResponse);
 
     const result = await lib.lessonCreate(newLesson, fakeToken);
 
-    expect(global.fetch).toHaveBeenCalledWith("/api/create-lesson", {
+    expect(window.fetch).toHaveBeenCalledWith("/api/create-lesson", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -140,7 +139,7 @@ describe("lessonCreate", () => {
     const fakeToken = "fakeToken123";
     const newLesson = { type: "Intermediate Snowboarding" };
 
-    global.fetch.mockResolvedValue({
+    window.fetch.mockResolvedValue({
       ok: false,
       json: vi.fn().mockResolvedValue({ message: "Failed to create lesson" }),
     });
@@ -155,7 +154,7 @@ describe("lessonCreate", () => {
     const newLesson = { type: "Advanced Snowboarding" };
     const networkError = new Error("Network failure");
 
-    global.fetch.mockRejectedValue(networkError);
+    window.fetch.mockRejectedValue(networkError);
 
     await expect(lib.lessonCreate(newLesson, fakeToken)).rejects.toThrow(
       "Network failure"
@@ -167,7 +166,7 @@ describe("lessonCreate", () => {
     const newLesson = { type: "Freestyle Snowboarding" };
     const networkError = new Error("Network failure");
 
-    global.fetch.mockRejectedValue(networkError);
+    window.fetch.mockRejectedValue(networkError);
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await expect(lib.lessonCreate(newLesson, fakeToken)).rejects.toThrow(
@@ -193,11 +192,11 @@ describe("getUsers", () => {
       }),
     };
 
-    global.fetch.mockResolvedValue(mockResponse);
+    window.fetch.mockResolvedValue(mockResponse);
 
     const result = await lib.getUsers();
 
-    expect(global.fetch).toHaveBeenCalledWith("/api/user-retrieval", {
+    expect(window.fetch).toHaveBeenCalledWith("/api/user-retrieval", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -208,7 +207,7 @@ describe("getUsers", () => {
   });
 
   it("should throw an error if fetch returns non-ok", async () => {
-    global.fetch.mockResolvedValue({
+    window.fetch.mockResolvedValue({
       ok: false,
       json: vi.fn().mockResolvedValue({ message: "Failed to retrieve users" }),
     });
@@ -217,7 +216,7 @@ describe("getUsers", () => {
   });
 
   it("should throw an error if the users field is missing", async () => {
-    global.fetch.mockResolvedValue({
+    window.fetch.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ message: "Users retrieved" }),
     });
@@ -228,7 +227,7 @@ describe("getUsers", () => {
   });
 
   it("should throw an error for malformed JSON structure", async () => {
-    global.fetch.mockResolvedValue({
+    window.fetch.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ somethingElse: 123 }),
     });
@@ -241,7 +240,7 @@ describe("getUsers", () => {
   it("should throw on network failure", async () => {
     const networkError = new Error("Network failure");
 
-    global.fetch.mockRejectedValue(networkError);
+    window.fetch.mockRejectedValue(networkError);
 
     await expect(lib.getUsers()).rejects.toThrow("Network failure");
   });
@@ -249,7 +248,7 @@ describe("getUsers", () => {
   it("should log an error to console when fetch rejects", async () => {
     const networkError = new Error("Network failure");
 
-    global.fetch.mockRejectedValue(networkError);
+    window.fetch.mockRejectedValue(networkError);
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await expect(lib.getUsers()).rejects.toThrow("Network failure");
@@ -268,7 +267,7 @@ describe("getUsers", () => {
       { id: 2, name: "Test B" },
     ];
 
-    global.fetch.mockResolvedValue({
+    window.fetch.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({ message: "Users retrieved", users: fakeUsers }),
     });
