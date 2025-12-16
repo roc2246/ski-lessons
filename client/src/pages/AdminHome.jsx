@@ -10,7 +10,7 @@ function AdminHome() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/index.html");
+      navigate("/");
       return;
     }
 
