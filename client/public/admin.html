@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles/main.css" />
+    <title>Snow Pro App - Admin</title>
+  </head>
+
+  <body>
+    <main class="admin">
+      <h1 class="admin__header">ADMIN HOME</h1>
+
+      <a href="create-lesson.html" class="amin__link">Create Lesson</a>
+      <a href="instructor.html" class="amin__link">Back</a>
+    </main>
+
+    <script type="module">
+      import * as lib from "./scripts/admin-library.js";
+
+      const token = localStorage.getItem("token");
+      if (!token) window.location.href = "/index.html";
+
+      const isAdmin = await lib.isAdmin(token);
+      if (!isAdmin) {
+        alert("You must have admin priveleges to access this page");
+        window.location.href = "/instructor.html";
+      }
+    </script>
+  </body>
+</html>

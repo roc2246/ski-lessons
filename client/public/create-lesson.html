@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles/main.css" />
+    <title>Snow Pro App - Create Lesson</title>
+  </head>
+
+  <body>
+    <main class="create-lesson">
+      <h1 class="create-lesson__header">Create Lesson</h1>
+
+      <!-- status area for loader / errors -->
+      <div id="instructor-status" aria-live="polite" style="margin-bottom: .75rem"></div>
+
+      <form id="lesson-form" class="create-lesson__form">
+        <label>
+          Lesson Type:
+          <input type="text" id="type" name="type" required />
+        </label>
+
+        <label>
+          Date:
+          <input type="date" id="date" name="date" required />
+        </label>
+
+        <label>
+          Length (Hours):
+          <input
+            type="number"
+            id="timeLength"
+            name="timeLength"
+            min="1"
+            required
+          />
+        </label>
+
+        <label>
+          Number of Guests:
+          <input type="number" id="guests" name="guests" min="1" required />
+        </label>
+
+        <label>
+          Assigned Instructor:
+          <!-- replaced text input with select -->
+          <select id="assignedTo" name="assignedTo" required>
+            <option value="None" selected>None</option>
+          </select>
+        </label>
+
+        <button type="submit" id="create-btn" >Create Lesson</button>
+      </form>
+      <a href="admin.html" class="create-lesson__link">Back</a>
+    </main>
+
+    <script type="module">
+      import * as lib from "./scripts/admin-library.js";
+
+      const token = localStorage.getItem("token");
+      if (!token) window.location.href = "/index.html";
+
+      try {
+        const isAdmin = await lib.isAdmin(token);
+        if (!isAdmin) {
+          alert("You must have admin priveleges to access this page");
+          window.location.href = "/instructor.html";
+        }
+      } catch (err) {
+        // If the admin check fails for network or other reasons, redirect back to login
+        console.error("Admin check failed:", err);
+        alert("Unable to verify admin status. Please login again.");
+        window.location.href = "/index.html";
+      }
+    </script>
+
+    <!-- page logic -->
+    <script type="module" src="./scripts/create-lesson.js"></script>
+  </body>
+</html>
