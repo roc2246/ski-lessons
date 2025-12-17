@@ -2,7 +2,7 @@ import { useState } from "react";
 import * as lib from "../utils/auth-library"; // assuming your auth-library has a register() function
 import { useNavigate, Link } from "react-router-dom"; // for navigation after register
 import Field from "../components/Field";
-import RegisterBtn from "../components/buttons/RegisterBtn"
+import SubmitBtn from "../components/buttons/SubmitBtn.jsx";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -45,7 +45,7 @@ function Register() {
           onchange={(e) => setIsAdmin(e.target.checked)}
         />
 
-        <RegisterBtn/>
+        <SubmitBtn type="new-user">Register</SubmitBtn>
       </form>
 
       <Link to="/" className="new-user__link">

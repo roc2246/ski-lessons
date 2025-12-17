@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Field from "../components/Field.jsx";
-import LoginBtn from "../components/buttons/LoginBtn.jsx";
+import SubmitBtn from "../components/buttons/SubmitBtn.jsx";
 import * as lib from "../utils/auth-library.js";
 
 function Login() {
@@ -40,7 +40,7 @@ function Login() {
         <Field type="username" value={username} onchange={(e) => setUsername(e.target.value)} />
         <Field type="password" value={password} onchange={(e) => setPassword(e.target.value)} />
 
-        <LoginBtn />
+        <SubmitBtn type="login">Login</SubmitBtn>
       </form>
 
       <Link to="/register" className="login__link">
