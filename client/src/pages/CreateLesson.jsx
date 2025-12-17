@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import * as adminLib from "../utils/admin-library.js";
-// import * as domLib from "../utils/dom-library.js";
-// import "../styles/main.css";
+import "../styles/main.css";
+import CreateLessonField from "../components/CreateLessonField.jsx";
 
 function CreateLesson() {
   const navigate = useNavigate();
@@ -16,7 +16,6 @@ function CreateLesson() {
   });
   const [status, setStatus] = useState("");
 
-  // Check token and admin rights
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -41,7 +40,6 @@ function CreateLesson() {
     checkAdmin();
   }, [navigate]);
 
-  // Fetch users for the dropdown
   useEffect(() => {
     async function fetchUsers() {
       try {
@@ -55,20 +53,17 @@ function CreateLesson() {
     fetchUsers();
   }, []);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("Creating lesson...");
     try {
-      const createdLesson = await adminLib.lessonCreate(formData);
+      await adminLib.lessonCreate(formData);
       alert("Lesson created successfully!");
-      console.log(createdLesson);
       setFormData({
         type: "",
         date: "",
@@ -88,73 +83,64 @@ function CreateLesson() {
     <main className="create-lesson">
       <h1 className="create-lesson__header">Create Lesson</h1>
 
-      <div id="instructor-status" aria-live="polite" style={{ marginBottom: "0.75rem" }}>
+      <div
+        id="instructor-status"
+        aria-live="polite"
+        style={{ marginBottom: "0.75rem" }}
+      >
         {status}
       </div>
 
       <form className="create-lesson__form" onSubmit={handleSubmit}>
-        <label>
-          Lesson Type:
-          <input
-            type="text"
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            required
-          />
-        </label>
+        <CreateLessonField
+          label="Lesson Type:"
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+          required
+        />
 
-        <label>
-          Date:
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
-          />
-        </label>
+        <CreateLessonField
+          label="Date:"
+          type="date"
+          name="date"
+          value={formData.date}
+          onChange={handleChange}
+          required
+        />
 
-        <label>
-          Length (Hours):
-          <input
-            type="number"
-            name="timeLength"
-            min="1"
-            value={formData.timeLength}
-            onChange={handleChange}
-            required
-          />
-        </label>
+        <CreateLessonField
+          label="Length (Hours):"
+          type="number"
+          name="timeLength"
+          min={1}
+          value={formData.timeLength}
+          onChange={handleChange}
+          required
+        />
 
-        <label>
-          Number of Guests:
-          <input
-            type="number"
-            name="guests"
-            min="1"
-            value={formData.guests}
-            onChange={handleChange}
-            required
-          />
-        </label>
+        <CreateLessonField
+          label="Number of Guests:"
+          type="number"
+          name="guests"
+          min={1}
+          value={formData.guests}
+          onChange={handleChange}
+          required
+        />
 
-        <label>
-          Assigned Instructor:
-          <select
-            name="assignedTo"
-            value={formData.assignedTo}
-            onChange={handleChange}
-            required
-          >
-            <option value="None">None</option>
-            {users.map((user) => (
-              <option key={user._id} value={user._id}>
-                {user.username}
-              </option>
-            ))}
-          </select>
-        </label>
+        <CreateLessonField
+          label="Assigned Instructor:"
+          type="select"
+          name="assignedTo"
+          value={formData.assignedTo}
+          onChange={handleChange}
+          options={[
+            { value: "None", label: "None" },
+            ...users.map((u) => ({ value: u._id, label: u.username })),
+          ]}
+          required
+        />
 
         <button type="submit" id="create-btn">
           Create Lesson
