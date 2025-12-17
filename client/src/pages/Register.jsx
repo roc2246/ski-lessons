@@ -1,7 +1,8 @@
 import { useState } from "react";
 import * as lib from "../utils/auth-library"; // assuming your auth-library has a register() function
-import { useNavigate } from "react-router-dom"; // for navigation after register
+import { useNavigate, Link } from "react-router-dom"; // for navigation after register
 import Field from "../components/Field";
+import Back from "../components/buttons/Back";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -49,12 +50,9 @@ function Register() {
         </button>
       </form>
 
-      <button
-        className="new-user__link"
-        onClick={() => navigate("/")} // go back to login
-      >
+      <Link to="/" className="new-user__link">
         Back
-      </button>
+      </Link>
     </main>
   );
 }
