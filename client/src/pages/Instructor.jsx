@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Calendar from "../components/calendar-dir/Calendar";
-import * as lib from "../utils/auth-library";
+import InstructorControlls from "../components/instructor-dir/InstructorControlls";
 
 function Instructor() {
   const navigate = useNavigate();
@@ -25,33 +25,7 @@ function Instructor() {
         />
       </section>
 
-      <section className="instructor__controls">
-        <h1 className="instructor__title">Logged In</h1>
-
-        <button
-          className="btn btn--secondary instructor__btn"
-          onClick={() => {
-            lib.logout();
-            navigate("/");
-          }}
-        >
-          Logout
-        </button>
-
-        <button
-          className="btn btn--danger instructor__btn"
-          onClick={() => lib.deleteAccount(navigate)}
-        >
-          Delete Account
-        </button>
-
-        <Link to="/lesson-board" className="instructor__link">
-          Lesson Board
-        </Link>
-        <Link to="/admin-home" className="instructor__link">
-          Admin
-        </Link>
-      </section>
+      <InstructorControlls/>
     </main>
   );
 }

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import Field from "../components/login-dir/Field.jsx";
+import LoginBtn from "../components/buttons/LoginBtn.jsx";
 import * as lib from "../utils/auth-library.js";
 
 function Login() {
@@ -35,36 +37,15 @@ function Login() {
       <form className="login__form" onSubmit={handleSubmit}>
         <h2 className="login__form-title">Please log in</h2>
 
-        <div className="login__field">
-          <label htmlFor="username" className="login__label">Username</label>
-          <input
-            type="text"
-            id="username"
-            className="login__input"
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
+        <Field type="username" value={username} onchange={(e) => setUsername(e.target.value)} />
+        <Field type="password" value={password} onchange={(e) => setPassword(e.target.value)} />
 
-        <div className="login__field">
-          <label htmlFor="password" className="login__label">Password</label>
-          <input
-            type="password"
-            id="password"
-            className="login__input"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        <button type="submit" className="btn btn--primary login__submit">
-          Login
-        </button>
+        <LoginBtn />
       </form>
 
-      <Link to="/register" className="login__link">Register</Link>
+      <Link to="/register" className="login__link">
+        Register
+      </Link>
     </main>
   );
 }
