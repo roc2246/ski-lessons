@@ -1,6 +1,7 @@
 import { useState } from "react";
 import * as lib from "../utils/auth-library"; // assuming your auth-library has a register() function
 import { useNavigate } from "react-router-dom"; // for navigation after register
+import Field from "../components/Field";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -25,43 +26,23 @@ function Register() {
       <form className="new-user__form" onSubmit={handleSubmit}>
         <h2 className="new-user__form-title">Register New User</h2>
 
-        <div className="new-user__field">
-          <label htmlFor="new-username" className="new-user__label">Username</label>
-          <input
-            type="text"
-            name="username"
-            id="new-username"
-            className="new-user__input"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
+        <Field
+          type="username"
+          value={username}
+          onchange={(e) => setUsername(e.target.value)}
+        />
 
-        <div className="new-user__field">
-          <label htmlFor="new-password" className="new-user__label">Password</label>
-          <input
-            type="password"
-            name="password"
-            id="new-password"
-            className="new-user__input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+        <Field
+          type="password"
+          value={password}
+          onchange={(e) => setPassword(e.target.value)}
+        />
 
-        <div className="new-user__field">
-          <label htmlFor="admin" className="new-user__label">Admin</label>
-          <input
-            type="checkbox"
-            name="admin"
-            id="admin"
-            className="new-user__input"
-            checked={isAdmin}
-            onChange={(e) => setIsAdmin(e.target.checked)}
-          />
-        </div>
+        <Field
+          type="checkbox"
+          value={""}
+          onchange={(e) => setIsAdmin(e.target.checked)}
+        />
 
         <button type="submit" className="btn btn--primary new-user__submit">
           Register

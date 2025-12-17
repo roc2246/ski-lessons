@@ -1,13 +1,13 @@
 export default function Field({ type, value, onchange }) {
   return (
-    <div className="login__field">
-      <label htmlFor={type} className="login__label">
+    <div className="field">
+      <label htmlFor={type} className="field__label">
         {type}
       </label>
       <input
         type={type === "password" ? "password" : type}
         id={type}
-        className="login__input"
+        className="field__input"
         required
         value={value}
         onChange={onchange}

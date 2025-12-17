@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Field from "../components/login-dir/Field.jsx";
+import Field from "../components/Field.jsx";
 import LoginBtn from "../components/buttons/LoginBtn.jsx";
 import * as lib from "../utils/auth-library.js";
 
