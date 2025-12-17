@@ -2,8 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Calendar from "../components/calendar-dir/Calendar";
 import * as lib from "../utils/calendar-library.js";
-import Logout from "../components/buttons/Logout";
-import LessonBoardControlls from "../components/lessonboard-dir/LessonBoardControlls.jsx";
+import LessonBoardControlls from "../components/LessonBoardControlls.jsx";
 import "../styles/main.css";
 import "../styles/calendar.css";
 

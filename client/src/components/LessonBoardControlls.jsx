@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import GeneralBtn from "../buttons/GeneralBtn";
-import * as lib from "../../utils/auth-library";
+import GeneralBtn from "./buttons/GeneralBtn";
+import * as lib from "../utils/auth-library";
 
 export default function LessonBoardControlls() {
   return (

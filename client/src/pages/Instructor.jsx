@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Calendar from "../components/calendar-dir/Calendar";
-import InstructorControlls from "../components/instructor-dir/InstructorControlls";
+import InstructorControlls from "../components/InstructorControlls";
 
 function Instructor() {
   const navigate = useNavigate();
