@@ -1,15 +1,13 @@
-import { useNavigate, Link } from "react-router-dom";
-
-export default function GeneralBtn({type, onclick, children}) {
-  const navigate = useNavigate();
-
+export default function GeneralBtn({
+  type = "primary",
+  onClick,
+  children,
+}) {
   return (
     <button
+      type="button"
       className={`btn btn--${type} instructor__btn`}
-      onClick={() => {
-        onclick
-        type==="secondary" && navigate("/");
-      }}
+      onClick={onClick}
     >
       {children}
     </button>

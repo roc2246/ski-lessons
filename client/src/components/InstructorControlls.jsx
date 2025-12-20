@@ -4,14 +4,22 @@ import * as lib from "../utils/auth-library";
 
 export default function InstructorControlls() {
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   return (
     <section className="instructor__controls">
       <h1 className="instructor__title">Logged In</h1>
-      <GeneralBtn type="secondary" onclick={() => lib.logout()}>
+      <GeneralBtn
+        type="secondary"
+        onClick={() => {
+          lib.logout(token);
+          navigate("/");
+        }}
+      >
         Logout
       </GeneralBtn>
-      <GeneralBtn type="danger" onclick={() => lib.deleteAccount(navigate)}>
+
+      <GeneralBtn type="danger" onClick={() => lib.deleteAccount(navigate)}>
         Delete
       </GeneralBtn>
 
