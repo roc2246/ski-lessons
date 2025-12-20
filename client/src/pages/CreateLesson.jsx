@@ -33,7 +33,7 @@ function CreateLesson() {
       } catch (err) {
         console.error("Admin check failed:", err);
         alert("Unable to verify admin status. Please login again.");
-        navigate("/index.html");
+        navigate("/instructor");
       }
     }
 
