@@ -2,92 +2,57 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import * as lib from "../calendar-library.js";
 
 // ========================
-// Global Mock DOM & Storage
+// Global Mocks
 // ========================
 beforeAll(() => {
-  // ----- MonthYear mock -----
-  let _monthYearText = "";
-  const mockMonthYear = {};
-  Object.defineProperty(mockMonthYear, "textContent", {
-    get: () => _monthYearText,
-    set: (val) => { _monthYearText = val; },
-  });
-  Object.defineProperty(mockMonthYear, "innerText", {
-    get: () => _monthYearText,
-    set: (val) => { _monthYearText = val; },
-  });
-  mockMonthYear.style = {};
-  mockMonthYear.className = "";
-
-  // ----- CalendarDates mock -----
-  let _calendarInnerHTML = "";
-  const mockCalendarDates = {};
-  Object.defineProperty(mockCalendarDates, "innerHTML", {
-    get: () => _calendarInnerHTML,
-    set: (val) => { _calendarInnerHTML = val; },
-  });
-  mockCalendarDates.appendChild = vi.fn();
-  mockCalendarDates.style = {};
-  mockCalendarDates.className = "";
-
-  // ----- Document -----
-  window.document = {
-    getElementById: vi.fn((id) => {
-      if (id === "monthYear") return mockMonthYear;
-      if (id === "calendarDates") return mockCalendarDates;
-      return null;
-    }),
-    createDocumentFragment: () => ({ appendChild: vi.fn() }),
-    createElement: (tag) => ({ tagName: tag.toUpperCase(), className: "", innerHTML: "" }),
-    getElementsByClassName: vi.fn(() => []),
-  };
-
-  // Expose mocks
-  window.mockMonthYear = mockMonthYear;
-  window.mockCalendarDates = mockCalendarDates;
-
-  // ----- LocalStorage -----
-  window.localStorage = {
+  // LocalStorage mock
+  globalThis.localStorage = {
     store: {},
     getItem(key) { return this.store[key] || null; },
     setItem(key, value) { this.store[key] = value; },
-    clear() { this.store = {}; },
     removeItem(key) { delete this.store[key]; },
+    clear() { this.store = {}; },
   };
 
-  // ----- Fetch -----
-  window.fetch = vi.fn();
+  // Fetch / console mocks
+  globalThis.fetch = vi.fn();
+  globalThis.console.error = vi.fn();
+});
+
+beforeEach(() => {
+  localStorage.clear();
+  fetch.mockReset();
+  console.error.mockReset();
 });
 
 // ========================
 // getLessons
 // ========================
 describe("getLessons", () => {
-  beforeEach(() => localStorage.clear());
-
   it("fetches lessons successfully", async () => {
-    localStorage.setItem("token", "fake-token");
-    const mockResponse = { lessons: [{ date: "2025-10-25", timeLength: "10:00-11:00" }] };
-    window.fetch.mockResolvedValue({
+    localStorage.setItem("token", "token123");
+    const mockLessons = [{ date: "2025-10-25", timeLength: "10:00-11:00" }];
+    fetch.mockResolvedValue({
       ok: true,
-      json: async () => mockResponse,
+      json: async () => ({ lessons: mockLessons }),
     });
 
-    const lessons = await lib.getLessons();
-    expect(lessons).toEqual(mockResponse.lessons);
-    expect(window.fetch).toHaveBeenCalledWith("/api/lessons", {
-      headers: { Authorization: "Bearer fake-token" },
+    const lessons = await lib.getLessons("true");
+    expect(lessons).toEqual(mockLessons);
+    expect(fetch).toHaveBeenCalledWith("/api/lessons", {
+      headers: { Authorization: "Bearer token123", available: "true" },
     });
   });
 
-  it("throws error on fetch failure", async () => {
-    localStorage.setItem("token", "fake-token");
-    window.fetch.mockResolvedValue({
+  it("throws error when response not ok", async () => {
+    localStorage.setItem("token", "token123");
+    fetch.mockResolvedValue({
       ok: false,
-      json: async () => ({ message: "error" }),
+      json: async () => ({ message: "fail" }),
     });
 
-    await expect(lib.getLessons()).rejects.toThrow("error");
+    await expect(lib.getLessons("true")).rejects.toThrow("fail");
+    expect(console.error).toHaveBeenCalled();
   });
 });
 
@@ -97,234 +62,104 @@ describe("getLessons", () => {
 describe("preprocessLessons", () => {
   it("adds _year, _month, _day, _startDate", () => {
     const lessons = [{ date: "2025-10-25", timeLength: "09:30-10:30" }];
-    const result = lib.preprocessLessons(lessons);
-    expect(result[0]._year).toBe(2025);
-    expect(result[0]._month).toBe(10);
-    expect(result[0]._day).toBe(25);
-    expect(result[0]._startDate instanceof Date).toBe(true);
+    const processed = lib.preprocessLessons(lessons);
+    expect(processed[0]._year).toBe(2025);
+    expect(processed[0]._month).toBe(10);
+    expect(processed[0]._day).toBe(25);
+    expect(processed[0]._startDate instanceof Date).toBe(true);
+    expect(processed[0]._startDate.getHours()).toBe(9);
+    expect(processed[0]._startDate.getMinutes()).toBe(30);
   });
 
-  it("handles time without colon correctly", () => {
+  it("handles time without colon", () => {
     const lessons = [{ date: "2025-10-25", timeLength: "9-10:30" }];
-    const result = lib.preprocessLessons(lessons);
-    expect(result[0]._startDate.getHours()).toBe(9);
-    expect(result[0]._startDate.getMinutes()).toBe(0);
+    const processed = lib.preprocessLessons(lessons);
+    expect(processed[0]._startDate.getHours()).toBe(9);
+    expect(processed[0]._startDate.getMinutes()).toBe(0);
   });
 });
 
 // ========================
-// assignLesson
+// getMonthYear
 // ========================
-describe("assignLesson", () => {
-  it("calls fetch with correct URL and headers", async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ lesson: { id: "1" } }),
-    });
-    window.fetch = mockFetch;
-
-    const lesson = await lib.assignLesson("1", "token123");
-    expect(lesson.id).toBe("1");
-    expect(mockFetch).toHaveBeenCalledWith("/api/lessons/1/assign", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer token123",
-      },
-    });
-  });
-
-  it("throws an error if response not ok", async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: false,
-      json: async () => ({ message: "fail" }),
-    });
-    window.fetch = mockFetch;
-
-    await expect(lib.assignLesson("1", "token123")).rejects.toThrow("fail");
+describe("getMonthYear", () => {
+  it("returns correct string", () => {
+    const date = new Date(2025, 9, 15); // October 15, 2025
+    const result = lib.getMonthYear(date);
+    expect(result).toBe("October 2025");
   });
 });
 
 // ========================
-// getCalendarContext
+// getDatesForMonth
 // ========================
-describe("getCalendarContext", () => {
-  it("returns correct year and month for a given date", () => {
-    const date = new Date(2025, 9, 15);
-    const context = lib.getCalendarContext(date);
-    expect(context.year).toBe(2025);
-    expect(context.month).toBe(9);
-  });
-
-  it("calculates first day and days in month correctly", () => {
-    const date = new Date(2025, 9, 1);
-    const context = lib.getCalendarContext(date);
-    expect(context.firstDay).toBe(new Date(2025, 9, 1).getDay());
-    expect(context.daysInMonth).toBe(31);
-  });
-
-  it("returns DOM references correctly", () => {
-    const context = lib.getCalendarContext(new Date());
-    expect(context.dom.monthYear).toBe(window.mockMonthYear);
-    expect(context.dom.calendarDates).toBe(window.mockCalendarDates);
+describe("getDatesForMonth", () => {
+  it("returns correct array of days", () => {
+    const date = new Date(2025, 9, 1); // October
+    const result = lib.getDatesForMonth(date);
+    expect(result[0]).toBe(1);
+    expect(result.length).toBe(31);
+    expect(result[result.length - 1]).toBe(31);
   });
 });
 
 // ========================
-// createEle
+// generateCalendarDates
 // ========================
-describe("createEle", () => {
-  const ele = lib.createEle();
-
-  it("generates timeslot HTML", () => {
-    expect(ele.timeslot("10:00-11:00")).toBe('<h4 class="date__time-slot">10:00-11:00</h4>');
-  });
-
-  it("generates lesson type HTML", () => {
-    expect(ele.type("Yoga")).toBe('<span class="date__lesson-type">Yoga</span>');
-  });
-
-  it("generates day container HTML", () => {
-    expect(ele.dayCont(5)).toBe('<h3 class="date__day">5</h3>');
-  });
-
-  it("generates addLesson button HTML", () => {
-    expect(ele.addLesson()).toBe('<button class="btn date__button-add-lesson">Add Lesson</button>');
+describe("generateCalendarDates", () => {
+  it("returns array of Date objects", () => {
+    const date = new Date(2025, 9, 1); // October
+    const result = lib.generateCalendarDates(date);
+    expect(result.length).toBe(31);
+    expect(result[0]).toBeInstanceOf(Date);
+    expect(result[0].getDate()).toBe(1);
+    expect(result[result.length - 1].getDate()).toBe(31);
   });
 });
 
 // ========================
-// blankDays
+// prevMonth / nextMonth
 // ========================
-describe("blankDays", () => {
-  it("appends a fragment with correct number of blank divs to calendarDates", () => {
-    const appendedChildren = [];
-    document.createDocumentFragment = () => ({
-      appendChild: (child) => appendedChildren.push(child),
-    });
+describe("prevMonth & nextMonth", () => {
+  it("prevMonth works correctly", () => {
+    const { newMonthYear, newDates } = lib.prevMonth("January 2025");
+    expect(newMonthYear).toBe("December 2024");
+    expect(newDates[0]).toBe(1);
+    expect(newDates.length).toBe(31);
+  });
 
-    const mockDom = { calendarDates: { appendChild: vi.fn() } };
-    lib.blankDays(3, mockDom);
-
-    expect(mockDom.calendarDates.appendChild).toHaveBeenCalledTimes(1);
-    expect(appendedChildren).toHaveLength(3);
-    appendedChildren.forEach((child) => expect(child.tagName).toBe("DIV"));
+  it("nextMonth works correctly", () => {
+    const { newMonthYear, newDates } = lib.nextMonth("December 2025");
+    expect(newMonthYear).toBe("January 2026");
+    expect(newDates[0]).toBe(1);
+    expect(newDates.length).toBe(31);
   });
 });
 
 // ========================
-// addLessonBtn
+// getLessonsForMonth
 // ========================
-describe("addLessonBtn", () => {
-  it("attaches click listeners to addLesson buttons", async () => {
-    const lessons = [{ _id: "1" }, { _id: "2" }];
-    const token = "fake-token";
-    localStorage.setItem("token", token);
-
-    const btn1 = { addEventListener: vi.fn() };
-    const btn2 = { addEventListener: vi.fn() };
-    document.getElementsByClassName = vi.fn(() => [btn1, btn2]);
-
-    window.assignLesson = vi.fn().mockResolvedValue({});
-    await lib.addLessonBtn(lessons);
-
-    expect(btn1.addEventListener).toHaveBeenCalledWith("click", expect.any(Function));
-    expect(btn2.addEventListener).toHaveBeenCalledWith("click", expect.any(Function));
-  });
-});
-
-// ========================
-// renderCalendar
-// ========================
-describe("renderCalendar", () => {
-  beforeEach(() => {
-    window.mockMonthYear.textContent = "";
-    window.mockCalendarDates.innerHTML = "";
-    window.fetch = vi.fn();
-  });
-
-  it("renders calendar with lessons and updates DOM", async () => {
+describe("getLessonsForMonth", () => {
+  it("filters lessons correctly for the month", async () => {
+    const date = new Date(2025, 9, 1); // October
     const lessons = [
-      { _id: "1", date: "2025-10-02", timeLength: "10:00-11:00", type: "Yoga" },
-      { _id: "2", date: "2025-10-03", timeLength: "11:00-12:00", type: "Cardio" },
+      { date: "2025-10-02", timeLength: "10:00-11:00" },
+      { date: "2025-11-03", timeLength: "11:00-12:00" },
     ];
-    window.fetch.mockResolvedValue({
+    fetch.mockResolvedValue({
       ok: true,
       json: async () => ({ lessons }),
     });
 
-    await lib.renderCalendar({ date: new Date(2025, 9, 1) });
-
-    expect(window.mockMonthYear.textContent).toBe("October 2025");
-    expect(window.mockCalendarDates.innerHTML).toContain('<h3 class="date__day">2</h3>');
-    expect(window.mockCalendarDates.innerHTML).toContain('<span class="date__lesson-type">Yoga</span>');
-    expect(window.mockCalendarDates.innerHTML).toContain('<span class="date__lesson-type">Cardio</span>');
+    const result = await lib.getLessonsForMonth(date, "token123");
+    expect(result).toHaveLength(1);
+    expect(result[0].date).toBe("2025-10-02");
   });
 
-  it("applies lessonFilter correctly", async () => {
-    const lessons = [
-      { _id: "1", date: "2025-10-02", timeLength: "10:00-11:00", type: "Yoga" },
-      { _id: "2", date: "2025-10-03", timeLength: "11:00-12:00", type: "Cardio" },
-    ];
-    window.fetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({ lessons }),
-    });
-
-    await lib.renderCalendar({
-      date: new Date(2025, 9, 1),
-      lessonFilter: (lesson) => lesson.type === "Yoga",
-    });
-
-    expect(window.mockCalendarDates.innerHTML).toContain('<span class="date__lesson-type">Yoga</span>');
-    expect(window.mockCalendarDates.innerHTML).not.toContain('<span class="date__lesson-type">Cardio</span>');
-  });
-
-  it("applies extraDayHTML correctly", async () => {
-    const lessons = [{ _id: "1", date: "2025-10-02", timeLength: "10:00-11:00", type: "Yoga" }];
-    window.fetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({ lessons }),
-    });
-
-    await lib.renderCalendar({
-      date: new Date(2025, 9, 1),
-      extraDayHTML: (lesson) => `<span class="extra">${lesson._id}</span>`,
-    });
-
-    expect(window.mockCalendarDates.innerHTML).toContain('<span class="extra">1</span>');
-  });
-
-  it("calls onComplete callback with filtered lessons", async () => {
-    const lessons = [{ _id: "1", date: "2025-10-02", timeLength: "10:00-11:00", type: "Yoga" }];
-    window.fetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({ lessons }),
-    });
-
-    const onComplete = vi.fn();
-    await lib.renderCalendar({
-      date: new Date(2025, 9, 1),
-      onComplete,
-    });
-
-    expect(onComplete).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining({ _id: "1" })]));
-  });
-
-  it("sorts multiple lessons on same day by start time", async () => {
-    const lessons = [
-      { _id: "1", date: "2025-10-02", timeLength: "12:00-13:00", type: "Yoga" },
-      { _id: "2", date: "2025-10-02", timeLength: "10:00-11:00", type: "Cardio" },
-    ];
-    window.fetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({ lessons }),
-    });
-
-    await lib.renderCalendar({ date: new Date(2025, 9, 1) });
-
-    const firstIndex = window.mockCalendarDates.innerHTML.indexOf('Cardio');
-    const secondIndex = window.mockCalendarDates.innerHTML.indexOf('Yoga');
-    expect(firstIndex).toBeLessThan(secondIndex);
+  it("returns empty array on fetch failure", async () => {
+    fetch.mockRejectedValue(new Error("fail"));
+    const result = await lib.getLessonsForMonth(new Date(), "token123");
+    expect(result).toEqual([]);
+    expect(console.error).toHaveBeenCalled();
   });
 });
