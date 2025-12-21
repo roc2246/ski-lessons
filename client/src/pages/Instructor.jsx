@@ -19,7 +19,7 @@ function Instructor() {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const fetchedLessons = await lib.getLessonsForMonth(currentDate, token);
+        const fetchedLessons = await lib.getLessonsForMonth(currentDate, token, "false");
         setLessons(fetchedLessons);
       } catch (err) {
         console.error(err);

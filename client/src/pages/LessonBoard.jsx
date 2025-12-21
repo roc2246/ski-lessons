@@ -23,7 +23,7 @@ function LessonBoard() {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const fetchedLessons = await lib.getLessonsForMonth(currentDate, token);
+        const fetchedLessons = await lib.getLessonsForMonth(currentDate, token, "true");
         setLessons(fetchedLessons);
       } catch (err) {
         console.error(err);

@@ -131,12 +131,13 @@ export function nextMonth(currentMonthYear) {
  * @param {Date} date - Any date in the month you want lessons for
  * @param {string} token - Optional auth token
  */
-export async function getLessonsForMonth(date, token) {
+export async function getLessonsForMonth(date, token, available) {
   try {
     if (!token) token = localStorage.getItem("token");
     const response = await fetch("/api/lessons", {
       headers: {
         Authorization: `Bearer ${token}`,
+        available
       },
     });
     if (!response.ok) {

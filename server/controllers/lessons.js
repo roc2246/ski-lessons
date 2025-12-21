@@ -24,27 +24,37 @@ export async function manageLessonRetrieval(req, res) {
       return utilities.sendError(res, 401, "Unauthorized: No token provided");
     }
 
-    const token = authHeader.split(" ")[1];
     let decoded;
     try {
+      const token = authHeader.split(" ")[1];
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
       return utilities.sendError(res, 401, "Unauthorized: Invalid token");
     }
 
     const userId = decoded.userId;
-    const lessons = availableHeader
-      ? await models.retrieveLessons({})
-      : await models.retrieveLessons({ assignedTo: userId });
 
-    res.status(200).json({
-      message: `Lessons retrieved for user ID ${userId}`,
+    // ✅ Explicit boolean parsing
+    const availableOnly = availableHeader === "true";
+
+    // ✅ Clear query logic
+    const query = availableOnly
+      ? { assignedTo: "None" }
+      : { assignedTo: userId };
+
+    const lessons = await models.retrieveLessons(query);
+
+    return res.status(200).json({
+      message: availableOnly
+        ? "Available lessons retrieved"
+        : `Lessons retrieved for user ID ${userId}`,
       lessons,
     });
   } catch (error) {
-    utilities.sendError(res, 400, "Failed to retrieve lessons", error);
+    return utilities.sendError(res, 400, "Failed to retrieve lessons", error);
   }
 }
+
 
 export async function manageSwitchLessonAssignment(req, res) {
   try {
