@@ -20,7 +20,7 @@ export async function login(username, password) {
     if (data?.token) {
       localStorage.setItem("token", data.token);
       if (typeof globalThis !== "undefined" && globalThis.location) {
-        globalThis.location.href = "/instructor.html";
+        globalThis.location.href = "/instructor";
       }
     }
 
