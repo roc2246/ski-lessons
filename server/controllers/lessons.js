@@ -1,6 +1,8 @@
 import * as models from "../models/index.js";
 import * as utilities from "../utilities/index.js";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 export async function manageCreateLesson(req, res) {
   try {
@@ -29,7 +31,7 @@ export async function manageLessonRetrieval(req, res) {
       const token = authHeader.split(" ")[1];
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return utilities.sendError(res, 401, "Unauthorized: Invalid token");
+      return utilities.sendError(res, 401, `Unauthorized: Invalid token - ${err.message}`);
     }
 
     const userId = decoded.userId;
@@ -73,7 +75,7 @@ export async function manageSwitchLessonAssignment(req, res) {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return utilities.sendError(res, 401, "Unauthorized: Invalid token");
+      return utilities.sendError(res, 401, `Unauthorized: Invalid token - ${err.message}`);
     }
 
     const newUserId = decoded.userId;

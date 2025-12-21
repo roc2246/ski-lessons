@@ -48,7 +48,7 @@ export async function decodeUser(req, res) {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return utilities.sendError(res, 401, "Unauthorized: Invalid token");
+      return utilities.sendError(res, 401, "Unauthorized: Invalid token", err);
     }
     const exposedCredentials = {
       userId: decoded.userId,
@@ -75,7 +75,7 @@ export async function selfDeleteAccount(req, res) {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return utilities.sendError(res, 401, "Unauthorized: Invalid token");
+      return utilities.sendError(res, 401, "Unauthorized: Invalid token", err);
     }
 
     const username = decoded.username;
