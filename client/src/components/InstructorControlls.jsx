@@ -19,7 +19,7 @@ export default function InstructorControlls() {
         Logout
       </GeneralBtn>
 
-      <GeneralBtn type="danger" onClick={() => lib.deleteAccount()}>
+      <GeneralBtn type="danger" onClick={() => lib.selfDeleteFrontend()}>
         Delete
       </GeneralBtn>
 

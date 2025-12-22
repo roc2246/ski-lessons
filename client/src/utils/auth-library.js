@@ -77,7 +77,8 @@ export async function register(username, password, admin) {
 }
 
 // --------------------- SELF DELETE ---------------------
-export async function selfDeleteFrontend(token) {
+export async function selfDeleteFrontend() {
+  const token = localStorage.getItem("token")
   if (
     !globalThis.confirm(
       "Are you sure you want to delete your account? This action cannot be undone."
@@ -100,7 +101,7 @@ export async function selfDeleteFrontend(token) {
     if (res.ok) {
       localStorage.removeItem("token");
       alert(data.message || "Account deleted successfully"); // matches test
-      globalThis.location.href = "/index.html";
+      globalThis.location.href = "/";
     } else {
       alert(data.message || "Failed to delete account");
     }
