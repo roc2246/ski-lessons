@@ -1,30 +1,28 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import Calendar from "../components/calendar-dir/Calendar";
 import InstructorControlls from "../components/InstructorControlls";
 import * as lib from "../utils/calendar-library.js";
 
 function Instructor() {
-  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [lessons, setLessons] = useState([]); // optional if showing calendar lessons
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) navigate("/");
-  }, [navigate]);
+  const [lessons, setLessons] = useState([]);
 
   useEffect(() => {
     async function fetchLessons() {
       const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!token) return; // ProtectedRoute handles redirect
+
       try {
-        const fetchedLessons = await lib.getLessonsForMonth(currentDate, token, "false");
+        const fetchedLessons = await lib.getLessonsForMonth(
+          currentDate,
+          token
+        );
         setLessons(fetchedLessons);
       } catch (err) {
         console.error(err);
       }
     }
+
     fetchLessons();
   }, [currentDate]);
 
@@ -35,12 +33,14 @@ function Instructor() {
           currentDate={currentDate}
           onMonthChange={setCurrentDate}
           lessons={lessons}
-          onAddLesson={(lesson) => console.log("Instructor clicked:", lesson)}
+          onAddLesson={(lesson) =>
+            console.log("Instructor clicked:", lesson)
+          }
           title="Instructor Calendar"
         />
       </section>
 
-      <InstructorControlls/>
+      <InstructorControlls />
     </main>
   );
 }

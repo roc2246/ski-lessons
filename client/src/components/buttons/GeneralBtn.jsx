@@ -1,8 +1,4 @@
-export default function GeneralBtn({
-  type = "primary",
-  onClick,
-  children,
-}) {
+export default function GeneralBtn({ type = "primary", onClick, children }) {
   return (
     <button
       type="button"

@@ -33,20 +33,27 @@ export async function login(username, password) {
 
 
 // --------------------- LOGOUT ---------------------
-export async function logout(token) {
+export async function logout() {
+  const token = localStorage.getItem("token");
+
   try {
-    await fetch("/api/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    localStorage.removeItem("token");
+    if (token) {
+      await fetch("/api/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
   } catch (err) {
     console.error("Logout request failed:", err);
+  } finally {
+    // ALWAYS remove token locally
+    localStorage.removeItem("token");
   }
 }
+
 
 // --------------------- REGISTER ---------------------
 export async function register(username, password, admin) {

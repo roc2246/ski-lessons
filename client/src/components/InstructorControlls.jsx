@@ -1,25 +1,25 @@
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import GeneralBtn from "./buttons/GeneralBtn";
 import * as lib from "../utils/auth-library";
 
 export default function InstructorControlls() {
-  const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token"); // ✅ always grab fresh token
 
   return (
     <section className="instructor__controls">
       <h1 className="instructor__title">Logged In</h1>
+
       <GeneralBtn
         type="secondary"
-        onClick={() => {
-          lib.logout(token);
-          navigate("/");
+        onClick={async () => {
+          await lib.logout(token); // ✅ uses token from localStorage
+          window.location.href = "/"; // ✅ hard reload clears app state
         }}
       >
         Logout
       </GeneralBtn>
 
-      <GeneralBtn type="danger" onClick={() => lib.deleteAccount(navigate)}>
+      <GeneralBtn type="danger" onClick={() => lib.deleteAccount()}>
         Delete
       </GeneralBtn>
 
