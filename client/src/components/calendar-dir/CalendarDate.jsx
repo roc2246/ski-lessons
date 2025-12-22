@@ -4,6 +4,7 @@ export default function CalendarDate({ day, lessons = [], onAddLesson }) {
   return (
     <div className="calendar__date">
       <span>{day.getDate()}</span>
+      {lessons.map(lesson => <h1>{lesson.type}</h1>)}
       {lessons
         .filter((lesson) => lesson.assignedTo === "None")
         .map((lesson) => (
