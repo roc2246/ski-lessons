@@ -159,3 +159,36 @@ export async function getLessonsForMonth(date, token, available) {
     return [];
   }
 }
+
+// utils/lesson-library.js
+
+/**
+ * Assign a lesson to the current user
+ * @param {object} lesson - Lesson object containing at least the id
+ * @returns {Promise<object>} - Updated lesson object
+ */
+export async function addLesson(lesson) {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No auth token found");
+
+  try {
+    const response = await fetch(`/api/lessons/${lesson._id}/assign`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to add lesson");
+    }
+
+    const data = await response.json();
+    return data.lesson; // returns updated lesson
+  } catch (err) {
+    console.error("Error adding lesson:", err);
+    throw err;
+  }
+}
