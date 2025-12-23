@@ -8,7 +8,7 @@ export default function Field({ type, value, onchange }) {
         type={type === "password" ? "password" : type}
         id={type}
         className="field__input"
-        required
+        required = {type !=="checkbox" && "true"}
         value={value}
         onChange={onchange}
       />
