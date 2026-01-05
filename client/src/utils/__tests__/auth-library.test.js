@@ -64,7 +64,7 @@ describe("login", () => {
     await lib.login("test", "test");
 
     expect(localStorage.getItem("token")).toBe("abc123");
-    expect(globalThis.location.href).toBe("/instructor.html");
+    expect(globalThis.location.href).toBe("/instructor");
     expect(alert).not.toHaveBeenCalled();
   });
 
@@ -171,6 +171,6 @@ describe("selfDeleteFrontend", () => {
 
     expect(alert).toHaveBeenCalledWith("Account deleted successfully");
     expect(localStorage.getItem("token")).toBeNull();
-    expect(globalThis.location.href).toBe("/index.html");
+    expect(globalThis.location.href).toBe("/");
   });
 });
