@@ -2,7 +2,7 @@ export default function Field({ type, value, onchange }) {
   return (
     <div className="field">
       <label htmlFor={type} className="field__label">
-        {type}
+        {type === "checkbox" ? "Admin" : type}
       </label>
       <input
         type={type === "password" ? "password" : type}
