@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "npx serve -s client/dist",
+    "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "dependencies": {
     "react": "^19.2.0",
