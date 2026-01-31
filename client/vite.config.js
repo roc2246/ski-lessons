@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       // "/api": "http://localhost:2000", // your backend URL
-      "/api": "https://ski-lessons-7410677781cb.herokuapp.com/", // your backend URL
+      "/api": "https://ski-lessons-7410677781cb.herokuapp.com", // your backend URL
     },
   },
 });
