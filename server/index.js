@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import routes from "./routes/index.js"; 
+import routes from "./routes/index.js";
 import dotenv from "dotenv";
 import { dbConnect } from "./models/index.js";
 
@@ -15,20 +15,29 @@ const port = process.env.PORT || 3000;
 
 await dbConnect();
 
-app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
+// API routes FIRST
 app.use("/api", routes);
 
-app.use((req, res) => {
-  res.status(404).send("Not Found");
+// Serve React build
+app.use(
+  express.static(path.join(__dirname, "../client/dist"))
+);
+
+// React router fallback
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../client/dist/index.html")
+  );
 });
 
+// Error handler (optional but fine)
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: "Internal Server Error" });
 });
 
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`🚀 Server running on port ${port}`);
 });
