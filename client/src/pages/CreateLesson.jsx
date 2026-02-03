@@ -7,15 +7,17 @@ import CreateLessonField from "../components/CreateLessonField.jsx";
 function CreateLesson() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const [status, setStatus] = useState("");
+
   const [formData, setFormData] = useState({
     type: "",
     date: "",
-    timeLength: "",
+    timeLength: "9-12", // default value
     guests: 1,
-    assignedTo: "None",
+    assignedTo: "None", // default value
   });
-  const [status, setStatus] = useState("");
 
+  // Check admin on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -40,6 +42,7 @@ function CreateLesson() {
     checkAdmin();
   }, [navigate]);
 
+  // Fetch users
   useEffect(() => {
     async function fetchUsers() {
       try {
@@ -53,21 +56,35 @@ function CreateLesson() {
     fetchUsers();
   }, []);
 
+  // Handle input/select changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Force defaults if somehow blank
+    const dataToSend = {
+      ...formData,
+      timeLength: formData.timeLength || "9-12",
+      assignedTo: formData.assignedTo || "None",
+    };
+
+    console.log("Submitting lesson:", dataToSend);
+
     setStatus("Creating lesson...");
     try {
-      await adminLib.lessonCreate(formData);
+      await adminLib.lessonCreate(dataToSend);
       alert("Lesson created successfully!");
+
+      // Reset form to defaults
       setFormData({
         type: "",
         date: "",
-        timeLength: "",
+        timeLength: "9-12",
         guests: 1,
         assignedTo: "None",
       });
@@ -83,11 +100,7 @@ function CreateLesson() {
     <main className="create-lesson">
       <h1 className="create-lesson__header">Create Lesson</h1>
 
-      <div
-        id="instructor-status"
-        aria-live="polite"
-        style={{ marginBottom: "0.75rem" }}
-      >
+      <div id="instructor-status" aria-live="polite" style={{ marginBottom: "0.75rem" }}>
         {status}
       </div>
 
@@ -113,7 +126,6 @@ function CreateLesson() {
           label="Length (Hours):"
           type="select"
           name="timeLength"
-          min={1}
           value={formData.timeLength}
           onChange={handleChange}
           options={[
@@ -128,8 +140,8 @@ function CreateLesson() {
           label="Number of Guests:"
           type="number"
           name="guests"
-          min={1}
           value={formData.guests}
+          min={1}
           onChange={handleChange}
           required
         />
