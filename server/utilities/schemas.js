@@ -11,7 +11,7 @@ export const LessonSchema = new mongoose.Schema({
   assignedTo: { type: String, required: true, ref: "User" },
 });
 
-LessonSchema.index({ date: 1, assignedTo: 1 }, { unique: true });
+LessonSchema.index({ date: 1, assignedTo: 1, timeLength: 1 }, { unique: true });
 
 export const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
