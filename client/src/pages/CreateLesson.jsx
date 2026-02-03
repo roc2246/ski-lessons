@@ -111,11 +111,16 @@ function CreateLesson() {
 
         <CreateLessonField
           label="Length (Hours):"
-          type="number"
+          type="select"
           name="timeLength"
           min={1}
           value={formData.timeLength}
           onChange={handleChange}
+          options={[
+            { value: "9-12", label: "9-12" },
+            { value: "1-4", label: "1-4" },
+            { value: "9-4", label: "9-4" },
+          ]}
           required
         />
 
