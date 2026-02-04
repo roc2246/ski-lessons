@@ -107,9 +107,16 @@ function CreateLesson() {
       <form className="create-lesson__form" onSubmit={handleSubmit}>
         <CreateLessonField
           label="Lesson Type:"
+          type="select"
           name="type"
           value={formData.type}
           onChange={handleChange}
+             options={[
+            { value: "beginner", label: "beginner" },
+            { value: "intermediate", label: "intermediate" },
+            { value: "advanced", label: "advanced" },
+            { value: "expert", label: "expert"}
+          ]}
           required
         />
 
