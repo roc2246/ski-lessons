@@ -1,5 +1,6 @@
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
+import e from "express";
 
 // ---------- CREATE LESSON ----------
 export async function createLesson(lessonData) {
@@ -14,15 +15,27 @@ export async function createLesson(lessonData) {
 
     utilities.argValidation(
       requiredFields.map((f) => lessonData[f]),
-      requiredFields.map((f) => f[0].toUpperCase() + f.slice(1))
+      requiredFields.map((f) => f[0].toUpperCase() + f.slice(1)),
     );
 
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
 
-    const newLesson = new Lesson({ ...lessonData });
-    await newLesson.save();
+    const exists = await Lesson.exists({
+      date: lessonData.date,
+      assignedTo: lessonData.assignedTo,
+      timeLength: lessonData.timeLength,
+    });
 
-    return newLesson;
+    if (exists) {
+      throw new Error(
+        "This instructor is already assigned to a lesson at the specified date and time length.",
+      );
+    } else {
+      const newLesson = new Lesson({ ...lessonData });
+      await newLesson.save();
+      return newLesson;
+    }
+    
   } catch (error) {
     await errorEmail("Failed to create lesson", error.toString());
     throw error;
@@ -62,7 +75,7 @@ export async function switchLessonAssignment(id, newUserId) {
     utilities.dataTypeValidation(
       [id, newUserId],
       ["ID", "New User ID"],
-      ["string", "string"]
+      ["string", "string"],
     );
 
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
@@ -70,7 +83,7 @@ export async function switchLessonAssignment(id, newUserId) {
     const updated = await Lesson.findByIdAndUpdate(
       id,
       { assignedTo: newUserId },
-      { new: true }
+      { new: true },
     );
 
     if (!updated) throw new Error("Lesson not found");
