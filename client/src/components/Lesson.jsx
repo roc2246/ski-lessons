@@ -1,4 +1,4 @@
-import * as lessonLib from "../../utils/calendar-library";
+import * as lessonLib from "../utils/calendar-library";
 
 export default function Lesson({ lesson, key }) {
   const handleAddLesson = async (lesson) => {
