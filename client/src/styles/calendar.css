@@ -216,8 +216,8 @@
 ========================== */
 @media (hover: none) and (pointer: coarse) {
   .calendar__date:hover {
-    height: 50px;
-    width: 50px;
+    height: 200px;
+    width: 100px;
   }
   /* Toggle `.active` via JS on tap */
 }
