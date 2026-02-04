@@ -28,17 +28,7 @@ function CalendarDate({ day, lessons = [], onLessonAdded }) {
       <span>{day.getDate()}</span>
 
       {localLessons.map((lesson) => (
-        <div key={lesson._id} className="calendar__lesson">
-          <Lesson lesson={lesson} />
-          {lesson.assignedTo === "None" && (
-            <button
-              className="calendar__lesson-btn"
-              onClick={() => handleAddLesson(lesson)}
-            >
-              Add Lesson
-            </button>
-          )}
-        </div>
+        <Lesson lesson={lesson} />
       ))}
     </div>
   );
