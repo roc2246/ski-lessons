@@ -1,4 +1,6 @@
-/* Block: calendar-section (layout container) */
+/* ==========================
+   Calendar Section & Container
+========================== */
 .calendar-section {
   display: flex;
   justify-content: center;
@@ -6,12 +8,13 @@
   font-family: Arial, sans-serif;
 }
 
-/* Block: calendar */
 .calendar {
   width: 340px;
 }
 
-/* Elements */
+/* ==========================
+   Calendar Header
+========================== */
 .calendar__header {
   display: flex;
   justify-content: space-between;
@@ -28,6 +31,9 @@
   cursor: pointer;
 }
 
+/* ==========================
+   Calendar Grid
+========================== */
 .calendar__days,
 .calendar__dates {
   display: grid;
@@ -35,29 +41,110 @@
   gap: 5px;
 }
 
-.calendar__day,
-.calendar__date {
-  text-align: center;
-  padding: 10px;
-}
-
+/* Weekday Headers */
 .calendar__day {
+  text-align: center;
   background-color: #f0f0f0;
   font-weight: bold;
+  height: 50px;
+  width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
 }
 
+/* Calendar Dates */
 .calendar__date {
   border: 1px solid #ddd;
+  height: 50px;
+  width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* date number at top */
+  padding: 4px;
+  box-sizing: border-box;
+  position: relative;
+  cursor: pointer;
+  background-color: #fff;
+  color: #333;
+  transition: all 0.3s ease; /* smooth expansion */
+  overflow: hidden;          /* hide overflow during expansion */
 }
 
-/* Modifier */
+/* Highlight today */
 .calendar__date--today {
   background-color: #cce5ff;
   border: 2px solid #339af0;
   font-weight: bold;
 }
 
-/* Instructor controls */
+/* ==========================
+   Expand on Hover / Active
+========================== */
+.calendar__date:hover,
+.calendar__date.active {
+  height: 120px;             /* expand vertically */
+  width: 120px;              /* expand horizontally */
+  z-index: 2;                /* appear above other cells */
+  background-color: #e6f0ff; /* optional subtle background */
+  transform: scale(1.05);    /* slight pop */
+}
+
+/* ==========================
+   Lesson Component Inside Date
+========================== */
+.calendar__date .lesson {
+  position: absolute;
+  bottom: 0;                  /* appear at bottom when expanded */
+  left: 0;
+  width: 100%;
+  height: calc(100% - 20px);  /* leave space for date number at top */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 12px;
+  padding: 4px;
+  box-sizing: border-box;
+  background-color: #339af0; /* solid background fills the div */
+  color: #fff;
+  border-radius: 6px;
+  border: 1px solid #2871c2;
+  opacity: 0;               /* hidden by default */
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Show lesson when hovered or active */
+.calendar__date:hover .lesson,
+.calendar__date.active .lesson {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ==========================
+   Lesson Text Styling
+========================== */
+.lesson__timeLength {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.lesson__type {
+  font-style: italic;
+  margin-bottom: 2px;
+}
+
+.lesson__guests {
+  font-size: 11px;
+}
+
+/* ==========================
+   Instructor Controls (optional)
+========================== */
 .instructor__controls {
   text-align: center;
   margin-top: 20px;
@@ -82,4 +169,13 @@
   text-decoration: underline;
 }
 
+/* ==========================
+   Mobile-Friendly Fix
+========================== */
+@media (hover: none) and (pointer: coarse) {
+  .calendar__date:hover {
+    transform: none; /* remove hover scale on mobile */
+  }
 
+  /* Use JavaScript to toggle `.active` class on tap */
+}
