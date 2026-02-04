@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import * as lessonLib from "../../utils/calendar-library";
 import Lesson from "../Lesson";
 
 function CalendarDate({ day, lessons = [], onLessonAdded }) {
@@ -9,26 +8,14 @@ function CalendarDate({ day, lessons = [], onLessonAdded }) {
     setLocalLessons(lessons);
   }, [lessons]);
 
-  const handleAddLesson = async (lesson) => {
-    try {
-      const updatedLesson = await lessonLib.addLesson(lesson);
-      console.log("Lesson assigned:", updatedLesson);
 
-      // Remove the lesson from local list so it disappears
-      setLocalLessons((prev) => prev.filter((l) => l._id !== lesson._id));
-
-      if (onLessonAdded) onLessonAdded(updatedLesson);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   return (
     <div className="calendar__date">
       <span>{day.getDate()}</span>
 
       {localLessons.map((lesson) => (
-        <Lesson lesson={lesson} />
+        <Lesson key={lesson._id} lesson={lesson} />
       ))}
     </div>
   );

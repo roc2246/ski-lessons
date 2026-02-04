@@ -10,7 +10,7 @@ function CreateLesson() {
   const [status, setStatus] = useState("");
 
   const [formData, setFormData] = useState({
-    type: "",
+    type: "beginner",
     date: "",
     timeLength: "9-12", // default value
     guests: 1,
@@ -69,6 +69,7 @@ function CreateLesson() {
     // Force defaults if somehow blank
     const dataToSend = {
       ...formData,
+      type: formData.type || "beginner",
       timeLength: formData.timeLength || "9-12",
       assignedTo: formData.assignedTo || "None",
     };
@@ -100,7 +101,11 @@ function CreateLesson() {
     <main className="create-lesson">
       <h1 className="create-lesson__header">Create Lesson</h1>
 
-      <div id="instructor-status" aria-live="polite" style={{ marginBottom: "0.75rem" }}>
+      <div
+        id="instructor-status"
+        aria-live="polite"
+        style={{ marginBottom: "0.75rem" }}
+      >
         {status}
       </div>
 
@@ -111,11 +116,11 @@ function CreateLesson() {
           name="type"
           value={formData.type}
           onChange={handleChange}
-             options={[
+          options={[
             { value: "beginner", label: "beginner" },
             { value: "intermediate", label: "intermediate" },
             { value: "advanced", label: "advanced" },
-            { value: "expert", label: "expert"}
+            { value: "expert", label: "expert" },
           ]}
           required
         />
