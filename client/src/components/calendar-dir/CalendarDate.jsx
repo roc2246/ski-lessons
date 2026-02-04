@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import * as lessonLib from "../../utils/calendar-library";
+import Lesson from "../Lesson";
 
 function CalendarDate({ day, lessons = [], onLessonAdded }) {
   const [localLessons, setLocalLessons] = useState([]);
@@ -28,8 +29,7 @@ function CalendarDate({ day, lessons = [], onLessonAdded }) {
 
       {localLessons.map((lesson) => (
         <div key={lesson._id} className="calendar__lesson">
-          <h1>{lesson.type}</h1>
-
+          <Lesson lesson={lesson} />
           {lesson.assignedTo === "None" && (
             <button
               className="calendar__lesson-btn"
