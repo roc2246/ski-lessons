@@ -26,16 +26,13 @@ export async function createLesson(lessonData) {
       timeLength: lessonData.timeLength,
     });
 
-    if (exists) {
-      throw new Error(
-        "This instructor is already assigned to a lesson at the specified date and time length.",
-      );
-    } else {
-      const newLesson = new Lesson({ ...lessonData });
-      await newLesson.save();
-      return newLesson;
-    }
-    
+    const errorMssg = `This instructor is already booked on ${lessonData.date} at ${lessonData.timeLength}.`;
+    if (exists) throw new Error(errorMssg);
+
+    const newLesson = new Lesson({ ...lessonData });
+    await newLesson.save();
+
+    return newLesson;
   } catch (error) {
     await errorEmail("Failed to create lesson", error.toString());
     throw error;
