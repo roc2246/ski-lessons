@@ -103,7 +103,6 @@
 .calendar__date:hover,
 .calendar__date:focus-within,
 .calendar__date.active {
-  min-height: 8rem;
   background: #eef3f0;
   border-color: var(--color-accent);
   z-index: 10;
