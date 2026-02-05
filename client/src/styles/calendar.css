@@ -1,223 +1,172 @@
 /* ==========================
-   Calendar Section & Container
+   CALENDAR CONTAINER
 ========================== */
 .calendar-section {
   display: flex;
   justify-content: center;
-  margin-top: 40px;
-  font-family: Arial, sans-serif;
+  margin-top: 2.5rem;
 }
 
 .calendar {
-  width: 340px;
+  width: 22rem;
   overflow: visible;
 }
 
 /* ==========================
-   Calendar Header
+   HEADER
 ========================== */
 .calendar__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 0.75rem;
 }
 
 .calendar__month-year {
-  font-size: 24px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-primary);
 }
 
 .calendar__nav {
-  padding: 5px 10px;
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 1.25rem;
   cursor: pointer;
 }
 
+.calendar__nav:focus-visible {
+  outline: 0.25rem solid var(--color-accent);
+}
+
 /* ==========================
-   Calendar Grid
+   GRID
 ========================== */
 .calendar__days,
 .calendar__dates {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
+  gap: 0.3rem;
 }
 
-/* Lock row height so grid does not reflow */
 .calendar__dates {
-  grid-auto-rows: 50px;
+  grid-auto-rows: minmax(3.25rem, auto);
 }
 
 /* ==========================
-   Weekday Headers
+   WEEKDAY HEADERS
 ========================== */
 .calendar__day {
-  height: 50px;
-  width: 50px;
-  background-color: #f0f0f0;
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-secondary);
 }
 
 /* ==========================
-   Calendar Date Cell
+   DATE CELL
 ========================== */
 .calendar__date {
-  height: 50px;
-  width: 50px;
-  border: 1px solid #ddd;
-  padding: 4px;
-  box-sizing: border-box;
-  background-color: #fff;
-  cursor: pointer;
-
+  background: var(--color-panel);
+  border: 0.1rem solid #cbd5e1;
+  border-radius: 0.4rem;
+  padding: 0.25rem;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-
-  overflow: hidden;
-  transition:
-    height 0.25s ease,
-    width 0.25s ease,
-    background-color 0.25s ease;
-}
-
-/* Today highlight */
-.calendar__date--today {
-  background-color: #cce5ff;
-  border: 2px solid #339af0;
-}
-
-/* ==========================
-   Date Number
-========================== */
-.calendar__date-number {
-  font-size: 12px;
-  font-weight: bold;
-  margin-bottom: 2px;
-  flex-shrink: 0;
-}
-
-/* ==========================
-   Expand on Hover / Active
-========================== */
-.calendar__date:hover,
-.calendar__date.active {
-  height: 130px;
-  width: 150px;          /* 👈 wide enough for lesson + button */
-  background-color: #e6f0ff;
-  z-index: 5;
-}
-
-/* ==========================
-   Lesson Component
-========================== */
-.calendar__date .lesson {
-  flex: 1;
-  min-height: 0;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-
-  width: 100%;
-  padding: 6px;
-  box-sizing: border-box;
-
-  background-color: #339af0;
-  color: #fff;
-  border-radius: 6px;
-  border: 1px solid #2871c2;
-
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-
-  overflow-y: auto;
-}
-
-/* Show lesson */
-.calendar__date:hover .lesson,
-.calendar__date.active .lesson {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ==========================
-   Lesson Text
-========================== */
-.lesson__timeLength {
-  font-weight: bold;
-  margin-bottom: 2px;
-}
-
-.lesson__type {
-  font-style: italic;
-  margin-bottom: 2px;
-}
-
-.lesson__guests {
-  font-size: 11px;
-  margin-bottom: 6px;
-}
-
-/* ==========================
-   Add Lesson Button
-========================== */
-.lesson__lesson-btn {
-  margin-top: auto;
-  padding: 5px 8px;
-  font-size: 12px;
-  border: none;
-  border-radius: 4px;
-  background-color: #ffdd57;
-  color: #333;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
 }
 
-.lesson__lesson-btn:hover {
-  background-color: #ffc107;
-  transform: scale(1.05);
+.calendar__date:focus-visible {
+  outline: 0.25rem solid var(--color-accent);
+}
+
+/* Today */
+.calendar__date--today {
+  background: #eef3f0;
+  border-color: var(--color-accent);
 }
 
 /* ==========================
-   Instructor Controls
+   DATE NUMBER
 ========================== */
-.instructor__controls {
+.calendar__date-number {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* ==========================
+   EXPANDED / ACTIVE STATE
+========================== */
+.calendar__date:hover,
+.calendar__date:focus-within,
+.calendar__date.active {
+  min-height: 8rem;
+  background: #eef3f0;
+  border-color: var(--color-accent);
+  z-index: 10;
+  box-shadow: 0 0.2rem 0.4rem rgba(0,0,0,0.15);
+}
+
+/* ==========================
+   LESSON CARD
+========================== */
+.lesson {
+  margin-top: 0.25rem;
+  padding: 0.4rem;
+  background: var(--color-primary);
+  color: #ffffff;
+  border-radius: 0.35rem;
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  margin-top: 20px;
 }
 
-.instructor__title {
-  margin-bottom: 10px;
+.lesson__timeLength {
+  font-weight: 600;
 }
 
-.instructor__btn {
-  margin: 5px;
+.lesson__type {
+  font-style: italic;
 }
 
-.instructor__link {
-  display: block;
-  margin-top: 10px;
-  color: #007bff;
-  text-decoration: none;
-}
-
-.instructor__link:hover {
-  text-decoration: underline;
+.lesson__guests {
+  font-size: 0.7rem;
 }
 
 /* ==========================
-   Mobile Support
+   ADD LESSON BUTTON
 ========================== */
-@media (hover: none) and (pointer: coarse) {
-  .calendar__date:hover {
-    height: 200px;
-    width: 100px;
+.lesson__lesson-btn {
+  margin-top: auto;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-accent);
+  color: #2b2b2b;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+}
+
+.lesson__lesson-btn:hover,
+.lesson__lesson-btn:focus-visible {
+  filter: brightness(1.05);
+}
+
+.lesson__lesson-btn:active {
+  transform: scale(0.97);
+}
+
+/* ==========================
+   TOUCH SUPPORT
+========================== */
+@media (hover: none) {
+  .calendar__date {
+    min-height: 6rem;
   }
-  /* Toggle `.active` via JS on tap */
 }
