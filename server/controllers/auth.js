@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 
 export async function manageNewUser(req, res) {
   try {
+    await models.dbConnect();
+
     const { username, password, admin } = req.body;
     await models.newUser(username, password, admin);
     res.status(201).json({ message: `${username} registered` });

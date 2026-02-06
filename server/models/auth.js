@@ -86,9 +86,7 @@ export async function logoutUser(blacklist, token) {
     blacklist.add(token);
   } catch (error) {
     throw error;
-  } finally {
-    mongoose.disconnect();
-  }
+  } 
 }
 
 // ---------- TOKEN BLACKLIST ----------
