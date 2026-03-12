@@ -162,6 +162,22 @@ Consult `server/models/*.js` for schema definitions.
 
 > ⚠️ Remember to rebuild the client after installing new dependencies or changing Vite config.
 
+## Screenshots
+
+Below are some example views of the application. The images live in the `screenshots/` directory at the project root.
+
+### Login Page
+
+![Login](screenshots/login.png)
+
+### Create Lesson (Admin)
+
+![Create Lesson](screenshots/create-lesson.png)
+
+### Instructor Calendar
+
+![Instructor Calendar](screenshots/instructor-calendar.png)
+
 ## License
 
 This project is open-source and available under the MIT License.
