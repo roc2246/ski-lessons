@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import * as controllers from "../controllers/auth.js";
+import * as controllers from "../auth.js";
 import jwt from "jsonwebtoken";
-import * as models from "../models/index.js";
-import * as utilities from "../utilities/index.js";
+import * as models from "../../models/index.js";
+import * as utilities from "../../utilities/index.js";
 
 // Mock response helper
 const createRes = () => {
@@ -21,8 +21,8 @@ const createReq = (body = {}, headers = {}, params = {}) => ({
 
 // Mock external libraries
 vi.mock("jsonwebtoken", () => ({ default: { sign: vi.fn(), verify: vi.fn() } }));
-vi.mock("../models/index.js", async () => {
-  const actual = await vi.importActual("../models/index.js");
+vi.mock("../../models/index.js", async () => {
+  const actual = await vi.importActual("../../models/index.js");
   return {
     ...actual,
     newUser: vi.fn(),
@@ -34,8 +34,8 @@ vi.mock("../models/index.js", async () => {
     deleteUser: vi.fn(),
   };
 });
-vi.mock("../utilities/index.js", async () => {
-  const actual = await vi.importActual("../utilities/index.js");
+vi.mock("../../utilities/index.js", async () => {
+  const actual = await vi.importActual("../../utilities/index.js");
   return { ...actual, sendError: vi.fn() };
 });
 

@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // ===== MOCKS MUST COME FIRST =====
-vi.mock("../email/index.js", () => ({
+vi.mock("../../email/index.js", () => ({
   errorEmail: vi.fn(),
 }));
 
-vi.mock("../utilities/index.js", async () => {
-  const actual = await vi.importActual("../utilities/index.js");
+vi.mock("../../utilities/index.js", async () => {
+  const actual = await vi.importActual("../../utilities/index.js");
 
   // Mock constructor for models
   const constructorSpy = vi.fn(function (data) {
@@ -14,6 +14,8 @@ vi.mock("../utilities/index.js", async () => {
     this.save = vi.fn(() => Promise.resolve());
     return this;
   });
+
+  constructorSpy.exists = vi.fn().mockResolvedValue(false);
 
   constructorSpy.find = vi.fn((param) => {
     if (param.assignedTo) {
@@ -45,8 +47,8 @@ vi.mock("../utilities/index.js", async () => {
   };
 });
 
-import * as models from ".";
-import { errorEmail } from "../email";
+import * as models from "..";
+import { errorEmail } from "../../email";
 
 // ===== TESTS =====
 
@@ -72,7 +74,7 @@ describe("createLesson", () => {
         guests: 4,
         assignedTo: "abc",
       })
-    ).rejects.toThrow("Date required");
+    ).rejects.toThrow(/Required fields missing: Date/);
 
     expect(errorEmail).toHaveBeenCalled();
   });

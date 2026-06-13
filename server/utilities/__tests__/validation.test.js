@@ -1,15 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { argValidation, dataTypeValidation } from "./validation.js";
+import { argValidation, dataTypeValidation } from "../validation.js";
 
 describe("argValidation", () => {
   it("throws if a value is undefined or null", () => {
     expect(() =>
       argValidation([undefined], ["Test"])
-    ).toThrow("Test required");
+    ).toThrow("Required fields missing: Test");
 
     expect(() =>
       argValidation([null], ["Test"])
-    ).toThrow("Test required");
+    ).toThrow("Required fields missing: Test");
   });
 
   it("does not throw for valid values", () => {

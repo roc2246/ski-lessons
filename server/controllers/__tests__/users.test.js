@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import * as controllers from "./users.js";
-import * as models from "../models/index.js";
-import * as utilities from "../utilities/index.js";
+import * as controllers from "../users.js";
+import * as models from "../../models/index.js";
+import * as utilities from "../../utilities/index.js";
 
 const createRes = () => {
   const res = {};
@@ -12,12 +12,12 @@ const createRes = () => {
 
 const createReq = (body = {}, headers = {}, params = {}) => ({ body, headers, params });
 
-vi.mock("../models/index.js", async () => {
-  const actual = await vi.importActual("../models/index.js");
+vi.mock("../../models/index.js", async () => {
+  const actual = await vi.importActual("../../models/index.js");
   return { ...actual, retrieveUsers: vi.fn() };
 });
-vi.mock("../utilities/index.js", async () => {
-  const actual = await vi.importActual("../utilities/index.js");
+vi.mock("../../utilities/index.js", async () => {
+  const actual = await vi.importActual("../../utilities/index.js");
   return { ...actual, sendError: vi.fn() };
 });
 

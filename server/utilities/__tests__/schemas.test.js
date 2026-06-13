@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { LessonSchema, UserSchema } from "./schemas.js";
+import { LessonSchema, UserSchema } from "../schemas.js";
 
 describe("Schemas", () => {
   it("LessonSchema has correct fields", () => {

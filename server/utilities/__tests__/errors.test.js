@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { sendError } from "./errors.js";
+import { sendError } from "../errors.js";
 
 describe("sendError", () => {
   it("sends a JSON error response", () => {

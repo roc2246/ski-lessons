@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import mongoose from "mongoose";
-import { getModel } from "./mongoose.js";
+import { getModel } from "../mongoose.js";
 
 describe("getModel", () => {
   it("returns an existing model if already compiled", () => {

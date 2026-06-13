@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import jwt from "jsonwebtoken";
-import { TokenBlacklist } from "./jwt.js";
+import { TokenBlacklist } from "../jwt.js";
 
 describe("TokenBlacklist", () => {
   it("adds a token and checks it", () => {

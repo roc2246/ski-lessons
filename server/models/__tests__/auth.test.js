@@ -1,12 +1,12 @@
-vi.mock("../email/index.js", () => ({
+vi.mock("../../email/index.js", () => ({
   errorEmail: vi.fn(),  // spy
 }));
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import * as models from "./index.js";
+import * as models from "../index.js";
 import jwt from "jsonwebtoken";
-import { errorEmail } from "../email";
-import * as utilities from "../utilities";
+import { errorEmail } from "../../email/index.js";
+import * as utilities from "../../utilities/index.js";
 
 // Mock constructor for User model
 let instance;
@@ -42,8 +42,8 @@ vi.mock("jsonwebtoken", () => ({
   default: { sign: vi.fn(() => "mocked.token") },
   sign: vi.fn(() => "mocked.token"),
 }));
-vi.mock("../utilities/index.js", async () => {
-  const actual = await vi.importActual("../utilities/index.js");
+vi.mock("../../utilities/index.js", async () => {
+  const actual = await vi.importActual("../../utilities/index.js");
   return {
     ...actual,
     getModel: vi.fn(() => constructorSpy),
