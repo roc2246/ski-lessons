@@ -2,14 +2,9 @@
 
 ## Required Project Context
 
-Before completing this task, read or use these project files if they are available in the workspace/context:
+**IMPORTANT:** This prompt requires the content of `GEMINI.md` (specifically the Backend and Database standards).
 
-- @.ai/project-context.md
-- @.ai/project-instructions.md
-- @.ai/coding-standards.md
-- @.ai/style-guide.md
-- @.ai/mern-best-practices.md
-- @.ai/employer-review-checklist.md
+**AI VERIFICATION STEP:** Verify that you have the content of `GEMINI.md` and the relevant `.js` files in your context. If missing, STOP and ask the user to provide them.
 
 If your AI tool cannot automatically read files, paste or attach the relevant files before running this prompt.
 

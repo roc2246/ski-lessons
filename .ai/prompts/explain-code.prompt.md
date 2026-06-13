@@ -2,14 +2,9 @@
 
 ## Required Project Context
 
-Before completing this task, read or use these project files if they are available in the workspace/context:
+**IMPORTANT:** This prompt requires `GEMINI.md` to understand the project's purpose and "Junior Developer" teaching persona requirements.
 
-- @.ai/project-context.md
-- @.ai/project-instructions.md
-- @.ai/coding-standards.md
-- @.ai/style-guide.md
-- @.ai/mern-best-practices.md
-- @.ai/employer-review-checklist.md
+**AI VERIFICATION STEP:** If the content of `GEMINI.md` is not present, request it from the user.
 
 If your AI tool cannot automatically read files, paste or attach the relevant files before running this prompt.
 

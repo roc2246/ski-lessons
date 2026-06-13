@@ -2,14 +2,10 @@
 
 ## Required Project Context
 
-Before completing this task, read or use these project files if they are available in the workspace/context:
+**IMPORTANT:** This prompt requires the content of `GEMINI.md` (which consolidates the project instructions, style guide, and SCSS standards). 
 
-- @.ai/project-context.md
-- @.ai/project-instructions.md
-- @.ai/coding-standards.md
-- @.ai/style-guide.md
-- @.ai/mern-best-practices.md
-- @.ai/employer-review-checklist.md
+**AI VERIFICATION STEP:** Check if the content of `GEMINI.md` is in your current context. If the user has not provided it, STOP and request it.
+
 
 If your AI tool cannot automatically read files, paste or attach the relevant files before running this prompt.
 
