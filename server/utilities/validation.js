@@ -9,11 +9,15 @@
  * @param {Array} names - Corresponding argument names for error messages
  */
 export function argValidation(values, names) {
-  values.forEach((val, i) => {
-    if (val === undefined || val === null) {
-      throw new Error(`${names[i]} required`);
-    }
-  });
+  const missing = names.filter((_, i) => values[i] === undefined || values[i] === null);
+
+  if (missing.length > 0) {
+    const error = new Error(`Required fields missing: ${missing.join(', ')}`);
+    // Adding a status property helps your Express error handler 
+    // return a proper 400 Bad Request status code
+    error.status = 400; 
+    throw error;
+  }
 }
 
 /**
