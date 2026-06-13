@@ -4,12 +4,12 @@
 
 Before completing this task, read or use these project files if they are available in the workspace/context:
 
-- `.ai/project-context.md`
-- `.ai/project-instructions.md`
-- `.ai/coding-standards.md`
-- `.ai/style-guide.md`
-- `.ai/mern-best-practices.md`
-- `.ai/employer-review-checklist.md`
+- @.ai/project-context.md
+- @.ai/project-instructions.md
+- @.ai/coding-standards.md
+- @.ai/style-guide.md
+- @.ai/mern-best-practices.md
+- @.ai/employer-review-checklist.md
 
 If your AI tool cannot automatically read files, paste or attach the relevant files before running this prompt.
 

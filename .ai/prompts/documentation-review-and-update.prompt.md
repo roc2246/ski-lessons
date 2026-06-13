@@ -4,12 +4,12 @@
 
 Before completing this task, use:
 
-* .ai/project-context.md
-* .ai/project-instructions.md
-* .ai/coding-standards.md
-* .ai/style-guide.md
-* .ai/mern-best-practices.md
-* .ai/employer-review-checklist.md
+* @.ai/project-context.md
+* @.ai/project-instructions.md
+* @.ai/coding-standards.md
+* @.ai/style-guide.md
+* @.ai/mern-best-practices.md
+* @.ai/employer-review-checklist.md
 
 Prioritize project standards over generic recommendations.
 

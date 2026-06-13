@@ -4,11 +4,11 @@
 
 Before reviewing the code, use the standards and requirements defined in:
 
-- .ai/project-context.md
-- .ai/coding-standards.md
-- .ai/style-guide.md
-- .ai/mern-best-practices.md
-- .ai/employer-review-checklist.md
+- @.ai/project-context.md
+- @.ai/coding-standards.md
+- @.ai/style-guide.md
+- @.ai/mern-best-practices.md
+- @.ai/employer-review-checklist.md
 
 ---
 

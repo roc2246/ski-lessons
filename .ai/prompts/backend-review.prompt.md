@@ -4,12 +4,12 @@
 
 Before completing this task, read or use these project files if they are available in the workspace/context:
 
-- `.ai/project-context.md`
-- `.ai/project-instructions.md`
-- `.ai/coding-standards.md`
-- `.ai/style-guide.md`
-- `.ai/mern-best-practices.md`
-- `.ai/employer-review-checklist.md`
+- @.ai/project-context.md
+- @.ai/project-instructions.md
+- @.ai/coding-standards.md
+- @.ai/style-guide.md
+- @.ai/mern-best-practices.md
+- @.ai/employer-review-checklist.md
 
 If your AI tool cannot automatically read files, paste or attach the relevant files before running this prompt.
 
@@ -17,6 +17,7 @@ If your AI tool cannot automatically read files, paste or attach the relevant fi
 
 - Prioritize job readiness, maintainability, security, and MERN best practices.
 - Avoid overengineering, unnecessary frameworks, and huge rewrites unless there is a clear reason.
+- **Strict Compliance**: The review MUST be conducted specifically against the standards defined in the @.ai context files listed above.
 - Be direct and practical.
 - Recommend the highest-impact improvement first.
 - Do not modify files unless explicitly asked.
@@ -33,6 +34,7 @@ Review selected backend files (controllers, routes, models) or the full API arch
 ## Evaluate
 
 - MERN stack best practices
+- Consistency with @.ai/mern-best-practices.md and @.ai/coding-standards.md
 - Input validation and sanitization
 - JWT implementation and Middleware usage
 - Role-Based Access Control (RBAC)
