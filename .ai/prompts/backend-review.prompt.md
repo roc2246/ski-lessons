@@ -14,7 +14,7 @@ Before starting the review, identify the environment:
 **STOP CONDITION:** If no backend logic or project context files are found, return "Review Blocked: Backend source or standards context not found."
 
 ## Phase 2: Recursive Audit Requirements
-Perform a 100% deep recursive audit of the backend. Start with the `index.js` files in each directory, auditing the code within them and recursively following all files they export or reference. Evaluate:
+Perform a 100% deep recursive audit of the backend proprietary source code. **EXCLUSION:** Do not audit `node_modules/`, `package.json`, or `package-lock.json`. Start with the `index.js` files in each directory, auditing the code within them and recursively following all files they export or reference. Evaluate:
 - **Coverage:** Ensure no nested files or utility folders are skipped during the analysis.
 - **Reference Integrity:** Audit all `index.js` files. Evaluate whether references are correctly exported, if there are any broken links, and if the internal dependency tree is optimized and logical.
 - **Security:** JWT implementation, Route Protection (RBAC), and Sanitization (NoSQL injection prevention).
@@ -24,6 +24,7 @@ Perform a 100% deep recursive audit of the backend. Start with the `index.js` fi
 - **Scalability:** Database query efficiency and resource management.
 
 # Universal Rules
+- **Scope Control:** Focus exclusively on application source code. Ignore all dependency files (`package.json`, `package-lock.json`, `yarn.lock`) and the `node_modules/` directory.
 - **Evidence Required:** Every finding must reference a specific file and code block.
 - **No Hallucinations:** If a file is imported but inaccessible, flag it as "Missing Reference."
 - **Employer Focus:** Identify both strengths and "Junior-level" architectural flaws.
