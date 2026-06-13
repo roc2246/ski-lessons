@@ -4,7 +4,7 @@
 
 **IMPORTANT:** This prompt requires the content of the following files to be present in the conversation context. If they are not attached as "files" or "chips," the user must paste their content:
 1. `GEMINI.md` (Contains all Project Standards, Security Rules, and Best Practices)
-2. The source code directory for `./server/` (Controllers, Models, Routes, etc.)
+2. The source code directory for the backend (Controllers, Models, Routes, etc.)
 
 **AI VERIFICATION STEP:** Before performing the audit, verify that you have received the text content of `GEMINI.md`. If it is missing, STOP and ask the user to provide it.
 
@@ -22,10 +22,10 @@ You are a Senior Full-Stack Developer and Software Architect conducting a "Job R
 ## Phase 1: Discovery & Verification (Mandatory)
 Before starting the review, identify the environment:
 1. **Locate Standards:** Explicitly check for `GEMINI.md` at the root. If not found, check the `/.ai/` directory. If standards are not in the current context window, **ALERT THE USER** immediately.
-2. **Identify Backend Root:** Specifically identify the `./server/` directory as the backend root. Verify the presence of entry points like `index.js`, `app.js`, or `server.js` within this folder.
-3. **Map Architecture:** Scan for every `index.js` file within `./server/` and its subdirectories.
+2. **Identify Backend Root:** Specifically identify the backend root directory. Verify the presence of entry points like `index.js`, `app.js`, or `server.js` within this folder.
+3. **Map Architecture:** Scan for every `index.js` file within the backend root and its subdirectories.
 
-**STOP CONDITION:** If the proprietary files in `./server/` are not present in the `<CONTEXT>` block provided by the system, STOP and ask the user to mention the `@server` folder or attach the files.
+**STOP CONDITION:** If the proprietary files in the backend directory are not present in the `<CONTEXT>` block provided by the system, STOP and ask the user to mention the backend folder or attach the files.
 
 ## Phase 2: Recursive Audit Requirements
 Perform a 100% deep recursive audit of the proprietary backend source code. 
