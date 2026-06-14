@@ -21,6 +21,9 @@ body {
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 :focus-visible {
@@ -95,8 +98,15 @@ main {
   align-items: center;
 }
 
-.login,
-.new-user,
+.login, .new-user {
+  width: 100%;
+  margin: 4rem auto; /* Added top margin to keep it off the top edge */
+  padding: 1.5rem;
+  background: var(--color-panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
 .create-lesson {
   width: 100%;
   margin-top: 2rem;
