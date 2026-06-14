@@ -31,14 +31,22 @@ function Login() {
   };
 
   return (
-    <main className="login">
+    <main className="login container">
       <h1 className="login__title">Snow Pro App</h1>
 
       <form className="login__form" onSubmit={handleSubmit}>
         <h2 className="login__form-title">Please log in</h2>
 
-        <Field type="username" value={username} onchange={(e) => setUsername(e.target.value)} />
-        <Field type="password" value={password} onchange={(e) => setPassword(e.target.value)} />
+        <Field 
+          type="username" 
+          value={username} 
+          onChange={(e) => setUsername(e.target.value)} 
+        />
+        <Field 
+          type="password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+        />
 
         <SubmitBtn type="login">Login</SubmitBtn>
       </form>

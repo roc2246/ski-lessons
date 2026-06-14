@@ -1,4 +1,4 @@
-export default function Field({ type, value, onchange }) {
+export default function Field({ type, value, onChange }) {
   return (
     <div className="field">
       <label htmlFor={type} className="field__label">
@@ -8,9 +8,9 @@ export default function Field({ type, value, onchange }) {
         type={type === "password" ? "password" : type}
         id={type}
         className="field__input"
-        required = {type !=="checkbox" && "true"}
+        required={type !== "checkbox"}
         value={value}
-        onChange={onchange}
+        onChange={onChange}
       />
     </div>
   );
