@@ -11,17 +11,35 @@ function CalendarDate({ day, lessons = [], onLessonAdded }) {
 
   const handleClick = () => {
     if (localLessons.length > 0) {
-      setShowLessons((prev) => !prev); // toggle on click
+      setShowLessons((prev) => !prev);
+    }
+  };
+
+  const handleLessonAdded = (updatedLesson) => {
+    setLocalLessons((prev) =>
+      prev.filter((lesson) => lesson._id !== updatedLesson._id)
+    );
+
+    if (onLessonAdded) {
+      onLessonAdded(updatedLesson);
     }
   };
 
   return (
-    <div className="calendar__date" onClick={handleClick} style={{ cursor: localLessons.length > 0 ? "pointer" : "default" }}>
+    <div
+      className="calendar__date"
+      onClick={handleClick}
+      style={{ cursor: localLessons.length > 0 ? "pointer" : "default" }}
+    >
       <span>{day.getDate()}</span>
 
       {showLessons &&
         localLessons.map((lesson) => (
-          <Lesson key={lesson._id} lesson={lesson} />
+          <Lesson
+            key={lesson._id}
+            lesson={lesson}
+            onLessonAdded={handleLessonAdded}
+          />
         ))}
     </div>
   );
