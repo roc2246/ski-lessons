@@ -27,7 +27,7 @@ export async function createLesson(lessonData) {
     });
 
     const errorMssg = `This instructor is already booked on ${lessonData.date} at ${lessonData.timeLength}.`;
-    if (exists) throw new Error(errorMssg);
+    if (exists && lessonData.assignedTo !== "None") throw new Error(errorMssg);
 
     const newLesson = new Lesson({ ...lessonData });
     await newLesson.save();
@@ -72,18 +72,35 @@ export async function switchLessonAssignment(id, newUserId) {
     utilities.dataTypeValidation(
       [id, newUserId],
       ["ID", "New User ID"],
-      ["string", "string"],
+      ["string", "string"]
     );
 
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
 
+    const lessonToAssign = await Lesson.findById(id);
+
+    if (!lessonToAssign) {
+      throw new Error("Lesson not found");
+    }
+
+    const conflictingLesson = await Lesson.findOne({
+      _id: { $ne: id },
+      assignedTo: newUserId,
+      date: lessonToAssign.date,
+      timeLength: lessonToAssign.timeLength,
+    });
+
+    if (conflictingLesson) {
+      throw new Error(
+        `User is already assigned to a lesson on ${lessonToAssign.date} at ${lessonToAssign.timeLength}`
+      );
+    }
+
     const updated = await Lesson.findByIdAndUpdate(
       id,
       { assignedTo: newUserId },
-      { new: true },
+      { new: true }
     );
-
-    if (!updated) throw new Error("Lesson not found");
 
     return updated;
   } catch (error) {
