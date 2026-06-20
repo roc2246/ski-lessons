@@ -15,19 +15,32 @@ export async function createLesson(lessonData) {
 
     utilities.argValidation(
       requiredFields.map((f) => lessonData[f]),
-      requiredFields.map((f) => f[0].toUpperCase() + f.slice(1)),
+      requiredFields.map((f) => f[0].toUpperCase() + f.slice(1))
     );
 
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
 
-    const exists = await Lesson.exists({
-      date: lessonData.date,
-      assignedTo: lessonData.assignedTo,
-      timeLength: lessonData.timeLength,
-    });
+    const conflictingTimeLengths = {
+      "9-12": ["9-12", "9-4"],
+      "1-4": ["1-4", "9-4"],
+      "9-4": ["9-12", "1-4", "9-4"],
+    };
 
-    const errorMssg = `This instructor is already booked on ${lessonData.date} at ${lessonData.timeLength}.`;
-    if (exists && lessonData.assignedTo !== "None") throw new Error(errorMssg);
+    if (lessonData.assignedTo !== "None") {
+      const exists = await Lesson.exists({
+        date: lessonData.date,
+        assignedTo: lessonData.assignedTo,
+        timeLength: {
+          $in: conflictingTimeLengths[lessonData.timeLength],
+        },
+      });
+
+      const errorMssg = `This instructor is already booked on ${lessonData.date} during ${lessonData.timeLength}.`;
+
+      if (exists) {
+        throw new Error(errorMssg);
+      }
+    }
 
     const newLesson = new Lesson({ ...lessonData });
     await newLesson.save();
@@ -83,17 +96,27 @@ export async function switchLessonAssignment(id, newUserId) {
       throw new Error("Lesson not found");
     }
 
-    const conflictingLesson = await Lesson.findOne({
-      _id: { $ne: id },
-      assignedTo: newUserId,
-      date: lessonToAssign.date,
-      timeLength: lessonToAssign.timeLength,
-    });
+    const conflictingTimeLengths = {
+      "9-12": ["9-12", "9-4"],
+      "1-4": ["1-4", "9-4"],
+      "9-4": ["9-12", "1-4", "9-4"],
+    };
 
-    if (conflictingLesson) {
-      throw new Error(
-        `User is already assigned to a lesson on ${lessonToAssign.date} at ${lessonToAssign.timeLength}`
-      );
+    if (newUserId !== "None") {
+      const conflictingLesson = await Lesson.findOne({
+        _id: { $ne: id },
+        assignedTo: newUserId,
+        date: lessonToAssign.date,
+        timeLength: {
+          $in: conflictingTimeLengths[lessonToAssign.timeLength],
+        },
+      });
+
+      if (conflictingLesson) {
+        throw new Error(
+          `User is already assigned to a lesson on ${lessonToAssign.date} during ${lessonToAssign.timeLength}`
+        );
+      }
     }
 
     const updated = await Lesson.findByIdAndUpdate(
