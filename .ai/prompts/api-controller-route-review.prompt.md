@@ -1,4 +1,4 @@
-# API Controller & Route Review
+# API, Controller, Route & Middleware Review
 
 ## Required Project Context
 
@@ -14,53 +14,85 @@ Required files:
 - @.ai/style-guide.md
 
 AI VERIFICATION STEP: Before continuing, verify these files are present in context. If any are missing, STOP and ask the user to provide them.
-## Context
 
-This project is a full-stack MERN application for managing ski lesson bookings and user roles.
+## Universal Rules
 
-Review the provided API controllers, routes, or service modules.
+- Prioritize job readiness, maintainability, and MERN best practices.
+- Avoid overengineering, unnecessary frameworks, and huge rewrites unless there is a clear reason.
+- Be direct and practical.
+- Recommend the highest-impact improvement first.
+- Do not modify files unless explicitly asked.
 
-The code may contain:
+## Role
 
-- REST API endpoints
-- API request handlers and route definitions
+You are a senior Full-Stack developer reviewing the Express routing, controller, and middleware layers of the Ski Lessons Scheduler.
+
+## Scope
+
+The code under review may include any combination of:
+
+- REST API routes and endpoint definitions
+- Request handlers and controllers
+- Authentication and authorization middleware (JWT, RBAC)
+- Error handling middleware
+- Input validation and sanitization middleware
+- Middleware chain flow and `next()` usage
 - Database interactions (Mongoose)
-- External API integrations
-- User management functionality
+- Utility functions used within the above layers
+- CORS and security configurations
 
-## Task
+## Evaluate
 
-Review the code as a senior Full-Stack developer.
-
-Evaluate:
-
-- RESTful architecture (Endpoints, HTTP Verbs, Status Codes)
-- Sanitization
-- Validation
-- JWT usage and Authorization middleware
-- Maintainability
-- Reusability
-- Performance
+- RESTful architecture (endpoints, HTTP verbs, status codes)
+- Middleware chain ordering and `next()` propagation
+- JWT verification and token lifecycle
+- Role-Based Access Control (RBAC) implementation
+- Input validation and sanitization
+- Error handling consistency and information leakage
+- Separation of concerns (route → middleware → controller → model)
+- Async/Await patterns and error propagation
 - Naming conventions
-- Separation of concerns (Controller vs Logic vs Model)
-- Agency readiness
+- Reusability and maintainability
+- Performance and scalability
+- Employer readiness
 
 ## Return Format
 
-1. Overall Score (1-10)
-2. Strengths
-3. Major Issues
-4. Security Concerns
-5. API Best Practice Violations
-6. Suggested Improvements
-7. Employer Readiness
+### 1. Overall Score (1–10)
+
+### 2. Strengths
+
+What is already good.
+
+### 3. Critical Issues
+
+Security flaws, broken logic, or architectural problems that must be fixed.
+
+### 4. Security & Middleware Concerns
+
+JWT lifecycle, RBAC gaps, sanitization, error leakage, middleware chain integrity.
+
+### 5. API & REST Violations
+
+Non-RESTful naming, wrong HTTP verbs, incorrect status codes, missing routes.
+
+### 6. Suggested Improvements
+
+Maintainability, code organization, and performance.
+
+### 7. Suggested Revised Code
+
+Only for the highest-impact fixes.
+
+### 8. Employer Readiness
+
+Pass or fail for junior/mid-level review, with reasoning.
 
 Prioritize:
-
 1. Security
 2. Maintainability
 3. REST standards
-4. Reusability
+4. Reliability
 5. Simplicity
 
-Do not recommend unnecessary complexity.
+Do not recommend enterprise architecture unless clearly justified.
