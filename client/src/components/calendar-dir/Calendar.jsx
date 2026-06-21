@@ -2,7 +2,6 @@ import React from "react";
 import CalendarHeader from "./CalendarHeader.jsx";
 import CalendarDays from "./CalendarDays.jsx";
 import CalendarDates from "./CalendarDates.jsx";
-import "../../styles/calendar.css";
 
 export default function Calendar({
   currentDate,

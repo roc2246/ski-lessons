@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import Calendar from "../components/calendar-dir/Calendar";
 import * as lib from "../utils/calendar-library.js";
 import LessonBoardControlls from "../components/LessonBoardControlls.jsx";
-import "../styles/calendar.css";
 
 function LessonBoard() {
   const navigate = useNavigate();

@@ -1,7 +1,6 @@
 import React from "react";
 import CalendarNav from "./CalendarNav";
 import CalendarMonthYear from "./CalendarMonthYear";
-import "../../styles/calendar.css";
 
 export default function CalendarHeader({ currentDate, onMonthChange }) {
   const monthYearString = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
