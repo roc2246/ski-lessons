@@ -1,10 +1,28 @@
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
 
+const CONFLICTING_TIME_LENGTHS = {
+  "9-12": ["9-12", "9-4"],
+  "1-4": ["1-4", "9-4"],
+  "9-4": ["9-12", "1-4", "9-4"],
+};
+
 function createHttpError(message, status) {
   const error = new Error(message);
   error.status = status;
   return error;
+}
+
+function getDateKey(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
+}
+
+async function notifyIfServerError(subject, error) {
+  const status = Number.isInteger(error?.status) ? error.status : 500;
+  if (status >= 500) {
+    await errorEmail(subject, error.toString());
+  }
 }
 
 // ---------- CREATE LESSON ----------
@@ -19,12 +37,6 @@ export async function createLesson(lessonData) {
 
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
 
-    const conflictingTimeLengths = {
-      "9-12": ["9-12", "9-4"],
-      "1-4": ["1-4", "9-4"],
-      "9-4": ["9-12", "1-4", "9-4"],
-    };
-
     const assignedTo = lessonData.assignedTo ?? null;
 
     if (assignedTo !== null) {
@@ -32,7 +44,7 @@ export async function createLesson(lessonData) {
         date: lessonData.date,
         assignedTo: assignedTo,
         timeLength: {
-          $in: conflictingTimeLengths[lessonData.timeLength],
+          $in: CONFLICTING_TIME_LENGTHS[lessonData.timeLength],
         },
       });
 
@@ -52,7 +64,7 @@ export async function createLesson(lessonData) {
 
     return newLesson;
   } catch (error) {
-    await errorEmail("Failed to create lesson", error.toString());
+    await notifyIfServerError("Failed to create lesson", error);
     throw error;
   }
 }
@@ -67,7 +79,35 @@ export async function retrieveLessons(param, limit = 50, skip = 0) {
 
     return await Lesson.find(param).limit(limit).skip(skip).lean();
   } catch (error) {
-    await errorEmail("Failed to retrieve lessons", error.toString());
+    await notifyIfServerError("Failed to retrieve lessons", error);
+    throw error;
+  }
+}
+
+// ---------- RETRIEVE NON-CONFLICTING AVAILABLE LESSONS ----------
+export async function retrieveAvailableLessonsForUser(userId, limit = 50, skip = 0) {
+  try {
+    const [availableLessons, userLessons] = await Promise.all([
+      retrieveLessons({ assignedTo: null }, limit, skip),
+      retrieveLessons({ assignedTo: userId }),
+    ]);
+
+    return availableLessons.filter((lesson) => {
+      const lessonDateKey = getDateKey(lesson.date);
+      if (!lessonDateKey) return false;
+
+      return !userLessons.some((userLesson) => {
+        const userLessonDateKey = getDateKey(userLesson.date);
+        if (!userLessonDateKey || userLessonDateKey !== lessonDateKey) {
+          return false;
+        }
+
+        const conflicts = CONFLICTING_TIME_LENGTHS[lesson.timeLength] || [];
+        return conflicts.includes(userLesson.timeLength);
+      });
+    });
+  } catch (error) {
+    await notifyIfServerError("Failed to retrieve available lessons", error);
     throw error;
   }
 }
@@ -78,7 +118,7 @@ export async function retrieveUsers() {
     const User = utilities.getModel(utilities.UserSchema, "User");
     return await User.find({}).select("-password").lean();
   } catch (error) {
-    await errorEmail("Failed to retrieve users", error.toString());
+    await notifyIfServerError("Failed to retrieve users", error);
     throw error;
   }
 }
@@ -101,19 +141,13 @@ export async function switchLessonAssignment(id, newUserId) {
       throw createHttpError("Lesson not found", 404);
     }
 
-    const conflictingTimeLengths = {
-      "9-12": ["9-12", "9-4"],
-      "1-4": ["1-4", "9-4"],
-      "9-4": ["9-12", "1-4", "9-4"],
-    };
-
     if (newUserId !== null) {
       const conflictingLesson = await Lesson.findOne({
         _id: { $ne: id },
         assignedTo: newUserId,
         date: lessonToAssign.date,
         timeLength: {
-          $in: conflictingTimeLengths[lessonToAssign.timeLength],
+          $in: CONFLICTING_TIME_LENGTHS[lessonToAssign.timeLength],
         },
       });
 
@@ -137,7 +171,7 @@ export async function switchLessonAssignment(id, newUserId) {
 
     return updated;
   } catch (error) {
-    await errorEmail("Failed to switch lesson assignment", error.toString());
+    await notifyIfServerError("Failed to switch lesson assignment", error);
     throw error;
   }
 }
@@ -149,7 +183,7 @@ export async function unassignAllLessons(userId) {
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
     await Lesson.updateMany({ assignedTo: userId }, { assignedTo: null });
   } catch (error) {
-    await errorEmail("Failed to unassign lessons", error.toString());
+    await notifyIfServerError("Failed to unassign lessons", error);
     throw error;
   }
 }
@@ -171,7 +205,7 @@ export async function removeLesson(id) {
       lesson: deleted,
     };
   } catch (error) {
-    await errorEmail("Failed to remove lesson", error.toString());
+    await notifyIfServerError("Failed to remove lesson", error);
     throw error;
   }
 }

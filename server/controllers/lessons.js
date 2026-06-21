@@ -19,17 +19,13 @@ export async function manageLessonRetrieval(req, res) {
   try {
     // req.user is attached by authenticate middleware
     const availableOnly = req.query.available === "true";
-
-    // Clear query logic
-    const query = availableOnly
-      ? { assignedTo: null }
-      : { assignedTo: req.user.userId };
-
-    const lessons = await models.retrieveLessons(query);
+    const lessons = availableOnly
+      ? await models.retrieveAvailableLessonsForUser(req.user.userId)
+      : await models.retrieveLessons({ assignedTo: req.user.userId });
 
     return res.status(200).json({
       message: availableOnly
-        ? "Available lessons retrieved"
+        ? "Available non-conflicting lessons retrieved"
         : `Lessons retrieved for user ID ${req.user.userId}`,
       lessons,
     });
