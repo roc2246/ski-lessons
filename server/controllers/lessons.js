@@ -33,7 +33,7 @@ export async function manageLessonRetrieval(req, res) {
       lessons,
     });
   } catch (error) {
-    return utilities.sendError(res, 400, "Failed to retrieve lessons", error);
+    return utilities.sendError(res, 500, "Failed to retrieve lessons", error);
   }
 }
 

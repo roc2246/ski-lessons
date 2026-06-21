@@ -87,7 +87,7 @@ describe("logout", () => {
     localStorage.setItem("token", "abc123");
   });
 
-  it("should call /api/logout and remove token", async () => {
+  it("should call /api/auth/logout and remove token", async () => {
     fetch.mockResolvedValueOnce({ ok: true });
 
     await lib.logout("abc123");

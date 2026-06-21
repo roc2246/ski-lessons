@@ -10,6 +10,7 @@ import {
 import * as lib from "../admin-library.js";
 
 let originalFetch;
+let storage = {};
 
 beforeAll(() => {
   // Save original fetch (Node 18+ or browser)
@@ -17,6 +18,20 @@ beforeAll(() => {
 
   // Stub global fetch
   vi.stubGlobal("fetch", vi.fn());
+
+  // Stub localStorage for helpers that read auth tokens
+  vi.stubGlobal("localStorage", {
+    getItem: (key) => storage[key] ?? null,
+    setItem: (key, value) => {
+      storage[key] = String(value);
+    },
+    removeItem: (key) => {
+      delete storage[key];
+    },
+    clear: () => {
+      storage = {};
+    },
+  });
 });
 
 afterAll(() => {
@@ -27,6 +42,8 @@ afterAll(() => {
 beforeEach(() => {
   // Reset fetch call history before each test
   globalThis.fetch.mockReset();
+  localStorage.clear();
+  localStorage.setItem("token", "any-token");
 });
 
 
@@ -131,11 +148,15 @@ describe("isAdmin", () => {
 describe("lessonCreate", () => {
   it("should call fetch with correct arguments", async () => {
     const lessonData = { type: "Beginner Snowboarding", date: "2025-12-20" };
+    const expectedLessonData = {
+      ...lessonData,
+      date: new Date(lessonData.date).toISOString(),
+    };
 
     globalThis.fetch.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({
-        lesson: { ...lessonData, assignedTo: "user123" },
+        lesson: { ...expectedLessonData, assignedTo: "user123" },
       }),
     });
 
@@ -145,11 +166,12 @@ describe("lessonCreate", () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: "Bearer any-token",
       },
-      body: JSON.stringify({ lessonData }),
+      body: JSON.stringify({ lessonData: expectedLessonData }),
     });
 
-    expect(result).toEqual({ ...lessonData, assignedTo: "user123" });
+    expect(result).toEqual({ ...expectedLessonData, assignedTo: "user123" });
   });
 
   it("should throw an error if fetch returns non-ok", async () => {
@@ -158,7 +180,7 @@ describe("lessonCreate", () => {
       json: vi.fn().mockResolvedValue({ message: "Failed to create lesson" }),
     });
 
-    await expect(lib.lessonCreate({ type: "Intermediate" }, "any-token")).rejects.toThrow(
+    await expect(lib.lessonCreate({ type: "Intermediate", date: "2025-12-20" }, "any-token")).rejects.toThrow(
       "Failed to create lesson"
     );
   });
@@ -167,7 +189,7 @@ describe("lessonCreate", () => {
     const error = new Error("Network failure");
     globalThis.fetch.mockRejectedValue(error);
 
-    await expect(lib.lessonCreate({ type: "Advanced" }, "any-token")).rejects.toThrow(
+    await expect(lib.lessonCreate({ type: "Advanced", date: "2025-12-20" }, "any-token")).rejects.toThrow(
       "Network failure"
     );
   });
@@ -178,7 +200,7 @@ describe("lessonCreate", () => {
 
     globalThis.fetch.mockRejectedValue(error);
 
-    await expect(lib.lessonCreate({ type: "Freestyle" }, "any-token")).rejects.toThrow(
+    await expect(lib.lessonCreate({ type: "Freestyle", date: "2025-12-20" }, "any-token")).rejects.toThrow(
       "Network failure"
     );
 
@@ -210,6 +232,7 @@ describe("getUsers", () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: "Bearer any-token",
       },
     });
 

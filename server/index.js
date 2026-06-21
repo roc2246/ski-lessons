@@ -15,10 +15,39 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
+function sanitizeObject(target) {
+  if (!target || typeof target !== "object") return target;
+
+  for (const key of Object.keys(target)) {
+    const cleanKey = key.replace(/\$|\./g, "");
+    const value = target[key];
+    if (cleanKey !== key) {
+      delete target[key];
+    }
+
+    if (value && typeof value === "object") {
+      target[cleanKey] = sanitizeObject(Array.isArray(value) ? value : { ...value });
+    } else {
+      target[cleanKey] = value;
+    }
+  }
+
+  return target;
+}
+
+function mongoSanitizeMiddleware(req, res, next) {
+  sanitizeObject(req.body);
+  sanitizeObject(req.params);
+  sanitizeObject(req.headers);
+  sanitizeObject(req.query);
+  next();
+}
+
 await dbConnect();
 
 app.use(helmet());
 app.use(express.json());
+app.use(mongoSanitizeMiddleware);
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
 app.use("/api/auth/login", authLimiter);

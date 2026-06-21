@@ -20,12 +20,28 @@ const constructorSpy = vi.fn(function (data) {
   this.save = vi.fn(() => Promise.resolve());
   instance = this;
 });
-// findOne used by newUser (returns chainable .lean())
+// findOne supports both newUser's chainable .lean() and loginUser's direct document access
 constructorSpy.findOne = vi.fn((param) => {
-  if (param.username === "exists") return { lean: () => Promise.resolve({ username: "exists" }) };
-  if (param.username === "existusername")
-    return { lean: () => Promise.resolve({ username: "existusername", password: "hashed_password", _id: "user123", admin: true }) };
-  return { lean: () => Promise.resolve(null) };
+  if (param.username === "exists") {
+    return {
+      username: "exists",
+      lean: () => Promise.resolve({ username: "exists" }),
+    };
+  }
+
+  if (param.username === "existusername") {
+    return {
+      username: "existusername",
+      password: "hashed_password",
+      _id: "user123",
+      admin: true,
+      lean: () => Promise.resolve({ username: "existusername", password: "hashed_password", _id: "user123", admin: true }),
+    };
+  }
+
+  return {
+    lean: () => Promise.resolve(null),
+  };
 });
 // find used by loginUser
 constructorSpy.find = vi.fn((param) => {

@@ -69,11 +69,18 @@ export function validateCreateLessonRequest(req, res, next) {
 
   const assignedToValid =
     assignedTo === null ||
+    assignedTo === undefined ||
+    assignedTo === "" ||
     (typeof assignedTo === "string" && OBJECT_ID_REGEX.test(assignedTo));
 
   if (!assignedToValid) {
-    return utilities.sendError(res, 400, "Validation failed", new Error("assignedTo must be null, 'None', or a valid user id"));
+    return utilities.sendError(res, 400, "Validation failed", new Error("assignedTo must be null or a valid user id"));
   }
+
+  const normalizedAssignedTo =
+    assignedTo === undefined || assignedTo === ""
+      ? null
+      : assignedTo;
 
   req.body.lessonData = {
     ...lessonData,
@@ -81,6 +88,7 @@ export function validateCreateLessonRequest(req, res, next) {
     timeLength,
     date,
     guests,
+    assignedTo: normalizedAssignedTo,
   };
 
   next();

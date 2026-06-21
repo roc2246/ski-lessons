@@ -42,18 +42,18 @@ export async function loginUser(username, password) {
 
     const User = utilities.getModel(utilities.UserSchema, "User");
 
-    const userCreds = await User.find({ username });
-    if (userCreds.length === 0)
+    const userCreds = await User.findOne({ username });
+    if (!userCreds)
       throw new Error("User or password doesn't match");
 
-    const passwordMatch = await bcrypt.compare(password, userCreds[0].password);
+    const passwordMatch = await bcrypt.compare(password, userCreds.password);
     if (!passwordMatch) throw new Error("User or password doesn't match");
 
     return jwt.sign(
       {
-        userId: userCreds[0]._id.toString(),
-        username: userCreds[0].username,
-        admin: userCreds[0].admin,
+        userId: userCreds._id.toString(),
+        username: userCreds.username,
+        admin: userCreds.admin,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }

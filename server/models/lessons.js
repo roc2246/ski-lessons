@@ -4,13 +4,7 @@ import { errorEmail } from "../email/index.js";
 // ---------- CREATE LESSON ----------
 export async function createLesson(lessonData) {
   try {
-    const requiredFields = [
-      "type",
-      "date",
-      "timeLength",
-      "guests",
-      "assignedTo",
-    ];
+    const requiredFields = ["type", "date", "timeLength", "guests"];
 
     utilities.argValidation(
       requiredFields.map((f) => lessonData[f]),
@@ -25,7 +19,7 @@ export async function createLesson(lessonData) {
       "9-4": ["9-12", "1-4", "9-4"],
     };
 
-    const assignedTo = lessonData.assignedTo;
+    const assignedTo = lessonData.assignedTo ?? null;
 
     if (assignedTo !== null) {
       const exists = await Lesson.exists({
@@ -107,12 +101,10 @@ export async function switchLessonAssignment(id, newUserId) {
       "9-4": ["9-12", "1-4", "9-4"],
     };
 
-    const normalizedUserId = newUserId;
-
-    if (normalizedUserId !== null) {
+    if (newUserId !== null) {
       const conflictingLesson = await Lesson.findOne({
         _id: { $ne: id },
-        assignedTo: normalizedUserId,
+        assignedTo: newUserId,
         date: lessonToAssign.date,
         timeLength: {
           $in: conflictingTimeLengths[lessonToAssign.timeLength],
@@ -128,7 +120,7 @@ export async function switchLessonAssignment(id, newUserId) {
 
     const updated = await Lesson.findByIdAndUpdate(
       id,
-      { assignedTo: normalizedUserId },
+      { assignedTo: newUserId },
       { new: true }
     );
 
