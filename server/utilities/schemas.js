@@ -27,8 +27,15 @@ export const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+export const BlacklistedTokenSchema = new mongoose.Schema(
+  {
+    token: { type: String, required: true, unique: true, index: true },
+    expiresAt: { type: Date, required: true, index: { expires: 0 } },
+  },
+  { timestamps: true }
+);
+
 // Add indexes for performance on frequently queried fields
 LessonSchema.index({ date: 1 });
 LessonSchema.index({ assignedTo: 1 });
 LessonSchema.index({ date: 1, assignedTo: 1 }); // Compound index for filtering
-UserSchema.index({ username: 1 });

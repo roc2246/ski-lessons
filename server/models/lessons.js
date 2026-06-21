@@ -88,11 +88,11 @@ export async function retrieveUsers() {
 export async function switchLessonAssignment(id, newUserId) {
   try {
     utilities.argValidation([id, newUserId], ["Lesson ID", "New User ID"]);
-    utilities.dataTypeValidation(
-      [id, newUserId],
-      ["ID", "New User ID"],
-      ["string", "string"]
-    );
+    utilities.dataTypeValidation([id], ["ID"], ["string"]);
+
+    if (newUserId !== null && typeof newUserId !== "string") {
+      throw new Error("New User ID must be a string or null");
+    }
 
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
 

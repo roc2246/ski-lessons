@@ -1,5 +1,18 @@
 import * as models from "../models/index.js";
 import * as utilities from "../utilities/index.js";
+import jwt from "jsonwebtoken";
+
+function getUserFromRequest(req) {
+  if (req.user) return req.user;
+
+  const authHeader = req.headers?.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authHeader.split(" ")[1];
+  return jwt.verify(token, process.env.JWT_SECRET);
+}
 
 export async function manageNewUser(req, res) {
   try {
@@ -25,8 +38,11 @@ export async function manageLogin(req, res) {
 
 export async function manageLogout(req, res) {
   try {
-    // req.user is attached by authenticate middleware
     const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return utilities.sendError(res, 401, "Unauthorized: No token provided");
+    }
+
     const token = authHeader.split(" ")[1];
     const blacklist = models.createTokenBlacklist();
     await models.logoutUser(blacklist, token);
@@ -38,11 +54,15 @@ export async function manageLogout(req, res) {
 
 export async function decodeUser(req, res) {
   try {
-    // req.user is attached by authenticate middleware
+    const user = getUserFromRequest(req);
+    if (!user) {
+      return utilities.sendError(res, 401, "Unauthorized: No token provided");
+    }
+
     const exposedCredentials = {
-      userId: req.user.userId,
-      username: req.user.username,
-      admin: req.user.admin,
+      userId: user.userId,
+      username: user.username,
+      admin: user.admin,
     };
     res.status(200).json({
       message: `Retrieved credentials for ${exposedCredentials.username}`,
@@ -55,9 +75,13 @@ export async function decodeUser(req, res) {
 
 export async function selfDeleteAccount(req, res) {
   try {
-    // req.user is attached by authenticate middleware
-    const username = req.user.username;
-    const id = req.user.userId;
+    const user = getUserFromRequest(req);
+    if (!user) {
+      return utilities.sendError(res, 401, "Unauthorized: No token provided");
+    }
+
+    const username = user.username;
+    const id = user.userId;
 
     const lessons = await models.retrieveLessons({ assignedTo: id });
     for (const lesson of lessons) {

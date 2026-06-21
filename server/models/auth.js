@@ -1,9 +1,16 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 import * as utilities from "../utilities/index.js";
 import { dbConnect } from "./db.js";
 import { errorEmail } from "../email/index.js";
+
+function getBlacklistedTokenModel() {
+  return utilities.getModel(utilities.BlacklistedTokenSchema, "BlacklistedToken");
+}
+
+export function createTokenBlacklist() {
+  return new utilities.TokenBlacklist();
+}
 
 // ---------- REGISTER ----------
 export async function newUser(username, password, admin) {
@@ -80,16 +87,43 @@ export async function deleteUser(username) {
 }
 
 // ---------- LOGOUT ----------
-export async function logoutUser(blacklist, token) {
+export async function logoutUser(tokenOrBlacklist, maybeToken) {
   try {
-    utilities.argValidation([blacklist, token], ["Blacklist", "Token"]);
-    blacklist.add(token);
+    const token = typeof maybeToken === "string" ? maybeToken : tokenOrBlacklist;
+    const blacklist = typeof maybeToken === "string" ? tokenOrBlacklist : null;
+    const legacyMode = Boolean(blacklist?.add);
+
+    utilities.argValidation([token], ["Token"]);
+
+    if (blacklist?.add) {
+      blacklist.add(token);
+    }
+
+    if (typeof jwt.decode !== "function") {
+      if (legacyMode) return;
+      throw new Error("Invalid token: unable to decode");
+    }
+
+    const decoded = jwt.decode(token);
+    if (!decoded?.exp) {
+      if (legacyMode) return;
+      throw new Error("Invalid token: missing expiration");
+    }
+
+    const BlacklistedToken = getBlacklistedTokenModel();
+    await BlacklistedToken.updateOne(
+      { token },
+      { token, expiresAt: new Date(decoded.exp * 1000) },
+      { upsert: true }
+    );
   } catch (error) {
     throw error;
-  } 
+  }
 }
 
-// ---------- TOKEN BLACKLIST ----------
-export function createTokenBlacklist() {
-  return new utilities.TokenBlacklist();
+export async function isTokenBlacklisted(token) {
+  utilities.argValidation([token], ["Token"]);
+  const BlacklistedToken = getBlacklistedTokenModel();
+  const found = await BlacklistedToken.exists({ token });
+  return Boolean(found);
 }
