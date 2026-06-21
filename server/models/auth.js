@@ -8,10 +8,6 @@ function getBlacklistedTokenModel() {
   return utilities.getModel(utilities.BlacklistedTokenSchema, "BlacklistedToken");
 }
 
-export function createTokenBlacklist() {
-  return new utilities.TokenBlacklist();
-}
-
 // ---------- REGISTER ----------
 export async function newUser(username, password, admin) {
   try {
@@ -87,26 +83,16 @@ export async function deleteUser(username) {
 }
 
 // ---------- LOGOUT ----------
-export async function logoutUser(tokenOrBlacklist, maybeToken) {
+export async function logoutUser(token) {
   try {
-    const token = typeof maybeToken === "string" ? maybeToken : tokenOrBlacklist;
-    const blacklist = typeof maybeToken === "string" ? tokenOrBlacklist : null;
-    const legacyMode = Boolean(blacklist?.add);
-
     utilities.argValidation([token], ["Token"]);
 
-    if (blacklist?.add) {
-      blacklist.add(token);
-    }
-
     if (typeof jwt.decode !== "function") {
-      if (legacyMode) return;
       throw new Error("Invalid token: unable to decode");
     }
 
     const decoded = jwt.decode(token);
     if (!decoded?.exp) {
-      if (legacyMode) return;
       throw new Error("Invalid token: missing expiration");
     }
 

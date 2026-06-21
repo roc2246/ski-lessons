@@ -28,7 +28,6 @@ vi.mock("../../models/index.js", async () => {
     newUser: vi.fn(),
     loginUser: vi.fn(),
     logoutUser: vi.fn(),
-    createTokenBlacklist: vi.fn(() => ({ add: vi.fn() })),
     retrieveLessons: vi.fn(),
     switchLessonAssignment: vi.fn(),
     deleteUser: vi.fn(),
@@ -101,15 +100,14 @@ describe("manageLogin", () => {
 // ========== manageLogout tests ==========
 describe("manageLogout", () => {
   it("should logout successfully", async () => {
-    const addMock = vi.fn();
-    models.createTokenBlacklist.mockReturnValueOnce({ add: addMock });
-    models.logoutUser.mockImplementationOnce(async (blacklist, token) => blacklist.add(token));
+    models.logoutUser.mockResolvedValueOnce();
 
     const req = createReq({}, { authorization: "Bearer token123" });
     const res = createRes();
 
     await controllers.manageLogout(req, res);
 
+    expect(models.logoutUser).toHaveBeenCalledWith("token123");
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ message: "Successfully logged out" });
   });

@@ -87,7 +87,7 @@ export async function retrieveUsers() {
 // ---------- SWITCH LESSON ASSIGNMENT ----------
 export async function switchLessonAssignment(id, newUserId) {
   try {
-    utilities.argValidation([id, newUserId], ["Lesson ID", "New User ID"]);
+    utilities.argValidation([id], ["Lesson ID"]);
     utilities.dataTypeValidation([id], ["ID"], ["string"]);
 
     if (newUserId !== null && typeof newUserId !== "string") {

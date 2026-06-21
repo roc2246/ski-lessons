@@ -11,7 +11,6 @@ function ensureString(value) {
 export function validateRegisterRequest(req, res, next) {
   const username = ensureString(req.body?.username);
   const password = ensureString(req.body?.password);
-  const admin = req.body?.admin;
 
   if (!username || username.length < 3) {
     return utilities.sendError(res, 400, "Validation failed", new Error("Username must be at least 3 characters"));
@@ -21,12 +20,9 @@ export function validateRegisterRequest(req, res, next) {
     return utilities.sendError(res, 400, "Validation failed", new Error("Password must be at least 6 characters"));
   }
 
-  if (typeof admin !== "boolean") {
-    return utilities.sendError(res, 400, "Validation failed", new Error("Admin must be a boolean"));
-  }
-
   req.body.username = username;
   req.body.password = password;
+  req.body.admin = false;
   next();
 }
 

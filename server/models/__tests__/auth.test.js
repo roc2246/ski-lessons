@@ -8,6 +8,11 @@ import jwt from "jsonwebtoken";
 import { errorEmail } from "../../email/index.js";
 import * as utilities from "../../utilities/index.js";
 
+const blacklistedTokenModel = {
+  updateOne: vi.fn(() => Promise.resolve()),
+  exists: vi.fn(() => Promise.resolve(false)),
+};
+
 // Mock constructor for User model
 let instance;
 const constructorSpy = vi.fn(function (data) {
@@ -39,14 +44,20 @@ vi.mock("bcrypt", () => ({
 }));
 
 vi.mock("jsonwebtoken", () => ({
-  default: { sign: vi.fn(() => "mocked.token") },
+  default: {
+    sign: vi.fn(() => "mocked.token"),
+    decode: vi.fn(() => ({ exp: Math.floor(Date.now() / 1000) + 3600 })),
+  },
   sign: vi.fn(() => "mocked.token"),
 }));
 vi.mock("../../utilities/index.js", async () => {
   const actual = await vi.importActual("../../utilities/index.js");
   return {
     ...actual,
-    getModel: vi.fn(() => constructorSpy),
+    getModel: vi.fn((schema, modelName) => {
+      if (modelName === "BlacklistedToken") return blacklistedTokenModel;
+      return constructorSpy;
+    }),
     UserSchema: actual.UserSchema,
     argValidation: actual.argValidation,
     TokenBlacklist: actual.TokenBlacklist,
@@ -107,9 +118,8 @@ describe("deleteUser", () => {
 });
 
 describe("logoutUser", () => {
-  it("adds token to blacklist", async () => {
-    const blacklist = { add: vi.fn() };
-    await models.logoutUser(blacklist, "fake.token");
-    expect(blacklist.add).toHaveBeenCalledWith("fake.token");
+  it("persists token to blacklist store", async () => {
+    await models.logoutUser("fake.token");
+    expect(blacklistedTokenModel.updateOne).toHaveBeenCalled();
   });
 });

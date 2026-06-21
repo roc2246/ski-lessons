@@ -22,7 +22,7 @@ router.get("/is-admin", authenticate, controllers.decodeUser);
 
 // Lesson routes (authenticated)
 router.get("/lessons", authenticate, controllers.manageLessonRetrieval);
-router.post("/create-lesson", authenticate, validateCreateLessonRequest, controllers.manageCreateLesson);
+router.post("/create-lesson", authenticate, requireAdmin, validateCreateLessonRequest, controllers.manageCreateLesson);
 router.patch("/lessons/:lessonId/assign", authenticate, validateAssignLessonRequest, controllers.manageSwitchLessonAssignment);
 
 // Admin-only routes (require authentication + admin role)

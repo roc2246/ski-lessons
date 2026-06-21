@@ -18,8 +18,8 @@ export async function manageNewUser(req, res) {
   try {
     await models.dbConnect();
 
-    const { username, password, admin } = req.body;
-    await models.newUser(username, password, admin);
+    const { username, password } = req.body;
+    await models.newUser(username, password, false);
     res.status(201).json({ message: `${username} registered` });
   } catch (error) {
     utilities.sendError(res, 400, "Failed to register user", error);
@@ -44,8 +44,7 @@ export async function manageLogout(req, res) {
     }
 
     const token = authHeader.split(" ")[1];
-    const blacklist = models.createTokenBlacklist();
-    await models.logoutUser(blacklist, token);
+    await models.logoutUser(token);
     res.status(200).json({ message: "Successfully logged out" });
   } catch (error) {
     utilities.sendError(res, 500, "Logout failed", error);
