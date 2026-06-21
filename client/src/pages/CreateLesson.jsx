@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import * as adminLib from "../utils/admin-library.js";
 import CreateLessonField from "../components/CreateLessonField.jsx";
 
 function CreateLesson() {
-  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [status, setStatus] = useState("");
 
@@ -15,31 +14,6 @@ function CreateLesson() {
     guests: 1,
     assignedTo: "None", // default value
   });
-
-  // Check admin on mount
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/");
-      return;
-    }
-
-    async function checkAdmin() {
-      try {
-        const isAdmin = await adminLib.isAdmin(token);
-        if (!isAdmin) {
-          alert("You must have admin privileges to access this page");
-          navigate("/instructor");
-        }
-      } catch (err) {
-        console.error("Admin check failed:", err);
-        alert("Unable to verify admin status. Please login again.");
-        navigate("/instructor");
-      }
-    }
-
-    checkAdmin();
-  }, [navigate]);
 
   // Fetch users
   useEffect(() => {

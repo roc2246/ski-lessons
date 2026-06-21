@@ -22,7 +22,6 @@ function Login() {
       const data = await lib.login(username, password); // returns token on success
       if (data?.token) {
         localStorage.setItem("token", data.token);
-        navigate("/instructor"); // SPA navigation
       }
     } catch (err) {
       console.error("Login failed", err);

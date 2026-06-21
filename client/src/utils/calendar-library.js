@@ -8,14 +8,18 @@ function getDateParts(dateString) {
 }
 
 /**
- * Fetch all lessons from the API
+ * Fetch lessons from the API using the assignedTo filter when provided.
  */
-export async function getLessons(available) {
+export async function getLessons(assignedTo) {
   try {
     const token = localStorage.getItem("token");
-    const url = available !== undefined
-      ? `/api/lessons?available=${available}`
-      : "/api/lessons";
+    let url = "/api/lessons";
+
+    if (assignedTo === "None") {
+      url = "/api/lessons?assignedTo=None";
+    } else if (assignedTo !== undefined) {
+      url = `/api/lessons?assignedTo=${assignedTo}`;
+    }
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -138,16 +142,20 @@ export function nextMonth(currentMonthYear) {
 }
 
 /**
- * Fetch lessons for a specific month
+ * Fetch lessons for a specific month.
  * @param {Date} date - Any date in the month you want lessons for
  * @param {string} token - Optional auth token
  */
-export async function getLessonsForMonth(date, token, available) {
+export async function getLessonsForMonth(date, token, assignedTo) {
   try {
     if (!token) token = localStorage.getItem("token");
-    const url = available !== undefined
-      ? `/api/lessons?available=${available}`
-      : "/api/lessons";
+    let url = "/api/lessons";
+
+    if (assignedTo === "None") {
+      url = "/api/lessons?assignedTo=None";
+    } else if (assignedTo !== undefined) {
+      url = `/api/lessons?assignedTo=${assignedTo}`;
+    }
     const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -177,11 +185,11 @@ export async function getLessonsForMonth(date, token, available) {
  * Fetch lessons for the current signed-in user for a specific month.
  * Keeps token lookup in one place so page components stay simple.
  */
-export async function getCurrentMonthLessons(date, available) {
+export async function getCurrentMonthLessons(date, assignedTo) {
   const token = localStorage.getItem("token");
   if (!token) return [];
 
-  return getLessonsForMonth(date, token, available);
+  return getLessonsForMonth(date, token, assignedTo);
 }
 
 // utils/lesson-library.js

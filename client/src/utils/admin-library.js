@@ -1,3 +1,34 @@
+function decodeTokenPayload(token) {
+  try {
+    const payload = token?.split(".")[1];
+
+    if (!payload) {
+      return null;
+    }
+
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    return JSON.parse(globalThis.atob(padded));
+  } catch {
+    return null;
+  }
+}
+
+export function getStoredAuthState() {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return { token: null, admin: false };
+  }
+
+  const payload = decodeTokenPayload(token);
+
+  return {
+    token,
+    admin: payload?.admin === true,
+  };
+}
+
 export async function isAdmin(token) {
   if (!token) {
     throw new Error("No auth token provided");

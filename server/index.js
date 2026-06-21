@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { dbConnect } from "./models/index.js";
+import { ensureLocalAdminUser } from "./models/auth.js";
 
 dotenv.config();
 
@@ -43,6 +44,8 @@ function mongoSanitizeMiddleware(req, res, next) {
 }
 
 await dbConnect();
+
+await ensureLocalAdminUser();
 
 app.use(helmet());
 app.use(express.json());

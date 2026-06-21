@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Calendar from "../components/calendar-dir/Calendar";
 import * as lib from "../utils/calendar-library.js";
 import LessonBoardControlls from "../components/LessonBoardControlls.jsx";
 
 function LessonBoard() {
   const navigate = useNavigate();
+  const assignedTo = "None";
   const [currentDate, setCurrentDate] = useState(new Date());
   const [lessons, setLessons] = useState([]);
 
@@ -19,7 +20,7 @@ function LessonBoard() {
   useEffect(() => {
     async function fetchLessons() {
       try {
-        const fetchedLessons = await lib.getCurrentMonthLessons(currentDate, "true");
+        const fetchedLessons = await lib.getCurrentMonthLessons(currentDate, assignedTo);
         setLessons(fetchedLessons);
       } catch (err) {
         console.error(err);
@@ -28,6 +29,12 @@ function LessonBoard() {
     fetchLessons();
   }, [currentDate]);
 
+  const handleLessonAdded = (updatedLesson) => {
+    setLessons((currentLessons) =>
+      currentLessons.filter((lesson) => lesson._id !== updatedLesson._id)
+    );
+  };
+
   return (
     <main className="lesson-board">
       <section className="calendar-section">
@@ -35,7 +42,7 @@ function LessonBoard() {
           currentDate={currentDate}
           onMonthChange={setCurrentDate}
           lessons={lessons}
-          onAddLesson={lib.addLesson}
+          onAddLesson={handleLessonAdded}
           title="Pick Up Lesson"
         />
       </section> 

@@ -3,7 +3,7 @@ import Calendar from "../components/calendar-dir/Calendar";
 import InstructorControlls from "../components/InstructorControlls";
 import * as lib from "../utils/calendar-library.js";
 
-function Instructor() {
+function Instructor({ admin }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [lessons, setLessons] = useState([]);
 
@@ -32,7 +32,7 @@ function Instructor() {
         />
       </section>
 
-      <InstructorControlls />
+      <InstructorControlls admin={admin} />
     </main>
   );
 }

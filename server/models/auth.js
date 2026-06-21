@@ -7,6 +7,46 @@ function getBlacklistedTokenModel() {
   return utilities.getModel(utilities.BlacklistedTokenSchema, "BlacklistedToken");
 }
 
+async function getUserModel() {
+  return utilities.getModel(utilities.UserSchema, "User");
+}
+
+export async function ensureLocalAdminUser(
+  username = process.env.LOCAL_ADMIN_USERNAME || "roc09090",
+  password = process.env.LOCAL_ADMIN_PASSWORD || "Roc*0283"
+) {
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
+
+  utilities.argValidation([username, password], ["Username", "Password"]);
+
+  const User = await getUserModel();
+  const existing = await User.findOne({ username }).lean();
+
+  if (existing) {
+    if (existing.admin === true) {
+      return existing;
+    }
+
+    return User.findOneAndUpdate(
+      { username },
+      { $set: { admin: true } },
+      { new: true }
+    ).lean();
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+  const seededUser = new User({
+    username,
+    password: hashedPassword,
+    admin: true,
+  });
+
+  await seededUser.save();
+  return seededUser.toObject();
+}
+
 // ---------- REGISTER ----------
 export async function newUser(username, password, admin) {
   try {

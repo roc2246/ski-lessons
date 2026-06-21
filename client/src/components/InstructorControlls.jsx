@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import GeneralBtn from "./buttons/GeneralBtn";
 import * as lib from "../utils/auth-library";
 
-export default function InstructorControlls() {
+export default function InstructorControlls({ admin }) {
   const token = localStorage.getItem("token"); // ✅ always grab fresh token
 
   return (
@@ -26,9 +26,11 @@ export default function InstructorControlls() {
       <Link to="/lesson-board" className="instructor__link">
         Lesson Board
       </Link>
-      <Link to="/admin-home" className="instructor__link">
-        Admin
-      </Link>
+      {admin === true && (
+        <Link to="/admin-home" className="instructor__link">
+          Admin
+        </Link>
+      )}
     </section>
   );
 }

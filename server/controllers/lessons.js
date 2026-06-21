@@ -18,14 +18,22 @@ export async function manageCreateLesson(req, res) {
 export async function manageLessonRetrieval(req, res) {
   try {
     // req.user is attached by authenticate middleware
-    const availableOnly = req.query.available === "true";
-    const lessons = availableOnly
-      ? await models.retrieveAvailableLessonsForUser(req.user.userId)
-      : await models.retrieveLessons({ assignedTo: req.user.userId });
+    const assignedToParam = req.query.assignedTo;
+
+    let lessons;
+    if (assignedToParam === "None") {
+      lessons = await models.retrieveLessons({ assignedTo: null });
+    } else if (assignedToParam) {
+      lessons = await models.retrieveLessons({ assignedTo: assignedToParam });
+    } else {
+      lessons = await models.retrieveLessons({ assignedTo: req.user.userId });
+    }
 
     return res.status(200).json({
-      message: availableOnly
-        ? "Available non-conflicting lessons retrieved"
+      message: assignedToParam === "None"
+        ? "Lessons with assignedTo=None retrieved"
+        : assignedToParam
+          ? `Lessons retrieved for assignedTo=${assignedToParam}`
         : `Lessons retrieved for user ID ${req.user.userId}`,
       lessons,
     });
