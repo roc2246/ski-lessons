@@ -78,6 +78,11 @@
   transition: background 0.2s ease, transform 0.1s ease;
 }
 
+.calendar__date--empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .calendar__date:focus-visible {
   outline: 0.25rem solid var(--color-accent);
 }

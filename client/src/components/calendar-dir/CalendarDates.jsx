@@ -19,6 +19,12 @@ export default function CalendarDates({
   lessons = [],
   onAddLesson,
 }) {
+  const firstDayOffset = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1
+  ).getDay();
+
   const dates = Array.from(
     {
       length: new Date(
@@ -32,6 +38,13 @@ export default function CalendarDates({
 
   return (
     <div className="calendar__dates">
+      {Array.from({ length: firstDayOffset }).map((_, index) => (
+        <div
+          key={`empty-${index}`}
+          className="calendar__date calendar__date--empty"
+          aria-hidden="true"
+        />
+      ))}
       {dates.map((day) => {
         const lessonsForDay = lessons.filter((lesson) => {
           const lessonDate = parseLocalDate(lesson.date);
