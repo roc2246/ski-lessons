@@ -2,12 +2,18 @@
 
 ## Required Project Context
 
-**IMPORTANT:** This prompt requires the content of `GEMINI.md` (specifically the Backend and Database standards).
+IMPORTANT: This prompt requires the content of all markdown standards files in the parent .ai directory.
 
-**AI VERIFICATION STEP:** Verify that you have the content of `GEMINI.md` and the relevant `.js` files in your context. If missing, STOP and ask the user to provide them.
+Required files:
+- @.ai/architecture.md
+- @.ai/CLAUDE.md
+- @.ai/coding-standards.md
+- @.ai/mern-best-practices.md
+- @.ai/project-context.md
+- @.ai/project-instructions.md
+- @.ai/style-guide.md
 
-If your AI tool cannot automatically read files, paste or attach the relevant files before running this prompt.
-
+AI VERIFICATION STEP: Before continuing, verify these files are present in context. If any are missing, STOP and ask the user to provide them.
 ## Universal Rules
 
 - Prioritize job readiness, maintainability, and MERN best practices.
@@ -70,3 +76,4 @@ Provide revised code for the highest-impact fixes.
 ### 7. Next Three Tasks
 
 Give the next three practical tasks in priority order.
+

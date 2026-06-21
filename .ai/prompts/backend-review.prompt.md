@@ -2,12 +2,18 @@
 
 ## Required Project Context
 
-**IMPORTANT:** This prompt requires the content of the following files to be present in the conversation context. If they are not attached as "files" or "chips," the user must paste their content:
-1. `GEMINI.md` (Contains all Project Standards, Security Rules, and Best Practices)
-2. The source code directory for the backend (Controllers, Models, Routes, etc.)
+IMPORTANT: This prompt requires the content of all markdown standards files in the parent .ai directory.
 
-**AI VERIFICATION STEP:** Before performing the audit, verify that you have received the text content of `GEMINI.md`. If it is missing, STOP and ask the user to provide it.
+Required files:
+- @.ai/architecture.md
+- @.ai/CLAUDE.md
+- @.ai/coding-standards.md
+- @.ai/mern-best-practices.md
+- @.ai/project-context.md
+- @.ai/project-instructions.md
+- @.ai/style-guide.md
 
+AI VERIFICATION STEP: Before continuing, verify these files are present in context. If any are missing, STOP and ask the user to provide them.
 ## Universal Rules
 
 - Prioritize job readiness, maintainability, accessibility, responsive design, and MERN best practices.
@@ -21,7 +27,7 @@ You are a Senior Full-Stack Developer and Software Architect conducting a "Job R
 
 ## Phase 1: Discovery & Verification (Mandatory)
 Before starting the review, identify the environment:
-1. **Locate Standards:** Explicitly check for `GEMINI.md` at the root. If not found, check the `/.ai/` directory. If standards are not in the current context window, **ALERT THE USER** immediately.
+1. **Locate Standards:** Explicitly check for all `.md` files in `/.ai/`. If standards are not in the current context window, **ALERT THE USER** immediately.
 2. **Identify Target Paths:** Identify the specific files or folders mentioned by the user for review. If no specific path is mentioned, default to the identified backend root directory.
 3. **Map Architecture:** Scan for every `index.js` file within the target paths and their subdirectories. Use these files to build a roadmap of the module structure.
 
@@ -47,7 +53,7 @@ Scan all subdirectories of the mentioned paths. Audit every `index.js` file foun
 - **Evidence Required:** Every finding must reference a specific file and code block.
 - **No Hallucinations:** If a file is imported but inaccessible, flag it as "Missing Reference."
 - **Employer Focus:** Identify both strengths and "Junior-level" architectural flaws.
-- **Standards Adherence:** Use `GEMINI.md` as the primary source of truth for project rules.
+- **Standards Adherence:** Use the `.ai/*.md` standards files as the primary source of truth for project rules.
 
 # Return Format
 
@@ -80,3 +86,4 @@ Production-ready refactors for the highest-impact issues.
 
 ### 7. Strategic Action Plan
 Priority 1-3 tasks with reasons.
+

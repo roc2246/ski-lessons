@@ -2,21 +2,18 @@
 
 ## Required Project Context
 
-Before completing this task, use:
+IMPORTANT: This prompt requires the content of all markdown standards files in the parent .ai directory.
 
-* @.ai/project-context.md
-* @.ai/project-instructions.md
-* @.ai/coding-standards.md
-* @.ai/style-guide.md
-* @.ai/mern-best-practices.md
-* @.ai/employer-review-checklist.md
+Required files:
+- @.ai/architecture.md
+- @.ai/CLAUDE.md
+- @.ai/coding-standards.md
+- @.ai/mern-best-practices.md
+- @.ai/project-context.md
+- @.ai/project-instructions.md
+- @.ai/style-guide.md
 
-Prioritize project standards over generic recommendations.
-
----
-
-# Documentation Review and Update
-
+AI VERIFICATION STEP: Before continuing, verify these files are present in context. If any are missing, STOP and ask the user to provide them.
 ## Context
 
 This is a professional portfolio project intended to demonstrate readiness for:
@@ -181,3 +178,4 @@ Focus on documentation that improves maintainability, onboarding, and employer p
 If documentation changes are recommended, always provide:
 
 Git commit message: [message]
+

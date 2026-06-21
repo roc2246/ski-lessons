@@ -2,17 +2,18 @@
 
 ## Required Project Context
 
-Before completing this task, read or use these project files if they are available in the workspace/context:
+IMPORTANT: This prompt requires the content of all markdown standards files in the parent .ai directory.
 
+Required files:
+- @.ai/architecture.md
+- @.ai/CLAUDE.md
+- @.ai/coding-standards.md
+- @.ai/mern-best-practices.md
 - @.ai/project-context.md
 - @.ai/project-instructions.md
-- @.ai/coding-standards.md
 - @.ai/style-guide.md
-- @.ai/mern-best-practices.md
-- @.ai/employer-review-checklist.md
 
-If your AI tool cannot automatically read files, paste or attach the relevant files before running this prompt.
-
+AI VERIFICATION STEP: Before continuing, verify these files are present in context. If any are missing, STOP and ask the user to provide them.
 ## Universal Rules
 
 - Prioritize job readiness, maintainability, accessibility, responsive design, and MERN best practices.
@@ -139,3 +140,4 @@ For each role, answer Yes / Maybe / No and explain why:
 - Website Maintenance Developer
 - Agency Overflow Developer
 - Freelance Web Developer
+

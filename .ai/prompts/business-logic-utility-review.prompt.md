@@ -2,12 +2,18 @@
 
 ## Required Project Context
 
-**IMPORTANT:** This prompt requires `GEMINI.md` to evaluate utility logic against the project's UTC date rules and validation standards.
+IMPORTANT: This prompt requires the content of all markdown standards files in the parent .ai directory.
 
-**AI VERIFICATION STEP:** Verify that you have the content of `GEMINI.md`. If missing, request it.
+Required files:
+- @.ai/architecture.md
+- @.ai/CLAUDE.md
+- @.ai/coding-standards.md
+- @.ai/mern-best-practices.md
+- @.ai/project-context.md
+- @.ai/project-instructions.md
+- @.ai/style-guide.md
 
-If your AI tool cannot automatically read files, paste or attach the relevant files before running this prompt.
-
+AI VERIFICATION STEP: Before continuing, verify these files are present in context. If any are missing, STOP and ask the user to provide them.
 ## Universal Rules
 
 - Prioritize job readiness, maintainability, and MERN best practices.

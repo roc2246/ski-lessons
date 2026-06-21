@@ -2,13 +2,18 @@
 
 ## Required Project Context
 
-**IMPORTANT:** This prompt requires the content of `GEMINI.md` (which consolidates the project instructions, style guide, and SCSS standards). 
+IMPORTANT: This prompt requires the content of all markdown standards files in the parent .ai directory.
 
-**AI VERIFICATION STEP:** Check if the content of `GEMINI.md` is in your current context. If the user has not provided it, STOP and request it.
+Required files:
+- @.ai/architecture.md
+- @.ai/CLAUDE.md
+- @.ai/coding-standards.md
+- @.ai/mern-best-practices.md
+- @.ai/project-context.md
+- @.ai/project-instructions.md
+- @.ai/style-guide.md
 
-
-If your AI tool cannot automatically read files, paste or attach the relevant files before running this prompt.
-
+AI VERIFICATION STEP: Before continuing, verify these files are present in context. If any are missing, STOP and ask the user to provide them.
 ## Universal Rules
 
 - Prioritize job readiness, maintainability, accessibility, and responsive design.
@@ -67,3 +72,4 @@ Provide revised SCSS for the highest-impact fixes.
 ### 6. Next Three SCSS Tasks
 
 Give the next three practical tasks in priority order.
+

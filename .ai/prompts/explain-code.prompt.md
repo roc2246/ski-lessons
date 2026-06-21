@@ -2,12 +2,18 @@
 
 ## Required Project Context
 
-**IMPORTANT:** This prompt requires `GEMINI.md` to understand the project's purpose and "Junior Developer" teaching persona requirements.
+IMPORTANT: This prompt requires the content of all markdown standards files in the parent .ai directory.
 
-**AI VERIFICATION STEP:** If the content of `GEMINI.md` is not present, request it from the user.
+Required files:
+- @.ai/architecture.md
+- @.ai/CLAUDE.md
+- @.ai/coding-standards.md
+- @.ai/mern-best-practices.md
+- @.ai/project-context.md
+- @.ai/project-instructions.md
+- @.ai/style-guide.md
 
-If your AI tool cannot automatically read files, paste or attach the relevant files before running this prompt.
-
+AI VERIFICATION STEP: Before continuing, verify these files are present in context. If any are missing, STOP and ask the user to provide them.
 ## Universal Rules
 
 - Prioritize job readiness, maintainability, accessibility, responsive design, and MERN best practices.
@@ -48,3 +54,4 @@ Explain the selected code clearly and practically.
 ### 5. How This Fits the Project
 
 ### 6. Best Next Improvement
+

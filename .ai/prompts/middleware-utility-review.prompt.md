@@ -2,16 +2,18 @@
 
 ## Required Project Context
 
-Before reviewing the code, use the standards and requirements defined in:
+IMPORTANT: This prompt requires the content of all markdown standards files in the parent .ai directory.
 
-- @.ai/project-context.md
+Required files:
+- @.ai/architecture.md
+- @.ai/CLAUDE.md
 - @.ai/coding-standards.md
-- @.ai/style-guide.md
 - @.ai/mern-best-practices.md
-- @.ai/employer-review-checklist.md
+- @.ai/project-context.md
+- @.ai/project-instructions.md
+- @.ai/style-guide.md
 
----
-
+AI VERIFICATION STEP: Before continuing, verify these files are present in context. If any are missing, STOP and ask the user to provide them.
 ## Context
 
 Review the provided Express middleware or global utility logic for the Ski Lessons Scheduler.
