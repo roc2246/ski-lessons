@@ -25,12 +25,26 @@ export async function getLessons(available) {
 
 /**
  * Preprocess lessons to add _year, _month, _day, _startDate
+ * Handles both ISO date strings and YYYY-MM-DD format
  */
 export function preprocessLessons(lessons) {
   return lessons.map((lesson) => {
-    const [year, month, day] = lesson.date.split("-").map(Number);
+    let year, month, day;
+
+    // Handle ISO date format (e.g., "2025-12-25T00:00:00.000Z")
+    if (lesson.date.includes("T")) {
+      const dateObj = new Date(lesson.date);
+      year = dateObj.getFullYear();
+      month = dateObj.getMonth() + 1;
+      day = dateObj.getDate();
+    } else {
+      // Handle legacy YYYY-MM-DD format
+      [year, month, day] = lesson.date.split("-").map(Number);
+    }
+
     const [startTime] = lesson.timeLength.split("-");
     const [hours = "0", minutes = "0"] = startTime.split(":");
+    
     return {
       ...lesson,
       _year: year,
@@ -151,6 +165,7 @@ export async function getLessonsForMonth(date, token, available) {
     const year = date.getFullYear();
 
     return lessons.filter((lesson) => {
+      // Handle ISO date strings from backend
       const lessonDate = new Date(lesson.date);
       return lessonDate.getMonth() === month && lessonDate.getFullYear() === year;
     });

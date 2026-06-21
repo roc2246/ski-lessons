@@ -31,9 +31,9 @@ function LessonBoard() {
     fetchLessons();
   }, [currentDate]);
 
-  // Filter unassigned lessons
+  // Filter unassigned lessons (backend now uses null instead of "None")
   const filteredLessons = useMemo(
-    () => lessons.filter((lesson) => lesson.assignedTo === "None"),
+    () => lessons.filter((lesson) => !lesson.assignedTo),
     [lessons]
   );
 

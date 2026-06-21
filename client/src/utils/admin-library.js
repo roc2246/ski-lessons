@@ -26,11 +26,17 @@ export async function isAdmin(token) {
 }
 
 export async function getUsers() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("No auth token provided");
+  }
+
   try {
     const res = await fetch("/api/user-retrieval", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -52,13 +58,25 @@ export async function getUsers() {
 }
 
 export async function lessonCreate(newLesson) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("No auth token provided");
+  }
+
   try {
+    // Convert date string (YYYY-MM-DD) to ISO format for database
+    const lessonData = {
+      ...newLesson,
+      date: new Date(newLesson.date).toISOString(),
+    };
+
     const res = await fetch("/api/create-lesson", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ lessonData: newLesson }),
+      body: JSON.stringify({ lessonData }),
     });
 
     const data = await res.json();

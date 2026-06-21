@@ -1,7 +1,15 @@
 import React from "react";
 import CalendarDate from "./CalendarDate";
 
+import React from "react";
+import CalendarDate from "./CalendarDate";
+
 function parseLocalDate(dateString) {
+  // Handle ISO date format (e.g., "2025-12-25T00:00:00.000Z")
+  if (dateString.includes("T")) {
+    return new Date(dateString);
+  }
+  // Handle YYYY-MM-DD format
   const [year, month, day] = dateString.split("-").map(Number);
   return new Date(year, month - 1, day);
 }

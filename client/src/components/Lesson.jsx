@@ -24,7 +24,8 @@ export default function Lesson({ lesson, onLessonAdded }) {
       <p className="lesson__type">{lesson.type}</p>
       <p className="lesson__guests">{lesson.guests} guests</p>
 
-      {lesson.assignedTo === "None" && (
+      {/* Backend now uses null instead of "None" for unassigned lessons */}
+      {!lesson.assignedTo && (
         <button className="calendar__lesson-btn" onClick={handleAddLesson}>
           Add Lesson
         </button>
