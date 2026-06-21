@@ -23,8 +23,17 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function errorEmail(subject, text, sendTo = process.env.SMTP_USER) {
+  const smtpUser = process.env.SMTP_USER;
+  const appPassword = process.env.APP_PASSWORD;
+
+  // Keep error notifications best-effort and non-blocking.
+  if (!smtpUser || !appPassword) {
+    console.warn("Email notification skipped: SMTP credentials are not configured.");
+    return false;
+  }
+
   const mailOptions = {
-    from: process.env.SMTP_USER,
+    from: smtpUser,
     to: sendTo,
     subject: subject,
     text: text,
@@ -33,9 +42,10 @@ export async function errorEmail(subject, text, sendTo = process.env.SMTP_USER) 
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent: " + info.response);
+    return true;
   } catch (error) {
     console.error("Error sending email:", error);
-    throw error;
+    return false;
   }
 }
 
