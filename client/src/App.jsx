@@ -7,7 +7,6 @@ import AdminHome from "./pages/AdminHome";
 import CreateLesson from "./pages/CreateLesson";
 import LessonBoard from "./pages/LessonBoard";
 import * as lib from "./utils/admin-library";
-import "./styles/main.css";
 
 function App() {
   const [token, setToken] = useState(null);

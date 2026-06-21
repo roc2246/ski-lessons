@@ -32,7 +32,7 @@ function CalendarDate({ day, lessons = [], onLessonAdded }) {
       style={{ cursor: localLessons.length > 0 ? "pointer" : "default" }}
     >
       <span>{day.getDate()}</span>
-      <p>{localLessons.length} lessons</p>
+      {/* <p>{localLessons.length} lessons</p> */}
       {showLessons &&
         localLessons.map((lesson) => (
           <Lesson

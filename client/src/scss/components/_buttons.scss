@@ -1,0 +1,43 @@
+@use "../abstracts/tokens" as *;
+
+// Button System
+.btn {
+  padding: 0.85rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  min-height: 2.75rem;
+  transition: background 0.2s ease, transform 0.1s ease;
+
+  &:hover,
+  &:focus-visible {
+    filter: brightness(1.05);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  // Modifiers
+  &--primary {
+    background: var(--color-primary);
+    color: #ffffff;
+  }
+
+  &--secondary {
+    background: var(--color-secondary);
+    color: #ffffff;
+  }
+
+  &--danger {
+    background: var(--color-danger);
+    color: #ffffff;
+  }
+
+  // Responsive layout logic
+  @media (min-width: $bp-sm) {
+    width: auto;
+  }
+}

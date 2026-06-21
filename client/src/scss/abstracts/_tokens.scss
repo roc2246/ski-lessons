@@ -1,0 +1,25 @@
+// Design Tokens & Root Variables
+:root {
+  /* Core Brand */
+  --color-primary: #1f3d2b;      /* Pine Green */
+  --color-accent: #d9a441;       /* Alpine Gold */
+
+  /* Surfaces */
+  --color-bg: #f5f7f6;           /* Snow Gray */
+  --color-panel: #ffffff;
+
+  /* Text */
+  --color-text: #1f2933;         /* Charcoal */
+  --color-secondary: #556b61;    /* Muted Evergreen */
+
+  /* State */
+  --color-danger: #b3261e;
+
+  /* UI Specs */
+  --radius: 0.5rem;
+  --shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.12);
+}
+
+// Media Query Breakpoints
+$bp-sm: 37.5rem;   // 600px
+$bp-md: 56.25rem;  // 900px

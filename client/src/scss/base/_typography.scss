@@ -1,0 +1,19 @@
+// Typography Styles
+h1, h2, h3 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration-thickness: 0.12em;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

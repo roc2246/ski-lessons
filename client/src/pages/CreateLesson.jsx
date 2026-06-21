@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import * as adminLib from "../utils/admin-library.js";
-import "../styles/main.css";
 import CreateLessonField from "../components/CreateLessonField.jsx";
 
 function CreateLesson() {

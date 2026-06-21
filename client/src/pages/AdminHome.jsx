@@ -1,7 +1,7 @@
-import { useEffect} from "react";
+import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import * as adminLib from "../utils/admin-library.js";
-import "../styles/main.css";
+
 
 function AdminHome() {
   const navigate = useNavigate();

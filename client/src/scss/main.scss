@@ -1,0 +1,13 @@
+// 1. Tokens & Configurations
+@use "abstracts/tokens";
+
+// 2. Global Base Rules
+@use "base/reset";
+@use "base/typography";
+
+// 3. UI Components
+@use "components/buttons";
+@use "components/forms";
+
+// 4. Page Layout Structure
+@use "layouts/pages";
