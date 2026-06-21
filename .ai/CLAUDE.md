@@ -9,7 +9,6 @@ Follow the documentation in:
 * @.ai/coding-standards.md
 * @.ai/style-guide.md
 * @.ai/mern-best-practices.md
-* @.ai/employer-review-checklist.md
 
 When making code changes:
 
