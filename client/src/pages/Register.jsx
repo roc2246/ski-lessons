@@ -30,19 +30,19 @@ function Register() {
         <Field
           type="username"
           value={username}
-          onchange={(e) => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
         />
 
         <Field
           type="password"
           value={password}
-          onchange={(e) => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         <Field
           type="checkbox"
           value={""}
-          onchange={(e) => setIsAdmin(e.target.checked)}
+          onChange={(e) => setIsAdmin(e.target.checked)}
         />
 
         <SubmitBtn type="new-user">Register</SubmitBtn>
