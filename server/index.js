@@ -38,7 +38,6 @@ function sanitizeObject(target) {
 function mongoSanitizeMiddleware(req, res, next) {
   sanitizeObject(req.body);
   sanitizeObject(req.params);
-  sanitizeObject(req.headers);
   sanitizeObject(req.query);
   next();
 }

@@ -10,7 +10,8 @@ export async function manageCreateLesson(req, res) {
       lesson: createdLesson,
     });
   } catch (error) {
-    utilities.sendError(res, 422, "Failed to create lesson", error);
+    const status = Number.isInteger(error?.status) ? error.status : 500;
+    utilities.sendError(res, status, "Failed to create lesson", error);
   }
 }
 
@@ -48,7 +49,7 @@ export async function manageSwitchLessonAssignment(req, res) {
       lesson: updatedLesson,
     });
   } catch (error) {
-    const status = error.message === "Lesson not found" ? 404 : 400;
+    const status = Number.isInteger(error?.status) ? error.status : 500;
     utilities.sendError(res, status, "Failed to switch lesson assignment", error);
   }
 }
@@ -59,7 +60,7 @@ export async function manageRemoveLesson(req, res) {
     const result = await models.removeLesson(lessonId);
     res.status(200).json(result);
   } catch (error) {
-    const status = error.message?.includes("not found") ? 404 : 500;
+    const status = Number.isInteger(error?.status) ? error.status : 500;
     utilities.sendError(res, status, "Failed to remove lesson", error);
   }
 }

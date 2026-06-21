@@ -1,6 +1,12 @@
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
 
+function createHttpError(message, status) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
 // ---------- CREATE LESSON ----------
 export async function createLesson(lessonData) {
   try {
@@ -33,7 +39,7 @@ export async function createLesson(lessonData) {
       const errorMssg = `This instructor is already booked on ${lessonData.date} during ${lessonData.timeLength}.`;
 
       if (exists) {
-        throw new Error(errorMssg);
+        throw createHttpError(errorMssg, 409);
       }
     }
 
@@ -84,15 +90,15 @@ export async function switchLessonAssignment(id, newUserId) {
     utilities.dataTypeValidation([id], ["ID"], ["string"]);
 
     if (newUserId !== null && typeof newUserId !== "string") {
-      throw new Error("New User ID must be a string or null");
+      throw createHttpError("New User ID must be a string or null", 400);
     }
 
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
 
-    const lessonToAssign = await Lesson.findById(id);
+    const lessonToAssign = await Lesson.findById(id).lean();
 
     if (!lessonToAssign) {
-      throw new Error("Lesson not found");
+      throw createHttpError("Lesson not found", 404);
     }
 
     const conflictingTimeLengths = {
@@ -112,17 +118,22 @@ export async function switchLessonAssignment(id, newUserId) {
       });
 
       if (conflictingLesson) {
-        throw new Error(
-          `User is already assigned to a lesson on ${lessonToAssign.date} during ${lessonToAssign.timeLength}`
+        throw createHttpError(
+          `User is already assigned to a lesson on ${lessonToAssign.date} during ${lessonToAssign.timeLength}`,
+          409
         );
       }
     }
 
-    const updated = await Lesson.findByIdAndUpdate(
-      id,
-      { assignedTo: newUserId },
+    const updated = await Lesson.findOneAndUpdate(
+      { _id: id, assignedTo: null },
+      { $set: { assignedTo: newUserId } },
       { new: true }
     );
+
+    if (!updated) {
+      throw createHttpError("Lesson already assigned", 409);
+    }
 
     return updated;
   } catch (error) {
@@ -152,7 +163,7 @@ export async function removeLesson(id) {
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
 
     const deleted = await Lesson.findByIdAndDelete(id);
-    if (!deleted) throw new Error("Lesson not found or already deleted");
+    if (!deleted) throw createHttpError("Lesson not found or already deleted", 404);
 
     return {
       success: true,
