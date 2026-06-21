@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Calendar from "../components/calendar-dir/Calendar";
 import * as lib from "../utils/calendar-library.js";
@@ -18,10 +18,8 @@ function LessonBoard() {
   // Fetch lessons for the current month
   useEffect(() => {
     async function fetchLessons() {
-      const token = localStorage.getItem("token");
-      if (!token) return;
       try {
-        const fetchedLessons = await lib.getLessonsForMonth(currentDate, token, "true");
+        const fetchedLessons = await lib.getCurrentMonthLessons(currentDate, "true");
         setLessons(fetchedLessons);
       } catch (err) {
         console.error(err);
@@ -30,20 +28,14 @@ function LessonBoard() {
     fetchLessons();
   }, [currentDate]);
 
-  // Filter unassigned lessons (backend now uses null instead of "None")
-  const filteredLessons = useMemo(
-    () => lessons.filter((lesson) => !lesson.assignedTo),
-    [lessons]
-  );
-
   return (
     <main className="lesson-board">
       <section className="calendar-section">
         <Calendar
           currentDate={currentDate}
           onMonthChange={setCurrentDate}
-          lessons={filteredLessons}
-          onAddLesson={(lesson) => lib.addLesson(lesson)}
+          lessons={lessons}
+          onAddLesson={lib.addLesson}
           title="Pick Up Lesson"
         />
       </section> 

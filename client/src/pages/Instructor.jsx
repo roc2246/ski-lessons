@@ -9,14 +9,8 @@ function Instructor() {
 
   useEffect(() => {
     async function fetchLessons() {
-      const token = localStorage.getItem("token");
-      if (!token) return; // ProtectedRoute handles redirect
-
       try {
-        const fetchedLessons = await lib.getLessonsForMonth(
-          currentDate,
-          token
-        );
+        const fetchedLessons = await lib.getCurrentMonthLessons(currentDate);
         setLessons(fetchedLessons);
       } catch (err) {
         console.error(err);
@@ -33,9 +27,7 @@ function Instructor() {
           currentDate={currentDate}
           onMonthChange={setCurrentDate}
           lessons={lessons}
-          onAddLesson={(lesson) =>
-            console.log("Instructor clicked:", lesson)
-          }
+          onAddLesson={(lesson) => console.log("Instructor clicked:", lesson)}
           title="Instructor Calendar"
         />
       </section>

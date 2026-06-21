@@ -1,13 +1,13 @@
 import CalendarDate from "./CalendarDate";
 
+function getDateParts(dateString) {
+  const datePart = String(dateString).slice(0, 10);
+  return datePart.split("-").map(Number);
+}
+
 
 function parseLocalDate(dateString) {
-  // Handle ISO date format (e.g., "2025-12-25T00:00:00.000Z")
-  if (dateString.includes("T")) {
-    return new Date(dateString);
-  }
-  // Handle YYYY-MM-DD format
-  const [year, month, day] = dateString.split("-").map(Number);
+  const [year, month, day] = getDateParts(dateString);
   return new Date(year, month - 1, day);
 }
 

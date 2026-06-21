@@ -64,14 +64,13 @@ export async function lessonCreate(newLesson) {
   }
 
   try {
-    // Convert date string (YYYY-MM-DD) to ISO format for database
     const lessonData = {
       ...newLesson,
       assignedTo:
         newLesson.assignedTo === "None" || newLesson.assignedTo === ""
           ? null
           : newLesson.assignedTo,
-      date: new Date(newLesson.date).toISOString(),
+      date: newLesson.date,
     };
 
     const res = await fetch("/api/lessons", {

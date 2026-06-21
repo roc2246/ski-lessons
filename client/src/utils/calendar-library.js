@@ -2,6 +2,11 @@
 // Calendar Library (React-friendly)
 // ================================
 
+function getDateParts(dateString) {
+  const datePart = String(dateString).slice(0, 10);
+  return datePart.split("-").map(Number);
+}
+
 /**
  * Fetch all lessons from the API
  */
@@ -32,18 +37,7 @@ export async function getLessons(available) {
  */
 export function preprocessLessons(lessons) {
   return lessons.map((lesson) => {
-    let year, month, day;
-
-    // Handle ISO date format (e.g., "2025-12-25T00:00:00.000Z")
-    if (lesson.date.includes("T")) {
-      const dateObj = new Date(lesson.date);
-      year = dateObj.getFullYear();
-      month = dateObj.getMonth() + 1;
-      day = dateObj.getDate();
-    } else {
-      // Handle legacy YYYY-MM-DD format
-      [year, month, day] = lesson.date.split("-").map(Number);
-    }
+    const [year, month, day] = getDateParts(lesson.date);
 
     const [startTime] = lesson.timeLength.split("-");
     const [hours = "0", minutes = "0"] = startTime.split(":");
@@ -170,14 +164,24 @@ export async function getLessonsForMonth(date, token, available) {
     const year = date.getFullYear();
 
     return lessons.filter((lesson) => {
-      // Handle ISO date strings from backend
-      const lessonDate = new Date(lesson.date);
-      return lessonDate.getMonth() === month && lessonDate.getFullYear() === year;
+      const [lessonYear, lessonMonth] = getDateParts(lesson.date);
+      return lessonMonth - 1 === month && lessonYear === year;
     });
   } catch (err) {
     console.error("Error in getLessonsForMonth:", err);
     return [];
   }
+}
+
+/**
+ * Fetch lessons for the current signed-in user for a specific month.
+ * Keeps token lookup in one place so page components stay simple.
+ */
+export async function getCurrentMonthLessons(date, available) {
+  const token = localStorage.getItem("token");
+  if (!token) return [];
+
+  return getLessonsForMonth(date, token, available);
 }
 
 // utils/lesson-library.js

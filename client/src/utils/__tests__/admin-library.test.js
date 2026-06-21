@@ -148,10 +148,7 @@ describe("isAdmin", () => {
 describe("lessonCreate", () => {
   it("should call fetch with correct arguments", async () => {
     const lessonData = { type: "Beginner Snowboarding", date: "2025-12-20" };
-    const expectedLessonData = {
-      ...lessonData,
-      date: new Date(lessonData.date).toISOString(),
-    };
+    const expectedLessonData = { ...lessonData };
 
     globalThis.fetch.mockResolvedValue({
       ok: true,
