@@ -23,13 +23,7 @@ export async function manageLogin(req, res) {
 
 export async function manageLogout(req, res) {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return utilities.sendError(res, 401, "Unauthorized: No token provided");
-    }
-
-    const token = authHeader.split(" ")[1];
-    await models.logoutUser(token);
+    await models.logoutUser(req.token);
     res.status(200).json({ message: "Successfully logged out" });
   } catch (error) {
     utilities.sendError(res, 500, "Logout failed", error);
@@ -51,14 +45,8 @@ export async function decodeUser(req, res) {
 export async function selfDeleteAccount(req, res) {
   try {
     const { username, userId } = req.user;
-
-    const lessons = await models.retrieveLessons({ assignedTo: userId });
-    for (const lesson of lessons) {
-      await models.switchLessonAssignment(lesson._id.toString(), null);
-    }
-
+    await models.unassignAllLessons(userId);
     await models.deleteUser(username);
-
     res.status(200).json({ message: `User "${username}" deleted successfully` });
   } catch (error) {
     console.error(error);

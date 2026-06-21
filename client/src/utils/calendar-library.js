@@ -192,7 +192,7 @@ export async function addLesson(lesson) {
   if (!token) throw new Error("No auth token found");
 
   try {
-    const response = await fetch(`/api/lessons/${lesson._id}/assign`, {
+    const response = await fetch(`/api/lessons/${lesson._id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

@@ -46,7 +46,7 @@ describe("isAdmin", () => {
 
     const result = await lib.isAdmin(fakeToken);
 
-    expect(globalThis.fetch).toHaveBeenCalledWith("/api/is-admin", {
+    expect(globalThis.fetch).toHaveBeenCalledWith("/api/users/me", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -141,7 +141,7 @@ describe("lessonCreate", () => {
 
     const result = await lib.lessonCreate(lessonData, "any-token");
 
-    expect(globalThis.fetch).toHaveBeenCalledWith("/api/create-lesson", {
+    expect(globalThis.fetch).toHaveBeenCalledWith("/api/lessons", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -206,7 +206,7 @@ describe("getUsers", () => {
 
     const result = await lib.getUsers();
 
-    expect(globalThis.fetch).toHaveBeenCalledWith("/api/user-retrieval", {
+    expect(globalThis.fetch).toHaveBeenCalledWith("/api/users", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

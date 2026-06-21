@@ -11,21 +11,22 @@ import {
 
 const router = express.Router();
 
-// Public routes (no authentication required)
-router.post("/register", validateRegisterRequest, controllers.manageNewUser);
-router.post("/login", validateLoginRequest, controllers.manageLogin);
+// Auth routes (public)
+router.post("/auth/register", validateRegisterRequest, controllers.manageNewUser);
+router.post("/auth/login",    validateLoginRequest,    controllers.manageLogin);
+router.post("/auth/logout",   authenticate,            controllers.manageLogout);
 
-// Protected routes (require authentication)
-router.post("/logout", authenticate, controllers.manageLogout);
-router.delete("/self-delete", authenticate, controllers.selfDeleteAccount);
-router.get("/is-admin", authenticate, controllers.decodeUser);
+// Current user routes
+router.get("/users/me",    authenticate, controllers.decodeUser);
+router.delete("/users/me", authenticate, controllers.selfDeleteAccount);
 
-// Lesson routes (authenticated)
-router.get("/lessons", authenticate, controllers.manageLessonRetrieval);
-router.post("/create-lesson", authenticate, requireAdmin, validateCreateLessonRequest, controllers.manageCreateLesson);
-router.patch("/lessons/:lessonId/assign", authenticate, validateAssignLessonRequest, controllers.manageSwitchLessonAssignment);
+// Lesson routes
+router.get("/lessons",              authenticate,                                            controllers.manageLessonRetrieval);
+router.post("/lessons",             authenticate, requireAdmin, validateCreateLessonRequest, controllers.manageCreateLesson);
+router.patch("/lessons/:lessonId",  authenticate, validateAssignLessonRequest,               controllers.manageSwitchLessonAssignment);
+router.delete("/lessons/:lessonId", authenticate, requireAdmin,                              controllers.manageRemoveLesson);
 
-// Admin-only routes (require authentication + admin role)
-router.get("/user-retrieval", authenticate, requireAdmin, controllers.manageUserRetrieval);
+// Admin routes
+router.get("/users", authenticate, requireAdmin, controllers.manageUserRetrieval);
 
 export default router;

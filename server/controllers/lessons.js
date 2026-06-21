@@ -40,11 +40,6 @@ export async function manageLessonRetrieval(req, res) {
 export async function manageSwitchLessonAssignment(req, res) {
   try {
     const { lessonId } = req.params;
-    if (!lessonId) {
-      return utilities.sendError(res, 400, "Missing lessonId in request parameters");
-    }
-
-    // req.user is attached by authenticate middleware
     const newUserId = req.user.userId;
     const updatedLesson = await models.switchLessonAssignment(lessonId, newUserId);
 
@@ -53,6 +48,18 @@ export async function manageSwitchLessonAssignment(req, res) {
       lesson: updatedLesson,
     });
   } catch (error) {
-    utilities.sendError(res, 400, "Failed to switch lesson assignment", error);
+    const status = error.message === "Lesson not found" ? 404 : 400;
+    utilities.sendError(res, status, "Failed to switch lesson assignment", error);
+  }
+}
+
+export async function manageRemoveLesson(req, res) {
+  try {
+    const { lessonId } = req.params;
+    const result = await models.removeLesson(lessonId);
+    res.status(200).json(result);
+  } catch (error) {
+    const status = error.message?.includes("not found") ? 404 : 500;
+    utilities.sendError(res, status, "Failed to remove lesson", error);
   }
 }

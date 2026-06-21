@@ -25,8 +25,7 @@ export async function createLesson(lessonData) {
       "9-4": ["9-12", "1-4", "9-4"],
     };
 
-    // Convert assignedTo to null if "None", otherwise keep as is
-    const assignedTo = lessonData.assignedTo === "None" ? null : lessonData.assignedTo;
+    const assignedTo = lessonData.assignedTo;
 
     if (assignedTo !== null) {
       const exists = await Lesson.exists({
@@ -108,8 +107,7 @@ export async function switchLessonAssignment(id, newUserId) {
       "9-4": ["9-12", "1-4", "9-4"],
     };
 
-    // Convert newUserId to null if "None"
-    const normalizedUserId = newUserId === "None" ? null : newUserId;
+    const normalizedUserId = newUserId;
 
     if (normalizedUserId !== null) {
       const conflictingLesson = await Lesson.findOne({
@@ -137,6 +135,18 @@ export async function switchLessonAssignment(id, newUserId) {
     return updated;
   } catch (error) {
     await errorEmail("Failed to switch lesson assignment", error.toString());
+    throw error;
+  }
+}
+
+// ---------- UNASSIGN ALL LESSONS ----------
+export async function unassignAllLessons(userId) {
+  try {
+    utilities.argValidation([userId], ["User ID"]);
+    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+    await Lesson.updateMany({ assignedTo: userId }, { assignedTo: null });
+  } catch (error) {
+    await errorEmail("Failed to unassign lessons", error.toString());
     throw error;
   }
 }

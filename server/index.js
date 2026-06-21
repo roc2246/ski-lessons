@@ -3,6 +3,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import routes from "./routes/index.js";
 import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { dbConnect } from "./models/index.js";
 
 dotenv.config();
@@ -15,7 +17,12 @@ const port = process.env.PORT || 3000;
 
 await dbConnect();
 
+app.use(helmet());
 app.use(express.json());
+
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
 
 // API routes FIRST
 app.use("/api", routes);

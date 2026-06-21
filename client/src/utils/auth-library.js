@@ -3,7 +3,7 @@
 // --------------------- LOGIN ---------------------
 export async function login(username, password) {
   try {
-    const res = await fetch("/api/login", {
+    const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -38,7 +38,7 @@ export async function logout() {
 
   try {
     if (token) {
-      await fetch("/api/logout", {
+      await fetch("/api/auth/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export async function logout() {
 // --------------------- REGISTER ---------------------
 export async function register(username, password, admin) {
   try {
-    const res = await fetch("/api/register", {
+    const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password, admin }),
@@ -88,7 +88,7 @@ export async function selfDeleteFrontend() {
   }
 
   try {
-    const res = await fetch("/api/self-delete", {
+    const res = await fetch("/api/users/me", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

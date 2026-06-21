@@ -21,7 +21,8 @@ export async function authenticate(req, res, next) {
       return utilities.sendError(res, 401, "Unauthorized: Token has been revoked");
     }
 
-    req.user = decoded; // Attach decoded user to request
+    req.user = decoded;   // Attach decoded user payload to request
+    req.token = token;    // Attach raw token for logout blacklisting
     next();
   } catch (error) {
     return utilities.sendError(res, 401, "Unauthorized: Invalid token", error);

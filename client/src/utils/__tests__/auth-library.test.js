@@ -28,19 +28,19 @@ beforeEach(() => {
 
   // Mock fetch
   globalThis.fetch = vi.fn((url) => {
-    if (url === "/api/login") {
+    if (url === "/api/auth/login") {
       return Promise.resolve({
         ok: true,
         text: async () => JSON.stringify({ token: "abc123" }),
       });
-    } else if (url === "/api/register") {
+    } else if (url === "/api/auth/register") {
       return Promise.resolve({
         ok: true,
         json: async () => ({ username: "newuser" }),
       });
-    } else if (url === "/api/logout") {
+    } else if (url === "/api/auth/logout") {
       return Promise.resolve({ ok: true });
-    } else if (url === "/api/self-delete") {
+    } else if (url === "/api/users/me") {
       return Promise.resolve({
         ok: true,
         json: async () => ({ message: "Account deleted successfully" }),
@@ -92,7 +92,7 @@ describe("logout", () => {
 
     await lib.logout("abc123");
 
-    expect(fetch).toHaveBeenCalledWith("/api/logout", {
+    expect(fetch).toHaveBeenCalledWith("/api/auth/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -161,7 +161,7 @@ describe("selfDeleteFrontend", () => {
       "Are you sure you want to delete your account? This action cannot be undone."
     );
 
-    expect(fetch).toHaveBeenCalledWith("/api/self-delete", {
+    expect(fetch).toHaveBeenCalledWith("/api/users/me", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

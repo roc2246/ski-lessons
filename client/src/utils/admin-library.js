@@ -4,7 +4,7 @@ export async function isAdmin(token) {
   }
 
   try {
-    const res = await fetch("/api/is-admin", {
+    const res = await fetch("/api/users/me", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -32,7 +32,7 @@ export async function getUsers() {
   }
 
   try {
-    const res = await fetch("/api/user-retrieval", {
+    const res = await fetch("/api/users", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -70,7 +70,7 @@ export async function lessonCreate(newLesson) {
       date: new Date(newLesson.date).toISOString(),
     };
 
-    const res = await fetch("/api/create-lesson", {
+    const res = await fetch("/api/lessons", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

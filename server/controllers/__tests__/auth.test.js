@@ -30,6 +30,7 @@ vi.mock("../../models/index.js", async () => {
     logoutUser: vi.fn(),
     retrieveLessons: vi.fn(),
     switchLessonAssignment: vi.fn(),
+    unassignAllLessons: vi.fn(),
     deleteUser: vi.fn(),
   };
 });
@@ -93,7 +94,7 @@ describe("manageLogout", () => {
   it("should logout successfully", async () => {
     models.logoutUser.mockResolvedValueOnce();
 
-    const req = createReq({}, { authorization: "Bearer token123" });
+    const req = { ...createReq({}, { authorization: "Bearer token123" }), token: "token123" };
     const res = createRes();
 
     await controllers.manageLogout(req, res);
@@ -115,8 +116,7 @@ describe("selfDeleteAccount", () => {
 
   it("should delete user successfully", async () => {
     req.user = { username: "user", userId: "uid123" };
-    models.retrieveLessons.mockResolvedValueOnce([]);
-    models.switchLessonAssignment.mockResolvedValue();
+    models.unassignAllLessons.mockResolvedValueOnce();
     models.deleteUser.mockResolvedValueOnce({ username: "user" });
 
     await controllers.selfDeleteAccount(req, res);

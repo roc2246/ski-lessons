@@ -69,7 +69,6 @@ export function validateCreateLessonRequest(req, res, next) {
 
   const assignedToValid =
     assignedTo === null ||
-    assignedTo === "None" ||
     (typeof assignedTo === "string" && OBJECT_ID_REGEX.test(assignedTo));
 
   if (!assignedToValid) {
