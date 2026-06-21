@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as utilities from "../utilities/index.js";
-import { dbConnect } from "./db.js";
 import { errorEmail } from "../email/index.js";
 
 function getBlacklistedTokenModel() {
@@ -18,8 +17,8 @@ export async function newUser(username, password, admin) {
 
     const User = utilities.getModel(utilities.UserSchema, "User");
 
-    const userInDB = await User.find({ username });
-    if (userInDB.length > 0) throw new Error("User already exists");
+    const existing = await User.findOne({ username }).lean();
+    if (existing) throw new Error("User already exists");
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -43,7 +42,6 @@ export async function loginUser(username, password) {
 
     const User = utilities.getModel(utilities.UserSchema, "User");
 
-    await dbConnect();
     const userCreds = await User.find({ username });
     if (userCreds.length === 0)
       throw new Error("User or password doesn't match");

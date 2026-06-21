@@ -8,8 +8,11 @@
 export async function getLessons(available) {
   try {
     const token = localStorage.getItem("token");
-    const response = await fetch("/api/lessons", {
-      headers: { Authorization: `Bearer ${token}`, available },
+    const url = available !== undefined
+      ? `/api/lessons?available=${available}`
+      : "/api/lessons";
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) {
       const error = await response.json();
@@ -148,10 +151,12 @@ export function nextMonth(currentMonthYear) {
 export async function getLessonsForMonth(date, token, available) {
   try {
     if (!token) token = localStorage.getItem("token");
-    const response = await fetch("/api/lessons", {
+    const url = available !== undefined
+      ? `/api/lessons?available=${available}`
+      : "/api/lessons";
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
-        available
       },
     });
     if (!response.ok) {

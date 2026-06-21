@@ -39,8 +39,8 @@ describe("getLessons", () => {
 
     const lessons = await lib.getLessons("true");
     expect(lessons).toEqual(mockLessons);
-    expect(fetch).toHaveBeenCalledWith("/api/lessons", {
-      headers: { Authorization: "Bearer token123", available: "true" },
+    expect(fetch).toHaveBeenCalledWith("/api/lessons?available=true", {
+      headers: { Authorization: "Bearer token123" },
     });
   });
 

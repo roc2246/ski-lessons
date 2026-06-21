@@ -7,8 +7,12 @@
  * @param {Error} error - Original error object
  */
 export function sendError(res, code, message, error) {
+  if (error) console.error(`[${code}] ${message}:`, error);
+  const isClientError = code >= 400 && code < 500;
   res.status(code).json({
     message,
-    error: error?.message || "An unknown error occurred",
+    error: isClientError
+      ? (error?.message || "Bad request")
+      : "An internal error occurred",
   });
 }

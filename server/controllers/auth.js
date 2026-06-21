@@ -1,23 +1,8 @@
 import * as models from "../models/index.js";
 import * as utilities from "../utilities/index.js";
-import jwt from "jsonwebtoken";
-
-function getUserFromRequest(req) {
-  if (req.user) return req.user;
-
-  const authHeader = req.headers?.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return null;
-  }
-
-  const token = authHeader.split(" ")[1];
-  return jwt.verify(token, process.env.JWT_SECRET);
-}
 
 export async function manageNewUser(req, res) {
   try {
-    await models.dbConnect();
-
     const { username, password } = req.body;
     await models.newUser(username, password, false);
     res.status(201).json({ message: `${username} registered` });
@@ -53,19 +38,10 @@ export async function manageLogout(req, res) {
 
 export async function decodeUser(req, res) {
   try {
-    const user = getUserFromRequest(req);
-    if (!user) {
-      return utilities.sendError(res, 401, "Unauthorized: No token provided");
-    }
-
-    const exposedCredentials = {
-      userId: user.userId,
-      username: user.username,
-      admin: user.admin,
-    };
+    const { userId, username, admin } = req.user;
     res.status(200).json({
-      message: `Retrieved credentials for ${exposedCredentials.username}`,
-      credentials: exposedCredentials,
+      message: `Retrieved credentials for ${username}`,
+      credentials: { userId, username, admin },
     });
   } catch (error) {
     utilities.sendError(res, 500, "Failed to retrieve credentials", error);
@@ -74,15 +50,9 @@ export async function decodeUser(req, res) {
 
 export async function selfDeleteAccount(req, res) {
   try {
-    const user = getUserFromRequest(req);
-    if (!user) {
-      return utilities.sendError(res, 401, "Unauthorized: No token provided");
-    }
+    const { username, userId } = req.user;
 
-    const username = user.username;
-    const id = user.userId;
-
-    const lessons = await models.retrieveLessons({ assignedTo: id });
+    const lessons = await models.retrieveLessons({ assignedTo: userId });
     for (const lesson of lessons) {
       await models.switchLessonAssignment(lesson._id.toString(), null);
     }
@@ -91,7 +61,7 @@ export async function selfDeleteAccount(req, res) {
 
     res.status(200).json({ message: `User "${username}" deleted successfully` });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     utilities.sendError(res, 500, "Failed to delete user", error);
   }
 }

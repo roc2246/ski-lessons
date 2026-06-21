@@ -46,11 +46,10 @@ describe("manageCreateLesson", () => {
 describe("manageLessonRetrieval", () => {
   it("should retrieve lessons successfully", async () => {
     const fakeUserId = "uid123";
-    jwt.verify.mockReturnValueOnce({ userId: fakeUserId });
     const lessons = [{ _id: "l1" }];
     models.retrieveLessons.mockResolvedValueOnce(lessons);
 
-    const req = createReq({}, { authorization: "Bearer faketoken" });
+    const req = { ...createReq(), user: { userId: fakeUserId }, query: {} };
     const res = createRes();
 
     await controllers.manageLessonRetrieval(req, res);
@@ -63,9 +62,8 @@ describe("manageLessonRetrieval", () => {
 // ========== manageSwitchLessonAssignment ==========
 describe("manageSwitchLessonAssignment", () => {
   it("should switch lesson assignment successfully", async () => {
-    const req = createReq({}, { authorization: "Bearer faketoken" }, { lessonId: "123" });
+    const req = { ...createReq({}, {}, { lessonId: "123" }), user: { userId: "uid123" }, query: {} };
     const res = createRes();
-    jwt.verify.mockReturnValueOnce({ userId: "uid123" });
     const updatedLesson = { _id: "123", assignedTo: "uid123" };
     models.switchLessonAssignment.mockResolvedValueOnce(updatedLesson);
 

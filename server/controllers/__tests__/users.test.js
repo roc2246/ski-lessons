@@ -46,6 +46,6 @@ describe("manageUserRetrieval", () => {
 
     await controllers.manageUserRetrieval(req, res);
 
-    expect(utilities.sendError).toHaveBeenCalledWith(res, 400, "Failed to retrieve users", err);
+    expect(utilities.sendError).toHaveBeenCalledWith(res, 500, "Failed to retrieve users", err);
   });
 });

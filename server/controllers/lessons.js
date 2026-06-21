@@ -17,10 +17,7 @@ export async function manageCreateLesson(req, res) {
 export async function manageLessonRetrieval(req, res) {
   try {
     // req.user is attached by authenticate middleware
-    const availableHeader = req.headers.available;
-
-    // Explicit boolean parsing
-    const availableOnly = availableHeader === "true";
+    const availableOnly = req.query.available === "true";
 
     // Clear query logic
     const query = availableOnly

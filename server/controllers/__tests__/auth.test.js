@@ -45,27 +45,18 @@ describe("decodeUser", () => {
   let req, res;
 
   beforeEach(() => {
-    req = createReq({}, { authorization: "Bearer faketoken" });
+    req = { user: { userId: "user123", username: "demoUser", admin: true } };
     res = createRes();
   });
 
   it("should respond 200 with exposed credentials (no password)", async () => {
-    const decodedToken = { userId: "user123", username: "demoUser", admin: true };
-    jwt.verify.mockReturnValueOnce(decodedToken);
-
     await controllers.decodeUser(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       message: "Retrieved credentials for demoUser",
-      credentials: decodedToken,
+      credentials: { userId: "user123", username: "demoUser", admin: true },
     });
-  });
-
-  it("should respond 401 if Authorization header missing", async () => {
-    req.headers.authorization = undefined;
-    await controllers.decodeUser(req, res);
-    expect(utilities.sendError).toHaveBeenCalledWith(res, 401, "Unauthorized: No token provided");
   });
 });
 
@@ -123,7 +114,7 @@ describe("selfDeleteAccount", () => {
   });
 
   it("should delete user successfully", async () => {
-    jwt.verify.mockReturnValueOnce({ username: "user", userId: "uid123" });
+    req.user = { username: "user", userId: "uid123" };
     models.retrieveLessons.mockResolvedValueOnce([]);
     models.switchLessonAssignment.mockResolvedValue();
     models.deleteUser.mockResolvedValueOnce({ username: "user" });

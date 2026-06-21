@@ -18,15 +18,30 @@ vi.mock("../../utilities/index.js", async () => {
   constructorSpy.exists = vi.fn().mockResolvedValue(false);
 
   constructorSpy.find = vi.fn((param) => {
+    let result;
     if (param.assignedTo) {
       if (typeof param.assignedTo === "string") {
-        return Promise.resolve([{ lesson: "lesson" }]);
+        result = [{ lesson: "lesson" }];
       } else {
         throw new Error("ID must be a string");
       }
+    } else {
+      result = [];
     }
-    return Promise.resolve([]);
+    return {
+      limit: vi.fn().mockReturnThis(),
+      skip: vi.fn().mockReturnThis(),
+      lean: vi.fn().mockResolvedValue(result),
+    };
   });
+
+  constructorSpy.findById = vi.fn((id) => {
+    if (id === "validLessonId")
+      return Promise.resolve({ _id: id, date: new Date("2025-12-01"), timeLength: "9-12", assignedTo: null });
+    return Promise.resolve(null);
+  });
+
+  constructorSpy.findOne = vi.fn(() => Promise.resolve(null)); // no conflicts by default
 
   constructorSpy.findByIdAndUpdate = vi.fn((id, update) => {
     if (id === "validLessonId")
@@ -43,7 +58,6 @@ vi.mock("../../utilities/index.js", async () => {
   return {
     ...actual,
     getModel: vi.fn(() => constructorSpy),
-    TokenBlacklist: actual.TokenBlacklist,
   };
 });
 

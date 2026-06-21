@@ -20,8 +20,15 @@ const constructorSpy = vi.fn(function (data) {
   this.save = vi.fn(() => Promise.resolve());
   instance = this;
 });
+// findOne used by newUser (returns chainable .lean())
+constructorSpy.findOne = vi.fn((param) => {
+  if (param.username === "exists") return { lean: () => Promise.resolve({ username: "exists" }) };
+  if (param.username === "existusername")
+    return { lean: () => Promise.resolve({ username: "existusername", password: "hashed_password", _id: "user123", admin: true }) };
+  return { lean: () => Promise.resolve(null) };
+});
+// find used by loginUser
 constructorSpy.find = vi.fn((param) => {
-  if (param.username === "exists") return Promise.resolve([param]);
   if (param.username === "existusername")
     return Promise.resolve([
       { username: "existusername", password: "hashed_password", _id: "user123", admin: true },
@@ -60,7 +67,6 @@ vi.mock("../../utilities/index.js", async () => {
     }),
     UserSchema: actual.UserSchema,
     argValidation: actual.argValidation,
-    TokenBlacklist: actual.TokenBlacklist,
   };
 });
 

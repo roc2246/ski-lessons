@@ -12,7 +12,7 @@ describe("sendError", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(jsonMock).toHaveBeenCalledWith({
       message: "Custom error message",
-      error: "Something went wrong",
+      error: "An internal error occurred",
     });
   });
 
@@ -23,7 +23,7 @@ describe("sendError", () => {
     sendError(res, 400, "Bad request", {});
     expect(jsonMock).toHaveBeenCalledWith({
       message: "Bad request",
-      error: "An unknown error occurred",
+      error: "Bad request",
     });
   });
 });
