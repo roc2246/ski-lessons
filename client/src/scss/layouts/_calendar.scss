@@ -1,15 +1,29 @@
+@use "../abstracts/tokens" as *;
+
 /* ==========================
    CALENDAR CONTAINER
 ========================== */
 .calendar-section {
+  width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 2.5rem;
+  margin-top: 1.25rem;
+
+  @media (min-width: $bp-sm) {
+    margin-top: 2.5rem;
+  }
 }
 
 .calendar {
-  /* width: 22rem; */
+  width: min(100%, 56rem);
+  min-width: 0;
   overflow: visible;
+}
+
+.calendar__title {
+  margin-bottom: 0.75rem;
+  text-align: center;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
 }
 
 /* ==========================
@@ -23,7 +37,7 @@
 }
 
 .calendar__month-year {
-  font-size: 1.5rem;
+  font-size: clamp(1.1rem, 3.5vw, 1.5rem);
   font-weight: 600;
   color: var(--color-primary);
 }
@@ -47,7 +61,11 @@
 .calendar__dates {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.3rem;
+  gap: 0.2rem;
+
+  @media (min-width: $bp-sm) {
+    gap: 0.3rem;
+  }
 }
 
 .calendar__dates {
@@ -58,7 +76,7 @@
    WEEKDAY HEADERS
 ========================== */
 .calendar__day {
-  font-size: 0.75rem;
+  font-size: clamp(0.65rem, 1.8vw, 0.75rem);
   font-weight: 600;
   text-align: center;
   color: var(--color-secondary);
@@ -72,10 +90,15 @@
   border: 0.1rem solid #cbd5e1;
   border-radius: 0.4rem;
   padding: 0.25rem;
+  min-height: 4.5rem;
   display: flex;
   flex-direction: column;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
+
+  @media (min-width: $bp-sm) {
+    min-height: 5.25rem;
+  }
 }
 
 .calendar__date--empty {
@@ -102,6 +125,18 @@
   color: var(--color-text);
 }
 
+.calendar__date > span {
+  font-size: clamp(0.72rem, 2vw, 0.85rem);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.calendar__date > p {
+  margin-top: 0.2rem;
+  font-size: clamp(0.62rem, 1.7vw, 0.75rem);
+  color: var(--color-secondary);
+}
+
 /* ==========================
    EXPANDED / ACTIVE STATE
 ========================== */
@@ -119,15 +154,19 @@
 ========================== */
 .lesson {
   margin-top: 0.25rem;
-  padding: 0.4rem;
+  padding: 0.3rem;
   background: var(--color-primary);
   color: #ffffff;
   border-radius: 0.35rem;
-  font-size: 0.75rem;
+  font-size: clamp(0.62rem, 1.7vw, 0.75rem);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+
+  @media (min-width: $bp-sm) {
+    padding: 0.4rem;
+  }
 }
 
 .lesson__timeLength {
@@ -145,24 +184,34 @@
 /* ==========================
    ADD LESSON BUTTON
 ========================== */
-.lesson__lesson-btn {
+.lesson__lesson-btn,
+.calendar__lesson-btn {
   margin-top: auto;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.75rem;
+  width: 100%;
+  padding: 0.35rem 0.4rem;
+  font-size: clamp(0.62rem, 1.7vw, 0.75rem);
   font-weight: 600;
   background: var(--color-accent);
   color: #2b2b2b;
   border-radius: 0.25rem;
   border: none;
   cursor: pointer;
+
+  @media (min-width: $bp-sm) {
+    width: auto;
+    padding: 0.4rem 0.6rem;
+  }
 }
 
 .lesson__lesson-btn:hover,
-.lesson__lesson-btn:focus-visible {
+.lesson__lesson-btn:focus-visible,
+.calendar__lesson-btn:hover,
+.calendar__lesson-btn:focus-visible {
   filter: brightness(1.05);
 }
 
-.lesson__lesson-btn:active {
+.lesson__lesson-btn:active,
+.calendar__lesson-btn:active {
   transform: scale(0.97);
 }
 
@@ -172,5 +221,19 @@
 @media (hover: none) {
   .calendar__date {
     min-height: 6rem;
+  }
+}
+
+@media (max-width: 24rem) {
+  .calendar__header {
+    gap: 0.5rem;
+  }
+
+  .calendar__month-year {
+    text-align: center;
+  }
+
+  .calendar__nav {
+    font-size: 1rem;
   }
 }
