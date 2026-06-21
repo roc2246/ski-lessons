@@ -1,6 +1,5 @@
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
-import e from "express";
 
 // ---------- CREATE LESSON ----------
 export async function createLesson(lessonData) {
@@ -26,10 +25,13 @@ export async function createLesson(lessonData) {
       "9-4": ["9-12", "1-4", "9-4"],
     };
 
-    if (lessonData.assignedTo !== "None") {
+    // Convert assignedTo to null if "None", otherwise keep as is
+    const assignedTo = lessonData.assignedTo === "None" ? null : lessonData.assignedTo;
+
+    if (assignedTo !== null) {
       const exists = await Lesson.exists({
         date: lessonData.date,
-        assignedTo: lessonData.assignedTo,
+        assignedTo: assignedTo,
         timeLength: {
           $in: conflictingTimeLengths[lessonData.timeLength],
         },
@@ -42,7 +44,11 @@ export async function createLesson(lessonData) {
       }
     }
 
-    const newLesson = new Lesson({ ...lessonData });
+    const newLesson = new Lesson({
+      ...lessonData,
+      assignedTo, // Use converted value
+      date: new Date(lessonData.date), // Convert to Date object
+    });
     await newLesson.save();
 
     return newLesson;
@@ -53,14 +59,14 @@ export async function createLesson(lessonData) {
 }
 
 // ---------- RETRIEVE LESSONS ----------
-export async function retrieveLessons(param) {
+export async function retrieveLessons(param, limit = 50, skip = 0) {
   try {
     utilities.argValidation([param], ["Param"]);
     utilities.dataTypeValidation([param], ["Param"], ["object"]);
 
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
 
-    return await Lesson.find(param);
+    return await Lesson.find(param).limit(limit).skip(skip).lean();
   } catch (error) {
     await errorEmail("Failed to retrieve lessons", error.toString());
     throw error;
@@ -71,7 +77,7 @@ export async function retrieveLessons(param) {
 export async function retrieveUsers() {
   try {
     const User = utilities.getModel(utilities.UserSchema, "User");
-    return await User.find({}).select("-password");
+    return await User.find({}).select("-password").lean();
   } catch (error) {
     await errorEmail("Failed to retrieve users", error.toString());
     throw error;
@@ -102,10 +108,13 @@ export async function switchLessonAssignment(id, newUserId) {
       "9-4": ["9-12", "1-4", "9-4"],
     };
 
-    if (newUserId !== "None") {
+    // Convert newUserId to null if "None"
+    const normalizedUserId = newUserId === "None" ? null : newUserId;
+
+    if (normalizedUserId !== null) {
       const conflictingLesson = await Lesson.findOne({
         _id: { $ne: id },
-        assignedTo: newUserId,
+        assignedTo: normalizedUserId,
         date: lessonToAssign.date,
         timeLength: {
           $in: conflictingTimeLengths[lessonToAssign.timeLength],
@@ -121,7 +130,7 @@ export async function switchLessonAssignment(id, newUserId) {
 
     const updated = await Lesson.findByIdAndUpdate(
       id,
-      { assignedTo: newUserId },
+      { assignedTo: normalizedUserId },
       { new: true }
     );
 
