@@ -1,20 +1,21 @@
 // Form Control System
-form {
+:is(.login__form, .new-user__form, .create-lesson__form) {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-label {
+:is(.login__form, .new-user__form, .create-lesson__form) label {
   font-weight: 600;
   color: var(--color-text);
 }
 
-input, select {
+:is(.login__form, .new-user__form, .create-lesson__form) input,
+:is(.login__form, .new-user__form, .create-lesson__form) select {
   padding: 0.75rem;
   font-size: 1rem;
   border-radius: var(--radius);
-  border: 0.1rem solid #b8c2cc;
+  border: 0.1rem solid var(--color-border-muted);
   background: #ffffff;
 
   &:focus-visible {

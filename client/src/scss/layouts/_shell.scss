@@ -9,16 +9,16 @@
 
 .app-shell__header {
   background: var(--color-panel);
-  border-bottom: 0.1rem solid #d7dde3;
+  border-bottom: 0.1rem solid var(--color-border-shell);
 }
 
 .app-shell__container {
-  width: min(100%, 64rem);
+  width: min(100%, var(--layout-max-content));
   margin-inline: auto;
-  padding: 0.75rem;
+  padding: var(--space-3);
 
   @media (min-width: $bp-sm) {
-    padding: 1rem 1.25rem;
+    padding: var(--space-4) var(--space-5);
   }
 }
 
@@ -26,7 +26,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .app-shell__brand {
@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .app-shell__content {
@@ -50,11 +50,11 @@
 
 .app-shell__logout {
   min-height: 2.25rem;
-  padding: 0.5rem 0.85rem;
+  padding: var(--space-2) var(--space-4);
 }
 
 .app-shell__footer {
-  border-top: 0.1rem solid #d7dde3;
+  border-top: 0.1rem solid var(--color-border-shell);
   background: var(--color-panel);
 }
 

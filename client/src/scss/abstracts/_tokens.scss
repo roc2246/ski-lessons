@@ -12,12 +12,30 @@
   --color-text: #1f2933;         /* Charcoal */
   --color-secondary: #556b61;    /* Muted Evergreen */
 
+  /* Borders */
+  --color-border-muted: #cbd5e1;
+  --color-border-shell: #d7dde3;
+
   /* State */
   --color-danger: #b3261e;
 
   /* UI Specs */
   --radius: 0.5rem;
   --shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.12);
+
+  /* Layout */
+  --layout-max-content: 56rem;
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-16: 4rem;
 }
 
 // Media Query Breakpoints
