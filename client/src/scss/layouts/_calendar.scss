@@ -93,12 +93,18 @@
   min-height: 4.5rem;
   display: flex;
   flex-direction: column;
+  text-align: left;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
 
   @media (min-width: $bp-sm) {
     min-height: 5.25rem;
   }
+}
+
+.calendar__date:disabled {
+  cursor: default;
+  opacity: 1;
 }
 
 .calendar__date--empty {

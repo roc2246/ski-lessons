@@ -1,0 +1,65 @@
+@use "../abstracts/tokens" as *;
+
+.app-shell {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell__header {
+  background: var(--color-panel);
+  border-bottom: 0.1rem solid #d7dde3;
+}
+
+.app-shell__container {
+  width: min(100%, 64rem);
+  margin-inline: auto;
+  padding: 0.75rem;
+
+  @media (min-width: $bp-sm) {
+    padding: 1rem 1.25rem;
+  }
+}
+
+.app-shell__header .app-shell__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.app-shell__brand {
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--color-primary);
+}
+
+.app-shell__nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.app-shell__content {
+  flex: 1;
+  width: 100%;
+}
+
+.app-shell__logout {
+  min-height: 2.25rem;
+  padding: 0.5rem 0.85rem;
+}
+
+.app-shell__footer {
+  border-top: 0.1rem solid #d7dde3;
+  background: var(--color-panel);
+}
+
+.app-shell__footer p {
+  margin: 0;
+  color: var(--color-secondary);
+  font-size: 0.95rem;
+}

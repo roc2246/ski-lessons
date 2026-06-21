@@ -33,7 +33,7 @@ function AdminHome() {
   return (
     <main className="admin">
       <h1 className="admin__header">ADMIN HOME</h1>
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div className="admin__actions">
         <Link to="/create-lesson" className="admin__link">
           Create Lesson
         </Link>
@@ -41,7 +41,6 @@ function AdminHome() {
           Back
         </Link>
       </div>
-      {status && <div>{status}</div>}
     </main>
   );
 }

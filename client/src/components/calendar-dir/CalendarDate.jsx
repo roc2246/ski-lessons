@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Lesson from "../Lesson";
 
-function CalendarDate({ day, lessons = [], onLessonAdded }) {
+function CalendarDate({ day, lessons = [], onAddLesson }) {
   const [localLessons, setLocalLessons] = useState([]);
   const [showLessons, setShowLessons] = useState(false);
 
@@ -20,19 +20,25 @@ function CalendarDate({ day, lessons = [], onLessonAdded }) {
       prev.filter((lesson) => lesson._id !== updatedLesson._id)
     );
 
-    if (onLessonAdded) {
-      onLessonAdded(updatedLesson);
+    if (onAddLesson) {
+      onAddLesson(updatedLesson);
     }
   };
 
+  const lessonCount = localLessons.length;
+  const isInteractive = lessonCount > 0;
+
   return (
-    <div
-      className="calendar__date"
+    <button
+      type="button"
+      className={`calendar__date${showLessons ? " active" : ""}`}
       onClick={handleClick}
-      style={{ cursor: localLessons.length > 0 ? "pointer" : "default" }}
+      aria-expanded={isInteractive ? showLessons : undefined}
+      aria-label={`${day.toDateString()}, ${lessonCount} lessons`}
+      disabled={!isInteractive}
     >
       <span>{day.getDate()}</span>
-      <p>{localLessons.length} lessons</p>
+      <p>{lessonCount} lessons</p>
       {showLessons &&
         localLessons.map((lesson) => (
           <Lesson
@@ -41,7 +47,7 @@ function CalendarDate({ day, lessons = [], onLessonAdded }) {
             onLessonAdded={handleLessonAdded}
           />
         ))}
-    </div>
+    </button>
   );
 }
 
