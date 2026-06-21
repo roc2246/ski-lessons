@@ -1,8 +1,6 @@
 import React from "react";
 import CalendarDate from "./CalendarDate";
 
-import React from "react";
-import CalendarDate from "./CalendarDate";
 
 function parseLocalDate(dateString) {
   // Handle ISO date format (e.g., "2025-12-25T00:00:00.000Z")
