@@ -35,20 +35,27 @@ function CalendarDate({ day, lessons = [], onAddLesson }) {
       role={isInteractive ? "button" : undefined}
       tabIndex={isInteractive ? 0 : undefined}
       aria-expanded={isInteractive ? showLessons : undefined}
-      aria-disabled={!isInteractive ? true : undefined}
+      aria-disabled={!isInteractive}
       aria-label={`${day.toDateString()}, ${lessonCount} lessons`}
     >
       <span>{day.getDate()}</span>
       <p>{lessonCount} lessons</p>
-      {showLessons &&
-        localLessons.map((lesson) => (
-          <Lesson
-            key={lesson._id}
-            lesson={lesson}
-            onLessonAdded={handleLessonAdded}
-          />
-        ))}
-      </div>
+
+      {showLessons && (
+        <div
+          className="module"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {localLessons.map((lesson) => (
+            <Lesson
+              key={lesson._id}
+              lesson={lesson}
+              onLessonAdded={handleLessonAdded}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
