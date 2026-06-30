@@ -17,7 +17,7 @@ function CalendarDate({ day, lessons = [], onAddLesson }) {
 
   const handleLessonAdded = (updatedLesson) => {
     setLocalLessons((prev) =>
-      prev.filter((lesson) => lesson._id !== updatedLesson._id)
+      prev.filter((lesson) => lesson._id !== updatedLesson._id),
     );
 
     if (onAddLesson) {
@@ -42,16 +42,15 @@ function CalendarDate({ day, lessons = [], onAddLesson }) {
       <p>{lessonCount} lessons</p>
 
       {showLessons && (
-        <div
-          className="module"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="module" onClick={(e) => e.stopPropagation()}>
+          <button className="btn" onClick={() => setShowLessons(false)}>
+            X
+          </button>
+          <span className="lesson-date">{day.toDateString()}</span>
           {localLessons.map((lesson) => (
-            <Lesson
-              key={lesson._id}
-              lesson={lesson}
-              onLessonAdded={handleLessonAdded}
-            />
+            <div key={lesson._id}>
+              <Lesson lesson={lesson} onLessonAdded={handleLessonAdded} />
+            </div>
           ))}
         </div>
       )}

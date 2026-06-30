@@ -1,3 +1,4 @@
+@use "../abstracts/tokens" as *;
 .calendar__date {
   position: relative;
   cursor: pointer;
@@ -21,15 +22,14 @@
   left: 50%;
   transform: translateX(-50%);
   width: 320px;
-  max-height: 400px;
-//   overflow-y: auto;
+  // max-height: 400px;
+  //   overflow-y: auto;
 
   background: #fff;
   border-radius: 12px;
   padding: 1rem;
 
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 
   border: 1px solid #ddd;
 
@@ -80,4 +80,47 @@
 
 .module::-webkit-scrollbar-thumb:hover {
   background: #888;
+}
+.module > button.btn {
+  display: none;
+}
+
+/* =========================
+   MOBILE (BOTTOM SHEET)
+========================= */
+@media (max-width: $bp-sm) {
+  .module > button.btn {
+    display: block;
+  }
+.module {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  width: min(90vw, 600px);
+
+  max-height: 80vh;
+  overflow-y: auto;
+
+  border-radius: var(--radius);
+
+  animation: slideUp 0.2s ease-out;
+}
+
+  .module::before {
+    display: none;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(1rem);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 }
