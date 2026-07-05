@@ -23,6 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# ai
+MERN-prompts
+
 # Other
 server/config
 node_modules
