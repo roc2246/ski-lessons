@@ -317,37 +317,44 @@
 }
 
 /* ======================================================
-   EXPANDED LESSON POPOVER
-   Works with the current CalendarDate JSX. No React rewrite.
+   CENTERED LESSON MODAL
+   Same viewport-centered behavior at every screen size.
 ====================================================== */
 .calendar__date > .module {
-  position: absolute;
-  top: calc(100% + 0.65rem);
-  left: 50%;
-  z-index: 50;
-  width: min(19rem, calc(100vw - 2rem));
-  margin: 0;
+  position: fixed !important;
+  top: 50dvh !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: 50vw !important;
+  z-index: 9999 !important;
+
+  width: min(24rem, calc(100vw - 2rem)) !important;
+  min-width: 0 !important;
+  max-width: calc(100vw - 2rem) !important;
+  height: auto;
+  max-height: calc(100dvh - 2rem);
+
+  margin: 0 !important;
   padding: 1rem;
   display: grid;
   gap: 0.8rem;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+
   background: var(--color-panel);
   border: 1px solid var(--color-border-shell);
   border-radius: 0.85rem;
   box-shadow: 0 1rem 2.5rem rgba(31, 41, 51, 0.2);
-  transform: translateX(-50%);
+
+  transform: translate(-50%, -50%) !important;
   cursor: default;
 
   &::before {
-    content: "";
-    position: absolute;
-    top: -0.45rem;
-    left: 50%;
-    width: 0.8rem;
-    height: 0.8rem;
-    background: var(--color-panel);
-    border-top: 1px solid var(--color-border-shell);
-    border-left: 1px solid var(--color-border-shell);
-    transform: translateX(-50%) rotate(45deg);
+    display: none !important;
+    content: none !important;
   }
 
   > .btn {
@@ -374,29 +381,15 @@
   }
 }
 
-/* Keep the popover within the viewport near calendar edges. */
-.calendar__date:nth-child(7n + 1) > .module,
-.calendar__date:nth-child(7n + 2) > .module {
-  left: 0;
-  transform: none;
-
-  &::before {
-    left: 1.2rem;
-    transform: rotate(45deg);
-  }
-}
-
-.calendar__date:nth-child(7n) > .module,
-.calendar__date:nth-child(7n - 1) > .module {
-  right: 0;
-  left: auto;
-  transform: none;
-
-  &::before {
-    right: 1.2rem;
-    left: auto;
-    transform: rotate(45deg);
-  }
+/*
+ * The modal is rendered inside the selected date cell.
+ * A transformed ancestor changes how position: fixed behaves,
+ * so the active date must never retain the hover translation.
+ */
+.calendar__date.active,
+.calendar__date.active:hover,
+.calendar__date.active[role="button"]:hover {
+  transform: none !important;
 }
 
 .lesson-date {
@@ -541,26 +534,9 @@
     margin-bottom: 0.25rem;
   }
 
-  .calendar__date > .module,
-  .calendar__date:nth-child(7n + 1) > .module,
-  .calendar__date:nth-child(7n + 2) > .module,
-  .calendar__date:nth-child(7n) > .module,
-  .calendar__date:nth-child(7n - 1) > .module {
-    position: fixed;
-    top: 50%;
-    right: auto;
-    bottom: auto;
-    left: 50%;
-    width: min(24rem, calc(100vw - 1.5rem));
-    max-height: min(75vh, 34rem);
-    overflow-y: auto;
-    transform: translate(-50%, -50%);
 
-    &::before {
-      display: none;
-    }
   }
-}
+
 
 @media (max-width: 24rem) {
   .calendar__days,
@@ -586,6 +562,14 @@
     > p {
       font-size: 0.52rem;
     }
+  }
+
+
+  .calendar__date > .module {
+    width: calc(100vw - 1rem) !important;
+    max-width: calc(100vw - 1rem) !important;
+    max-height: calc(100dvh - 1rem);
+    padding: 0.85rem;
   }
 }
 

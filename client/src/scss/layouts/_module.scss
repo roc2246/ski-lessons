@@ -5,25 +5,20 @@
 // ======================================================
 
 .module {
-
-  background: white;
-
-  border: 1px solid $color-border;
-
-  border-radius: $radius-lg;
-
-  box-shadow: $shadow-sm;
-
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 1.5rem;
-
   margin-bottom: 2rem;
-
+  background: white;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
   transition:
-    box-shadow .25s ease,
-    transform .2s ease;
+    box-shadow 0.25s ease,
+    transform 0.2s ease;
 
   &:hover {
-
     box-shadow: $shadow-md;
   }
 }
@@ -33,29 +28,20 @@
 // ======================================================
 
 .module-header {
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   gap: 1rem;
-
   margin-bottom: 1.5rem;
 
   h2,
   h3 {
-
     margin: 0;
-
     font-weight: 700;
   }
 
   p {
-
-    margin-top: .35rem;
-
+    margin-top: 0.35rem;
     color: $color-text-light;
   }
 }
@@ -65,9 +51,7 @@
 // ======================================================
 
 .module-body {
-
   display: grid;
-
   gap: 1rem;
 }
 
@@ -76,53 +60,37 @@
 // ======================================================
 
 .stats-grid {
-
   display: grid;
-
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
 }
 
 .stat-card {
-
-  background: white;
-
-  border: 1px solid $color-border;
-
-  border-radius: $radius-lg;
-
   padding: 1.5rem;
-
+  background: white;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
   box-shadow: $shadow-sm;
-
-  transition: .25s;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 
   &:hover {
-
     transform: translateY(-3px);
-
     box-shadow: $shadow-md;
   }
 
   h3 {
-
     margin: 0;
-
-    font-size: .95rem;
-
     color: $color-text-light;
+    font-size: 0.95rem;
   }
 
   .stat-number {
-
-    margin-top: .75rem;
-
-    font-size: 2rem;
-
-    font-weight: 700;
-
+    margin-top: 0.75rem;
     color: $color-primary;
+    font-size: 2rem;
+    font-weight: 700;
   }
 }
 
@@ -131,74 +99,49 @@
 // ======================================================
 
 .lesson-card {
-
   display: flex;
-
   flex-direction: column;
-
   gap: 1rem;
-
-  background: white;
-
-  border: 1px solid $color-border;
-
-  border-radius: $radius-lg;
-
   padding: 1.25rem;
-
+  background: white;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
   transition:
-    border-color .2s ease,
-    box-shadow .2s ease,
-    transform .2s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 
   &:hover {
-
     border-color: $color-primary;
-
     box-shadow: $shadow-md;
-
     transform: translateY(-2px);
   }
 }
 
 .lesson-card-header {
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: flex-start;
-
   gap: 1rem;
 }
 
 .lesson-time {
-
-  font-size: 1.1rem;
-
-  font-weight: 700;
-
   color: $color-primary;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .lesson-level {
-
   font-weight: 600;
-
   text-transform: capitalize;
 }
 
 .lesson-meta {
-
   display: flex;
-
   flex-wrap: wrap;
-
-  gap: .75rem;
-
+  gap: 0.75rem;
   color: $color-text-light;
-
-  font-size: .92rem;
+  font-size: 0.92rem;
 }
 
 // ======================================================
@@ -206,41 +149,28 @@
 // ======================================================
 
 .badge {
-
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
-
-  padding: .35rem .7rem;
-
+  padding: 0.35rem 0.7rem;
   border-radius: 999px;
-
-  font-size: .8rem;
-
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
 .badge-success {
-
-  background: rgba(34,197,94,.15);
-
   color: #15803d;
+  background: rgba(34, 197, 94, 0.15);
 }
 
 .badge-warning {
-
-  background: rgba(245,158,11,.15);
-
   color: #b45309;
+  background: rgba(245, 158, 11, 0.15);
 }
 
 .badge-info {
-
-  background: rgba($color-primary,.12);
-
   color: $color-primary;
+  background: rgba($color-primary, 0.12);
 }
 
 // ======================================================
@@ -248,48 +178,32 @@
 // ======================================================
 
 .info-panel {
-
-  padding: 1.25rem;
-
-  border-radius: $radius-lg;
-
-  background: $color-surface;
-
-  border: 1px solid $color-border;
-
   display: grid;
-
-  gap: .75rem;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
 }
 
 .info-row {
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   gap: 1rem;
-
-  padding-bottom: .75rem;
-
-  border-bottom: 1px solid rgba($color-border,.6);
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba($color-border, 0.6);
 
   &:last-child {
-
-    border-bottom: none;
-
     padding-bottom: 0;
+    border-bottom: none;
   }
 
   strong {
-
     color: $color-text;
   }
 
   span {
-
     color: $color-text-light;
   }
 }
@@ -299,24 +213,17 @@
 // ======================================================
 
 .empty-state {
-
-  text-align: center;
-
   padding: 3rem 1rem;
-
+  text-align: center;
+  background: white;
   border: 2px dashed $color-border;
-
   border-radius: $radius-lg;
 
-  background: white;
-
   h3 {
-
-    margin-bottom: .5rem;
+    margin-bottom: 0.5rem;
   }
 
   p {
-
     color: $color-text-light;
   }
 }
@@ -326,62 +233,86 @@
 // ======================================================
 
 .alert {
-
-  border-radius: $radius-md;
-
   padding: 1rem 1.25rem;
-
+  border-radius: $radius-md;
   font-weight: 500;
 }
 
 .alert-success {
-
-  background: rgba(34,197,94,.12);
-
   color: #166534;
+  background: rgba(34, 197, 94, 0.12);
 }
 
 .alert-error {
-
-  background: rgba(239,68,68,.12);
-
   color: #991b1b;
+  background: rgba(239, 68, 68, 0.12);
 }
 
 .alert-warning {
-
-  background: rgba(245,158,11,.12);
-
   color: #92400e;
+  background: rgba(245, 158, 11, 0.12);
 }
 
 // ======================================================
 // RESPONSIVE
 // ======================================================
 
-@media (max-width:768px){
-
-  .module{
-
-    padding:1.25rem;
+@media (max-width: 768px) {
+  .module {
+    max-width: 100%;
+    padding: 1.25rem;
   }
 
-  .module-header{
-
-    flex-direction:column;
-
-    align-items:flex-start;
+  .module-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .lesson-card-header{
-
-    flex-direction:column;
+  .lesson-card-header {
+    flex-direction: column;
   }
 
-  .info-row{
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 
-    flex-direction:column;
+@media (max-width: 480px) {
+  .module {
+    padding: 1rem;
+  }
 
-    align-items:flex-start;
+  .lesson-card {
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .module,
+  .stat-card,
+  .lesson-card {
+    transition: none;
+  }
+}
+
+// ======================================================
+// CALENDAR MODAL OVERRIDE
+// Positioning is controlled by _calendar.scss.
+// ======================================================
+
+.calendar__date > .module {
+  max-width: calc(100vw - 2rem);
+  margin: 0;
+}
+
+@media (max-width: 24rem) {
+  .calendar__date > .module {
+    max-width: calc(100vw - 1rem);
   }
 }
