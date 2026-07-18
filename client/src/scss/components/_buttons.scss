@@ -1,43 +1,216 @@
 @use "../abstracts/tokens" as *;
 
-// Button System
-.btn {
-  padding: var(--space-4) var(--space-5);
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: var(--radius);
-  border: none;
-  cursor: pointer;
-  min-height: 2.75rem;
-  transition: background 0.2s ease, transform 0.1s ease;
+// --------------------------------------------------------
+// Base Button Styles
+// --------------------------------------------------------
 
-  &:hover,
-  &:focus-visible {
-    filter: brightness(1.05);
+button,
+.btn,
+input[type="submit"],
+input[type="button"] {
+  appearance: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  min-height: 44px;
+  padding: 0.8rem 1.4rem;
+
+  border-radius: $radius-md;
+
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 120ms ease;
+
+  user-select: none;
+
+  &:hover {
+    transform: translateY(-1px);
   }
 
   &:active {
-    transform: scale(0.97);
+    transform: translateY(0);
   }
 
-  // Modifiers
-  &--primary {
-    background: var(--color-primary);
-    color: #ffffff;
+  &:focus-visible {
+    outline: 3px solid rgba($color-primary, .25);
+    outline-offset: 3px;
   }
 
-  &--secondary {
-    background: var(--color-secondary);
-    color: #ffffff;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+    transform: none;
+  }
+}
+
+// --------------------------------------------------------
+// Primary
+// --------------------------------------------------------
+
+.btn-primary,
+.button-primary,
+button.primary,
+button[type="submit"] {
+
+  background: $color-primary;
+  color: white;
+
+  &:hover {
+    background: darken($color-primary, 6%);
+    box-shadow: $shadow-md;
+  }
+}
+
+// --------------------------------------------------------
+// Secondary
+// --------------------------------------------------------
+
+.btn-secondary,
+.button-secondary {
+
+  background: white;
+  color: $color-primary;
+
+  border: 1px solid $color-border;
+
+  &:hover {
+    background: $color-surface;
+  }
+}
+
+// --------------------------------------------------------
+// Danger
+// --------------------------------------------------------
+
+.btn-danger,
+.button-danger {
+
+  background: #d64545;
+  color: white;
+
+  &:hover {
+    background: #bf3131;
+  }
+}
+
+// --------------------------------------------------------
+// Ghost
+// --------------------------------------------------------
+
+.btn-ghost {
+
+  background: transparent;
+  color: $color-primary;
+
+  &:hover {
+    background: rgba($color-primary, .08);
+  }
+}
+
+// --------------------------------------------------------
+// Small
+// --------------------------------------------------------
+
+.btn-sm {
+
+  min-height: 36px;
+  padding: .55rem 1rem;
+
+  font-size: .85rem;
+}
+
+// --------------------------------------------------------
+// Large
+// --------------------------------------------------------
+
+.btn-lg {
+
+  min-height: 52px;
+
+  padding: 1rem 1.8rem;
+
+  font-size: 1rem;
+}
+
+// --------------------------------------------------------
+// Full Width
+// --------------------------------------------------------
+
+.btn-block {
+  width: 100%;
+}
+
+// --------------------------------------------------------
+// Calendar Buttons
+// --------------------------------------------------------
+
+.calendar-nav button {
+
+  width: 42px;
+  height: 42px;
+
+  padding: 0;
+
+  border-radius: 50%;
+
+  background: white;
+
+  border: 1px solid $color-border;
+
+  color: $color-primary;
+
+  &:hover {
+
+    background: $color-primary;
+
+    color: white;
+  }
+}
+
+// --------------------------------------------------------
+// Admin Buttons
+// --------------------------------------------------------
+
+.admin-actions {
+
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  margin-top: 1.5rem;
+}
+
+// --------------------------------------------------------
+// Mobile
+// --------------------------------------------------------
+
+@media (max-width: 768px) {
+
+  button,
+  .btn,
+  input[type="submit"] {
+
+    width: 100%;
+
+    justify-content: center;
   }
 
-  &--danger {
-    background: var(--color-danger);
-    color: #ffffff;
-  }
+  .admin-actions {
 
-  // Responsive layout logic
-  @media (min-width: $bp-sm) {
-    width: auto;
+    flex-direction: column;
   }
 }

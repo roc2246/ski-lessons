@@ -1,30 +1,79 @@
-// Design Tokens & Root Variables
+// Snow Pro design tokens
+// Centralized values used across the existing React class structure.
 :root {
-  /* Core Brand */
-  --color-primary: #1f3d2b;      /* Pine Green */
-  --color-accent: #d9a441;       /* Alpine Gold */
+  /* Brand */
+  --color-primary-950: #0d2a22;
+  --color-primary-900: #123a2f;
+  --color-primary-800: #18483a;
+  --color-primary-700: #215b49;
+  --color-primary-600: #2d705a;
+  --color-primary-100: #e7f1ed;
+  --color-primary-50: #f3f8f6;
+
+  --color-accent-700: #b85f08;
+  --color-accent-600: #d4770b;
+  --color-accent-100: #fff0d8;
+
+  /* Semantic aliases retained for existing styles */
+  --color-primary: var(--color-primary-900);
+  --color-accent: var(--color-accent-600);
+  --color-secondary: #64736d;
+  --color-danger: #bf2f2a;
+  --color-danger-dark: #9d241f;
+  --color-danger-soft: #fff0ef;
+  --color-success: #287a53;
 
   /* Surfaces */
-  --color-bg: #f5f7f6;           /* Snow Gray */
+  --color-bg: #f4f7f5;
   --color-panel: #ffffff;
+  --color-panel-muted: #f8faf9;
+  --color-panel-strong: #edf3f0;
+  --color-overlay: rgba(13, 42, 34, 0.44);
 
   /* Text */
-  --color-text: #1f2933;         /* Charcoal */
-  --color-secondary: #556b61;    /* Muted Evergreen */
+  --color-text: #18231f;
+  --color-text-muted: #64716c;
+  --color-text-subtle: #84908b;
+  --color-text-inverse: #ffffff;
 
   /* Borders */
-  --color-border-muted: #cbd5e1;
-  --color-border-shell: #d7dde3;
+  --color-border-muted: #d8e1dd;
+  --color-border-strong: #bdcac4;
+  --color-border-shell: #dce5e1;
 
-  /* State */
-  --color-danger: #b3261e;
+  /* Type */
+  --font-family-base: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: clamp(1.5rem, 3vw, 2rem);
+  --font-size-3xl: clamp(1.875rem, 4vw, 2.625rem);
+  --line-height-tight: 1.2;
+  --line-height-base: 1.55;
 
-  /* UI Specs */
-  --radius: 0.5rem;
-  --shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.12);
+  /* Shape */
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-pill: 999rem;
+
+  /* Elevation */
+  --shadow-xs: 0 0.0625rem 0.125rem rgba(13, 42, 34, 0.05);
+  --shadow-sm: 0 0.25rem 0.75rem rgba(13, 42, 34, 0.08);
+  --shadow: 0 0.75rem 2rem rgba(13, 42, 34, 0.1);
+  --shadow-lg: 0 1.25rem 3rem rgba(13, 42, 34, 0.16);
+  --focus-ring: 0 0 0 0.25rem rgba(45, 112, 90, 0.2);
 
   /* Layout */
-  --layout-max-content: 56rem;
+  --layout-max-content: 76rem;
+  --layout-max-form: 34rem;
+  --layout-gutter: clamp(1rem, 3vw, 2rem);
+  --header-height: 4.25rem;
 
   /* Spacing scale */
   --space-1: 0.25rem;
@@ -35,9 +84,57 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
   --space-10: 2.5rem;
+  --space-12: 3rem;
   --space-16: 4rem;
+  --space-20: 5rem;
+
+  /* Motion */
+  --transition-fast: 140ms ease;
+  --transition-base: 220ms ease;
 }
 
-// Media Query Breakpoints
-$bp-sm: 37.5rem;   // 600px
-$bp-md: 56.25rem;  // 900px
+// Sass breakpoints used by the existing partials.
+$bp-xs: 30rem;    // 480px
+$bp-sm: 37.5rem;  // 600px
+$bp-md: 56.25rem; // 900px
+$bp-lg: 75rem;    // 1200px
+
+// Legacy Sass aliases retained for the existing component partials.
+$color-primary: #123a2f;
+$color-accent: #d4770b;
+$color-secondary: #64736d;
+$color-danger: #bf2f2a;
+$color-danger-dark: #9d241f;
+$color-danger-soft: #fff0ef;
+$color-success: #287a53;
+
+$color-bg: #f4f7f5;
+$color-surface: #ffffff;
+$color-panel: #ffffff;
+$color-panel-muted: #f8faf9;
+$color-panel-strong: #edf3f0;
+$color-overlay: rgba(13, 42, 34, 0.44);
+
+$color-text: #18231f;
+$color-text-muted: #64716c;
+$color-text-subtle: #84908b;
+$color-text-light: #64716c;
+$color-text-inverse: #ffffff;
+
+$color-border: #d8e1dd;
+$color-border-strong: #bdcac4;
+$color-border-shell: #dce5e1;
+
+$radius-xs: 0.375rem;
+$radius-sm: 0.5rem;
+$radius: 0.75rem;
+$radius-md: 0.75rem;
+$radius-lg: 1rem;
+$radius-xl: 1.25rem;
+$radius-pill: 999rem;
+
+$shadow-xs: 0 0.0625rem 0.125rem rgba(13, 42, 34, 0.05);
+$shadow-sm: 0 0.25rem 0.75rem rgba(13, 42, 34, 0.08);
+$shadow: 0 0.75rem 2rem rgba(13, 42, 34, 0.1);
+$shadow-md: 0 0.25rem 0.75rem rgba(13, 42, 34, 0.08);
+$shadow-lg: 0 1.25rem 3rem rgba(13, 42, 34, 0.16);

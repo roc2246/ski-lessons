@@ -1,15 +1,13 @@
 @use "../abstracts/tokens" as *;
 
-// Structural View Layouts
-main {
-  padding: var(--space-3);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+// ======================================================
+// SHARED PAGE LAYOUT
+// ======================================================
 
-  @media (min-width: $bp-sm) {
-    padding: var(--space-5);
-  }
+main {
+  width: 100%;
+  min-height: 100vh;
+  padding: clamp(var(--space-4), 4vw, var(--space-10));
 }
 
 .container {
@@ -17,58 +15,362 @@ main {
   margin-inline: auto;
 }
 
-.login, 
+// ======================================================
+// AUTHENTICATION PAGES
+// ======================================================
+
+.login,
 .new-user {
-  width: 100%;
-  margin: var(--space-16) auto;
-  padding: var(--space-6);
+  width: min(100%, 30rem);
+  min-height: auto;
+  margin: clamp(2rem, 10vh, 6rem) auto;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
   background: var(--color-panel);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-
-  @media (min-width: $bp-md) {
-    max-width: 25rem;
-  }
-}
-
-.create-lesson {
-  width: 100%;
-  margin-top: var(--space-8);
-  padding: var(--space-6);
-  background: var(--color-panel);
-  border-radius: var(--radius);
+  border: 1px solid var(--color-border-shell);
+  border-radius: calc(var(--radius) * 2);
   box-shadow: var(--shadow);
 }
 
-.instructor, 
+.login {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.login__title {
+  text-align: center;
+  font-size: clamp(2rem, 7vw, 3rem);
+  letter-spacing: -0.04em;
+}
+
+.login__title::after {
+  content: "Lesson scheduling for mountain professionals";
+  display: block;
+  max-width: 24rem;
+  margin: var(--space-2) auto 0;
+  color: var(--color-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.login__form,
+.new-user__form {
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: #f8faf9;
+  border: 1px solid var(--color-border-shell);
+  border-radius: calc(var(--radius) * 1.5);
+}
+
+.login__form-title,
+.new-user__form-title {
+  margin-bottom: var(--space-2);
+  text-align: center;
+  font-size: clamp(1.4rem, 5vw, 1.85rem);
+}
+
+.login__form-title::after {
+  content: "Enter your account details to continue.";
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-secondary);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.new-user__form-title::after {
+  content: "Create an instructor or administrator account.";
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-secondary);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.login__link,
+.new-user__link {
+  display: block;
+  width: fit-content;
+  margin-inline: auto;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: var(--radius);
+}
+
+.login__link::before {
+  content: "New to Snow Pro? ";
+  color: var(--color-secondary);
+  font-weight: 500;
+}
+
+.login__link:hover,
+.new-user__link:hover {
+  background: rgba(31, 61, 43, 0.08);
+}
+
+// ======================================================
+// INSTRUCTOR AND LESSON BOARD PAGES
+// ======================================================
+
+.instructor,
 .lesson-board {
-  width: 100%;
-  padding: var(--space-3);
-
-  @media (min-width: $bp-sm) {
-    padding: var(--space-5);
-  }
-
-  @media (min-width: $bp-md) {
-    max-width: var(--layout-max-content);
-  }
+  width: min(100%, 76rem);
+  min-height: 100vh;
+  margin-inline: auto;
+  padding-bottom: 7rem;
 }
+
+.instructor__controls,
+.lesson-board__controls {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  width: min(100%, 56rem);
+  margin: var(--space-8) auto 0;
+  padding: var(--space-4);
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-shell);
+  border-radius: calc(var(--radius) * 1.5);
+  box-shadow: 0 0.25rem 1rem rgba(31, 61, 43, 0.08);
+}
+
+.instructor__title {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--color-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.instructor__link,
+.lesson-board__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.1rem;
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+  background: rgba(31, 61, 43, 0.08);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.instructor__link:hover,
+.lesson-board__link:hover {
+  background: rgba(31, 61, 43, 0.14);
+  border-color: rgba(31, 61, 43, 0.2);
+  transform: translateY(-1px);
+}
+
+// ======================================================
+// ADMIN HOME
+// ======================================================
 
 .admin {
-  width: 100%;
-  margin-top: var(--space-8);
-  padding: var(--space-6);
+  width: min(100%, 42rem);
+  min-height: auto;
+  margin: clamp(2rem, 10vh, 6rem) auto;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
   background: var(--color-panel);
-  border-radius: var(--radius);
+  border: 1px solid var(--color-border-shell);
+  border-radius: calc(var(--radius) * 2);
   box-shadow: var(--shadow);
+}
 
-  @media (min-width: $bp-md) {
-    max-width: 25rem;
-  }
+.admin::before {
+  content: "Administration";
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--color-accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.admin__header {
+  margin-bottom: var(--space-6);
+  text-align: center;
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
+  letter-spacing: -0.03em;
+}
+
+.admin__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 4rem;
+  padding: var(--space-4) var(--space-5);
+  color: var(--color-primary);
+  font-size: 1rem;
+  font-weight: 750;
+  text-decoration: none;
+  background: #f8faf9;
+  border: 1px solid var(--color-border-shell);
+  border-radius: calc(var(--radius) * 1.25);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+.admin__link::after {
+  content: "→";
+  color: var(--color-accent);
+  font-size: 1.3rem;
+}
+
+.admin__link:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 0.5rem 1.25rem rgba(31, 61, 43, 0.09);
+  transform: translateY(-2px);
 }
 
 .admin__actions {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: var(--space-4);
+}
+
+// ======================================================
+// CREATE LESSON PAGE
+// ======================================================
+
+.create-lesson {
+  width: min(100%, 42rem);
+  min-height: auto;
+  margin: clamp(2rem, 8vh, 5rem) auto;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-shell);
+  border-radius: calc(var(--radius) * 2);
+  box-shadow: var(--shadow);
+}
+
+.create-lesson::before {
+  content: "Lesson management";
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--color-accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.create-lesson__header {
+  margin-bottom: var(--space-2);
+  text-align: center;
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
+  letter-spacing: -0.03em;
+}
+
+.create-lesson__header::after {
+  content: "Add a lesson and optionally assign an instructor.";
+  display: block;
+  max-width: 28rem;
+  margin: var(--space-2) auto var(--space-6);
+  color: var(--color-secondary);
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+#instructor-status {
+  min-height: 1.5rem;
+  color: var(--color-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.create-lesson__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  margin-top: var(--space-5);
+  padding: 0.75rem 1rem;
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+  background: rgba(31, 61, 43, 0.08);
+  border-radius: var(--radius);
+}
+
+.create-lesson__link::before {
+  content: "←";
+  margin-right: var(--space-2);
+}
+
+.create-lesson__link:hover {
+  background: rgba(31, 61, 43, 0.14);
+}
+
+// ======================================================
+// RESPONSIVE BEHAVIOR
+// ======================================================
+
+@media (max-width: $bp-sm) {
+  main {
+    padding: var(--space-3);
+  }
+
+  .login,
+  .new-user,
+  .admin,
+  .create-lesson {
+    margin-block: var(--space-4);
+    padding: var(--space-5);
+    border-radius: calc(var(--radius) * 1.5);
+  }
+
+  .instructor,
+  .lesson-board {
+    padding: var(--space-3) var(--space-2) 8rem;
+  }
+
+  .instructor__controls,
+  .lesson-board__controls {
+    align-items: stretch;
+    margin-top: var(--space-5);
+    padding: var(--space-3);
+  }
+
+  .instructor__controls > *,
+  .lesson-board__controls > * {
+    width: 100%;
+  }
+
+  .instructor__link,
+  .lesson-board__link {
+    width: 100%;
+  }
+}
+
+@media (min-width: $bp-md) {
+  .login,
+  .new-user {
+    padding: var(--space-8);
+  }
+
+  .create-lesson,
+  .admin {
+    padding: var(--space-10);
+  }
 }

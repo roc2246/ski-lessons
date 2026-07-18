@@ -1,19 +1,151 @@
-// Typography Styles
-h1, h2, h3 {
+// Snow Pro typography system
+// Improves hierarchy and readability without requiring JSX changes.
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
-  font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-primary-950);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--font-size-3xl);
+  letter-spacing: -0.035em;
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+  letter-spacing: -0.025em;
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+  letter-spacing: -0.015em;
+}
+
+h4 {
+  font-size: var(--font-size-lg);
+}
+
+h5,
+h6 {
+  font-size: var(--font-size-base);
 }
 
 p {
-  margin-bottom: 1rem;
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+p + p {
+  margin-top: var(--space-4);
+}
+
+strong,
+b {
+  font-weight: 700;
+}
+
+small {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
 }
 
 a {
-  color: var(--color-accent);
-  text-decoration-thickness: 0.12em;
+  color: var(--color-primary-700);
+  font-weight: 650;
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--color-primary-700) 45%,
+    transparent
+  );
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.2em;
+  transition:
+    color var(--transition-fast),
+    text-decoration-color var(--transition-fast);
 
   &:hover {
-    text-decoration: underline;
+    color: var(--color-primary-900);
+    text-decoration-color: currentColor;
   }
+}
+
+label,
+legend {
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+button,
+input,
+select,
+textarea {
+  letter-spacing: inherit;
+}
+
+// Existing app page titles.
+:is(.login, .new-user, .create-lesson, .admin, .instructor, .lesson-board) > h1,
+:is(.login, .new-user, .create-lesson, .admin, .instructor, .lesson-board) > h2 {
+  margin-bottom: var(--space-3);
+  text-align: center;
+}
+
+// Gives the first supporting paragraph under a page heading a consistent subtitle style.
+:is(.login, .new-user, .create-lesson, .admin, .instructor, .lesson-board)
+  > :is(h1, h2)
+  + p {
+  max-width: 42rem;
+  margin-inline: auto;
+  margin-bottom: var(--space-6);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+  text-align: center;
+}
+
+// Calendar heading remains compact while preserving the global hierarchy.
+.calendar__title {
+  color: var(--color-primary-950);
+  font-size: var(--font-size-2xl);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.calendar__month-year {
+  color: var(--color-primary-900);
+  font-size: var(--font-size-xl);
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+// Form helper and status text.
+.form-help,
+.form-message,
+.error,
+.success {
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+.success {
+  color: var(--color-success);
 }

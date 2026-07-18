@@ -1,16 +1,23 @@
-// 1. Tokens & Configurations
+// Snow Pro global stylesheet entry point
+// Import order moves from broad foundations to increasingly specific UI rules.
+
+// 1. Design tokens and Sass breakpoints
 @use "abstracts/tokens";
 
-// 2. Global Base Rules
+// 2. Global browser normalization and type hierarchy
 @use "base/reset";
 @use "base/typography";
 
-// 3. UI Components
+// 3. Reusable controls
 @use "components/buttons";
 @use "components/forms";
 
-// 4. Page Layout Structure
-@use "layouts/pages";
-@use "layouts/calendar";
+// 4. Shared application structure
 @use "layouts/shell";
+@use "layouts/pages";
+
+// 5. Reusable content modules and calendar-specific overrides
+// Calendar is intentionally last because its lesson popover rules are more
+// specific than the general .module styles.
 @use "layouts/module";
+@use "layouts/calendar";
