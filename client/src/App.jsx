@@ -5,6 +5,7 @@ import Instructor from "./pages/Instructor";
 import Register from "./pages/Register";
 import AdminHome from "./pages/AdminHome";
 import CreateLesson from "./pages/CreateLesson";
+import DeleteLesson from "./pages/DeleteLesson";
 import LessonBoard from "./pages/LessonBoard";
 import * as lib from "./utils/admin-library";
 
@@ -60,6 +61,10 @@ function App() {
       <Route
         path="/create-lesson"
         element={token && admin ? <CreateLesson /> : <Navigate to="/instructor" replace />}
+      />
+      <Route
+        path="/delete-lesson"
+        element={token && admin ? <DeleteLesson /> : <Navigate to="/instructor" replace />}
       />
       <Route path="/lesson-board" element={<LessonBoard />} />
     </Routes>

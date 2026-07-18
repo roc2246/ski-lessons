@@ -127,3 +127,33 @@ export async function lessonCreate(newLesson) {
     throw error;
   }
 }
+
+export async function lessonDelete(lessonId) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("No auth token provided");
+  }
+
+  try {
+    const res = await fetch(`/api/lessons/${lessonId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      console.log("Lesson deleted successfully:", data);
+      return data;
+    } else {
+      console.error("Lesson deletion failed:", data);
+      throw new Error(data.message || "Failed to delete lesson");
+    }
+  } catch (error) {
+    console.error("Error during lesson deletion:", error);
+    throw error;
+  }
+}
