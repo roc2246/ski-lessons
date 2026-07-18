@@ -53,3 +53,13 @@ export async function selfDeleteAccount(req, res) {
     utilities.sendError(res, 500, "Failed to delete user", error);
   }
 }
+
+export async function manageGetUsers(req, res) {
+  try {
+    const { userId } = req.user;
+    const users = await models.getUsers(userId);
+    res.status(200).json({ message: "Users retrieved successfully", users });
+  } catch (error) {
+    utilities.sendError(res, 500, "Failed to retrieve users", error);
+  }
+}

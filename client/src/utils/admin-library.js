@@ -88,6 +88,38 @@ export async function getUsers() {
   }
 }
 
+export async function getUser(userId) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("No auth token provided");
+  }
+
+  try {
+    const res = await fetch(`/api/users/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to retrieve user");
+    }
+
+    if (!data || !data.user) {
+      throw new Error("Malformed response: missing user field");
+    }
+
+    return data.user;
+  } catch (error) {
+    console.error("Error retrieving user:", error);
+    throw error;
+  }
+}
+
 export async function lessonCreate(newLesson) {
   const token = localStorage.getItem("token");
   if (!token) {

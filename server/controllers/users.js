@@ -14,3 +14,18 @@ export async function manageUserRetrieval(req, res) {
     utilities.sendError(res, 500, "Failed to retrieve users", error);
   }
 }
+
+export async function manageGetUsers(req, res) {
+  try {
+    const { userId } = req.params;
+    const user = await models.getUser(userId);
+
+    res.status(200).json({
+      message: "User retrieved",
+      user,
+    });
+  } catch (error) {
+    const status = Number.isInteger(error?.status) ? error.status : 500;
+    utilities.sendError(res, status, "Failed to retrieve user", error);
+  }
+}

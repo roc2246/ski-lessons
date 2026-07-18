@@ -6,8 +6,9 @@ import * as calendarLib from "../utils/calendar-library.js";
 function DeleteLesson() {
   const [lessons, setLessons] = useState([]);
   const [status, setStatus] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [userLookup, setUserLookup] = useState({});
 
-  // Fetch lessons on mount
   useEffect(() => {
     async function fetchLessons() {
       try {
@@ -18,10 +19,21 @@ function DeleteLesson() {
         setStatus("Failed to load lessons.");
       }
     }
+
+    async function fetchUsers() {
+      try {
+        const users = await adminLib.getUsers();
+        const lookup = Object.fromEntries(users.map((user) => [user._id, user.username]));
+        setUserLookup(lookup);
+      } catch (err) {
+        console.error("Failed to load users:", err);
+      }
+    }
+
     fetchLessons();
+    fetchUsers();
   }, []);
 
-  // Handle lesson deletion
   const handleDelete = async (lessonId) => {
     if (!window.confirm("Are you sure you want to delete this lesson?")) return;
 
@@ -29,7 +41,6 @@ function DeleteLesson() {
     try {
       await adminLib.lessonDelete(lessonId);
       alert("Lesson deleted successfully!");
-      // Remove the deleted lesson from state
       setLessons((prev) => prev.filter((lesson) => lesson._id !== lessonId));
     } catch (err) {
       console.error("Failed to delete lesson:", err);
@@ -37,20 +48,29 @@ function DeleteLesson() {
     }
   };
 
+  const filteredLessons = lessons.filter((lesson) => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return true;
+
+    const assignedToLabel = lesson.assignedTo ? (userLookup[lesson.assignedTo] || lesson.assignedTo) : "Unassigned";
+    const haystack = `${lesson.type || ""} ${new Date(lesson.date).toLocaleDateString()} ${lesson.timeLength || ""} ${assignedToLabel}`.toLowerCase();
+    return haystack.includes(query);
+  });
+
   return (
     <main className="admin">
       <h1 className="admin__header">DELETE LESSON</h1>
       {status && <p>{status}</p>}
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-        {lessons.length === 0 ? (
+        {filteredLessons.length === 0 ? (
           <p>No lessons available to delete.</p>
         ) : (
-          lessons.map((lesson) => (
+          filteredLessons.map((lesson) => (
             <div key={lesson._id} className="lesson-item">
               <span>
-                {lesson.type} - {new Date(lesson.date).toLocaleDateString()} -{" "}
-                {lesson.assignedTo || "Unassigned"}
+                {lesson.type} - {new Date(lesson.date).toLocaleDateString()} - {lesson.timeLength} - {lesson.assignedTo ? (userLookup[lesson.assignedTo] || lesson.assignedTo) : "Unassigned"}
               </span>
+              &nbsp;
               <button onClick={() => handleDelete(lesson._id)}>Delete</button>
             </div>
           ))
