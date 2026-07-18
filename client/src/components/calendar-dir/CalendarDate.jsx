@@ -39,6 +39,7 @@ function CalendarDate({ day, lessons = [], onAddLesson }) {
       aria-label={`${day.toDateString()}, ${lessonCount} lessons`}
     >
       <span>{day.getDate()}</span>
+      {isInteractive && <span className="calendar__mark">&bull;</span>}
       <p>{lessonCount} lessons</p>
 
       {showLessons && (

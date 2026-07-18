@@ -32,6 +32,21 @@
   color: var(--color-primary);
   font-size: clamp(1.65rem, 4vw, 2.35rem);
   line-height: 1.15;
+
+  /*
+   * Adds a clear instruction without requiring a React/JSX change.
+   * Dates containing lessons already receive role="button".
+   */
+  &::after {
+    content: "Select a highlighted date to view lesson details.";
+    display: block;
+    max-width: 34rem;
+    margin: 0.65rem auto 0;
+    color: var(--color-secondary);
+    font-size: clamp(0.78rem, 1.7vw, 0.95rem);
+    font-weight: 500;
+    line-height: 1.5;
+  }
 }
 
 /* ======================================================
@@ -154,16 +169,62 @@
     box-shadow 160ms ease,
     transform 120ms ease;
 
+  /*
+   * Only lesson dates are interactive in the current JSX.
+   * Give them a stronger visual treatment so users immediately
+   * understand that they can be clicked.
+   */
   &[role="button"] {
     cursor: pointer;
+    background: #edf6f0;
+    border-color: rgba(31, 98, 59, 0.48);
+    box-shadow: inset 0 0 0 1px rgba(31, 98, 59, 0.06);
+
+    &::after {
+      content: "View";
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      padding: 0.2rem 0.42rem;
+      color: #fff;
+      background: var(--color-primary);
+      border-radius: 999px;
+      font-size: clamp(0.48rem, 1.15vw, 0.64rem);
+      font-weight: 800;
+      letter-spacing: 0.035em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    > span:first-child {
+      color: var(--color-primary);
+    }
+
+    > p {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--color-primary);
+      font-weight: 750;
+
+      &::after {
+        content: "→";
+        font-size: 1.05em;
+        transition: transform 160ms ease;
+      }
+    }
   }
 
   &[role="button"]:hover {
-    background: #f3f7f4;
+    background: #e3f1e8;
     border-color: var(--color-primary);
-    box-shadow: 0 0.35rem 1rem rgba(31, 61, 43, 0.12);
-    transform: translateY(-1px);
+    box-shadow: 0 0.55rem 1.2rem rgba(31, 61, 43, 0.17);
+    transform: translateY(-2px);
     z-index: 2;
+
+    > p::after {
+      transform: translateX(0.18rem);
+    }
   }
 
   &:focus-visible {
@@ -174,10 +235,18 @@
   }
 
   &.active {
-    background: #eef5f1;
+    background: #e5f2e9;
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 0.12rem rgba(217, 164, 65, 0.22);
+    box-shadow:
+      0 0 0 0.12rem rgba(217, 164, 65, 0.24),
+      0 0.55rem 1.2rem rgba(31, 61, 43, 0.15);
     z-index: 20;
+
+    &::after {
+      content: "Selected";
+      background: var(--color-accent);
+      color: #17261d;
+    }
   }
 
   > span:first-child {
@@ -203,6 +272,25 @@
   &[role="button"] > p {
     color: var(--color-primary);
   }
+}
+
+/* Small legend reinforcing which dates are interactive. */
+.calendar__dates::before {
+  content: "Green dates have lessons";
+  grid-column: 1 / -1;
+  justify-self: end;
+  margin-bottom: 0.15rem;
+  padding-left: 1rem;
+  color: var(--color-secondary);
+  background:
+    radial-gradient(
+      circle at 0.3rem 50%,
+      var(--color-primary) 0 0.24rem,
+      transparent 0.26rem
+    );
+  font-size: clamp(0.65rem, 1.5vw, 0.78rem);
+  font-weight: 650;
+  line-height: 1.4;
 }
 
 .calendar__date--empty {
@@ -436,9 +524,21 @@
     padding: 0.3rem;
     border-radius: 0.45rem;
 
+    &[role="button"]::after {
+      top: 0.28rem;
+      right: 0.28rem;
+      padding: 0.16rem 0.28rem;
+      font-size: 0.48rem;
+    }
+
     > p {
       overflow-wrap: anywhere;
     }
+  }
+
+  .calendar__dates::before {
+    justify-self: center;
+    margin-bottom: 0.25rem;
   }
 
   .calendar__date > .module,
