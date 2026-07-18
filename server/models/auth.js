@@ -120,6 +120,19 @@ export async function deleteUser(username) {
   }
 }
 
+export async function getUser(id) {
+  try {
+    utilities.argValidation([id], ["User ID"]);
+
+    const User = utilities.getModel(utilities.UserSchema, "User");
+    const user = await User.findById(id).lean();
+    if (!user) throw new Error(`No user found with ID: ${id}`);
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
 // ---------- LOGOUT ----------
 export async function logoutUser(token) {
   try {

@@ -28,5 +28,6 @@ router.delete("/lessons/:lessonId", authenticate, requireAdmin,                 
 
 // Admin routes
 router.get("/users", authenticate, requireAdmin, controllers.manageUserRetrieval);
+router.get("/users/:userId", authenticate, requireAdmin, controllers.manageGetUsers);
 
 export default router;

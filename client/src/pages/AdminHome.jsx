@@ -8,6 +8,9 @@ function AdminHome() {
         <Link to="/create-lesson" className="admin__link">
           Create Lesson
         </Link>
+        <Link to="/delete-lesson" className="admin__link">
+          Delete Lesson
+        </Link>
         <Link to="/instructor" className="admin__link">
           Back
         </Link>

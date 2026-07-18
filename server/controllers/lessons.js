@@ -23,6 +23,8 @@ export async function manageLessonRetrieval(req, res) {
     let lessons;
     if (assignedToParam === "None") {
       lessons = await models.retrieveLessons({ assignedTo: null });
+    } else if (assignedToParam === "all") {
+      lessons = await models.retrieveLessons({});
     } else if (assignedToParam) {
       lessons = await models.retrieveLessons({ assignedTo: assignedToParam });
     } else {
@@ -32,9 +34,11 @@ export async function manageLessonRetrieval(req, res) {
     return res.status(200).json({
       message: assignedToParam === "None"
         ? "Lessons with assignedTo=None retrieved"
-        : assignedToParam
-          ? `Lessons retrieved for assignedTo=${assignedToParam}`
-        : `Lessons retrieved for user ID ${req.user.userId}`,
+        : assignedToParam === "all"
+          ? "All lessons retrieved"
+          : assignedToParam
+            ? `Lessons retrieved for assignedTo=${assignedToParam}`
+            : `Lessons retrieved for user ID ${req.user.userId}`,
       lessons,
     });
   } catch (error) {
