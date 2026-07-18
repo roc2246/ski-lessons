@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import * as adminLib from "../utils/admin-library.js";
+import * as calendarLib from "../utils/calendar-library.js";
 
 function DeleteLesson() {
   const [lessons, setLessons] = useState([]);
@@ -10,7 +11,7 @@ function DeleteLesson() {
   useEffect(() => {
     async function fetchLessons() {
       try {
-        const fetchedLessons = await adminLib.getAllLessons();
+        const fetchedLessons = await calendarLib.getLessons("all");
         setLessons(fetchedLessons);
       } catch (err) {
         console.error("Failed to fetch lessons:", err);
