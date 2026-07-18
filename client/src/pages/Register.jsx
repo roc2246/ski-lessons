@@ -14,7 +14,6 @@ function Register() {
     e.preventDefault();
     try {
       await lib.register(username, password, isAdmin);
-      alert(`${username} registered successfully!`);
       navigate("/"); // go back to login page
     } catch (err) {
       console.error(err);
