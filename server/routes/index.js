@@ -1,5 +1,6 @@
 import express from "express";
 import * as controllers from "../controllers/index.js";
+import { manageGetUsers as manageUserDetail } from "../controllers/users.js";
 import {
 	authenticate,
 	requireAdmin,
@@ -28,6 +29,6 @@ router.delete("/lessons/:lessonId", authenticate, requireAdmin,                 
 
 // Admin routes
 router.get("/users", authenticate, requireAdmin, controllers.manageUserRetrieval);
-router.get("/users/:userId", authenticate, requireAdmin, controllers.manageGetUsers);
+router.get("/users/:userId", authenticate, requireAdmin, manageUserDetail);
 
 export default router;
