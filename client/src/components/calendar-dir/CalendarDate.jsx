@@ -36,11 +36,11 @@ function CalendarDate({ day, lessons = [], onAddLesson }) {
       tabIndex={isInteractive ? 0 : undefined}
       aria-expanded={isInteractive ? showLessons : undefined}
       aria-disabled={!isInteractive}
-      aria-label={`${day.toDateString()}, ${lessonCount} lessons`}
+      aria-label={`${day.toDateString()}, ${lessonCount} ${lessonCount === 1 ? "lesson" : "lessons"}`}
     >
       <span>{day.getDate()}</span>
-      {isInteractive && <span className="calendar__mark">&bull;</span>}
-      <p>{lessonCount} lessons</p>
+      {/* {isInteractive && <span className="calendar__mark">&bull;</span>} */}
+      <p>{lessonCount} {lessonCount === 1 ? "lesson" : "lessons"}</p>
 
       {showLessons && (
         <div className="module" onClick={(e) => e.stopPropagation()}>
