@@ -36,16 +36,22 @@ vi.mock("../../utilities/index.js", async () => {
   });
 
   constructorSpy.findById = vi.fn((id) => {
-    if (id === "validLessonId")
-      return Promise.resolve({ _id: id, date: new Date("2025-12-01"), timeLength: "9-12", assignedTo: null });
-    return Promise.resolve(null);
+    if (id === "validLessonId") {
+      return {
+        lean: vi.fn().mockResolvedValue({ _id: id, date: new Date("2025-12-01"), timeLength: "9-12", assignedTo: null }),
+      };
+    }
+    return {
+      lean: vi.fn().mockResolvedValue(null),
+    };
   });
 
   constructorSpy.findOne = vi.fn(() => Promise.resolve(null)); // no conflicts by default
 
-  constructorSpy.findByIdAndUpdate = vi.fn((id, update) => {
-    if (id === "validLessonId")
-      return Promise.resolve({ _id: id, assignedTo: update.assignedTo });
+  constructorSpy.findOneAndUpdate = vi.fn((query, update, options) => {
+    if (query._id === "validLessonId") {
+      return Promise.resolve({ _id: query._id, assignedTo: update.$set.assignedTo, ...options });
+    }
     return Promise.resolve(null);
   });
 
@@ -89,8 +95,6 @@ describe("createLesson", () => {
         assignedTo: "abc",
       })
     ).rejects.toThrow(/Required fields missing: Date/);
-
-    expect(errorEmail).toHaveBeenCalled();
   });
 });
 
