@@ -320,21 +320,21 @@
    CENTERED LESSON MODAL
    Same viewport-centered behavior at every screen size.
 ====================================================== */
-.calendar__date > .module {
-  position: fixed !important;
-  top: 50dvh !important;
-  right: auto !important;
-  bottom: auto !important;
-  left: 50vw !important;
-  z-index: 9999 !important;
+.calendar__date.active > .module {
+  position: fixed;
+  top: 50dvh;
+  right: auto;
+  bottom: auto;
+  left: 50vw;
+  z-index: 40;
 
-  width: min(24rem, calc(100vw - 2rem)) !important;
-  min-width: 0 !important;
-  max-width: calc(100vw - 2rem) !important;
+  width: min(24rem, calc(100vw - 2rem));
+  min-width: 0;
+  max-width: calc(100vw - 2rem);
   height: auto;
   max-height: calc(100dvh - 2rem);
 
-  margin: 0 !important;
+  margin: 0;
   padding: 1rem;
   display: grid;
   gap: 0.8rem;
@@ -349,12 +349,12 @@
   border-radius: 0.85rem;
   box-shadow: 0 1rem 2.5rem rgba(31, 41, 51, 0.2);
 
-  transform: translate(-50%, -50%) !important;
+  transform: translate(-50%, -50%);
   cursor: default;
 
   &::before {
-    display: none !important;
-    content: none !important;
+    display: none;
+    content: none;
   }
 
   > .btn {
@@ -389,7 +389,7 @@
 .calendar__date.active,
 .calendar__date.active:hover,
 .calendar__date.active[role="button"]:hover {
-  transform: none !important;
+  transform: none;
 }
 
 .lesson-date {
@@ -486,7 +486,7 @@
 /* ======================================================
    RESPONSIVE CALENDAR
 ====================================================== */
-@media (max-width: 37.49rem) {
+@media (max-width: $bp-sm) {
   .calendar-section {
     padding-inline: var(--space-2);
   }
@@ -533,12 +533,10 @@
     justify-self: center;
     margin-bottom: 0.25rem;
   }
+}
 
 
-  }
-
-
-@media (max-width: 24rem) {
+@media (max-width: $bp-2xs) {
   .calendar__days,
   .calendar__dates {
     gap: 0.18rem;
@@ -565,9 +563,9 @@
   }
 
 
-  .calendar__date > .module {
-    width: calc(100vw - 1rem) !important;
-    max-width: calc(100vw - 1rem) !important;
+  .calendar__date.active > .module {
+    width: calc(100vw - 1rem);
+    max-width: calc(100vw - 1rem);
     max-height: calc(100dvh - 1rem);
     padding: 0.85rem;
   }

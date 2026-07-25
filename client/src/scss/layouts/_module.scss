@@ -257,7 +257,7 @@
 // RESPONSIVE
 // ======================================================
 
-@media (max-width: 768px) {
+@media (max-width: $bp-tablet) {
   .module {
     max-width: 100%;
     padding: 1.25rem;
@@ -278,7 +278,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: $bp-xs) {
   .module {
     padding: 1rem;
   }
@@ -306,13 +306,13 @@
 // Positioning is controlled by _calendar.scss.
 // ======================================================
 
-.calendar__date > .module {
+.calendar__date.active > .module {
   max-width: calc(100vw - 2rem);
   margin: 0;
 }
 
-@media (max-width: 24rem) {
-  .calendar__date > .module {
+@media (max-width: $bp-2xs) {
+  .calendar__date.active > .module {
     max-width: calc(100vw - 1rem);
   }
 }

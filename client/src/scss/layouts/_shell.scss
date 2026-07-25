@@ -4,16 +4,10 @@
 // APP SHELL
 // -----------------------------------------------------
 
-body {
-  background: $color-surface;
-  color: $color-text;
-}
-
 .app,
-.app-shell,
-main {
+.app-shell {
 
-  width: min(1200px, calc(100% - 2rem));
+  width: min(var(--layout-max-content), calc(100% - 2rem));
 
   margin-inline: auto;
 
@@ -24,12 +18,11 @@ main {
 // PAGE CONTAINER
 // -----------------------------------------------------
 
-.page-container,
-.container {
+.page-container {
 
   width: 100%;
 
-  max-width: 1200px;
+  max-width: var(--layout-max-content);
 
   margin-inline: auto;
 }
@@ -215,7 +208,7 @@ footer {
 // RESPONSIVE
 // -----------------------------------------------------
 
-@media (max-width:992px){
+@media (max-width: $bp-content) {
 
   .two-column{
 
@@ -228,10 +221,10 @@ footer {
   }
 }
 
-@media (max-width:768px){
+@media (max-width: $bp-tablet) {
 
   .app,
-  main{
+  .app-shell {
 
     width:calc(100% - 1.25rem);
 

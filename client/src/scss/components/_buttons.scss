@@ -198,7 +198,7 @@ button[type="submit"] {
 // Mobile
 // --------------------------------------------------------
 
-@media (max-width: 768px) {
+@media (max-width: $bp-tablet) {
 
   button,
   .btn,
