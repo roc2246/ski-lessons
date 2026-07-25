@@ -30,6 +30,15 @@ function App() {
         }
       } catch (error) {
         console.error("Failed to determine admin status:", error);
+
+        const message = String(error?.message || "").toLowerCase();
+        const isAuthError = message.includes("unauthorized") || message.includes("token");
+
+        if (!cancelled && isAuthError) {
+          localStorage.removeItem("token");
+          setToken(null);
+          setAdmin(false);
+        }
       }
     }
 

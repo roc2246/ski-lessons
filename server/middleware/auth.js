@@ -25,6 +25,14 @@ export async function authenticate(req, res, next) {
     req.token = token;    // Attach raw token for logout blacklisting
     next();
   } catch (error) {
+    if (error?.name === "TokenExpiredError") {
+      return utilities.sendError(res, 401, "Unauthorized: Token expired");
+    }
+
+    if (error?.name === "JsonWebTokenError" || error?.name === "NotBeforeError") {
+      return utilities.sendError(res, 401, "Unauthorized: Invalid token");
+    }
+
     return utilities.sendError(res, 401, "Unauthorized: Invalid token", error);
   }
 }

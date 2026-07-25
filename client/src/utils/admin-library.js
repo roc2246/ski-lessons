@@ -23,6 +23,12 @@ export function getStoredAuthState() {
 
   const payload = decodeTokenPayload(token);
 
+  // Discard expired tokens so the app does not boot into an invalid auth state.
+  if (typeof payload?.exp === "number" && payload.exp * 1000 <= Date.now()) {
+    localStorage.removeItem("token");
+    return { token: null, admin: false };
+  }
+
   return {
     token,
     admin: payload?.admin === true,

@@ -25,6 +25,9 @@ export async function getLessons(assignedTo) {
     });
     if (!response.ok) {
       const error = await response.json();
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+      }
       throw new Error(error.message || "Failed to fetch lessons");
     }
     const { lessons } = await response.json();
@@ -163,6 +166,9 @@ export async function getLessonsForMonth(date, token, assignedTo) {
     });
     if (!response.ok) {
       const err = await response.json();
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+      }
       throw new Error(err.message || "Failed to fetch lessons");
     }
     const { lessons } = await response.json();
@@ -214,6 +220,9 @@ export async function addLesson(lesson) {
 
     if (!response.ok) {
       const errorData = await response.json();
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+      }
       throw new Error(errorData.message || "Failed to add lesson");
     }
 
