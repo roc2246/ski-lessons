@@ -31,7 +31,6 @@ client/
     pages/
     utils/
     scss/
-    styles/
 
 server/
   controllers/
@@ -122,22 +121,59 @@ All endpoints are mounted under `/api`.
 
 | Method | Endpoint | Access | Description |
 | --- | --- | --- | --- |
-| POST | `/api/register` | Public | Register user (always non-admin) |
-| POST | `/api/login` | Public | Login and receive JWT |
-| POST | `/api/logout` | Authenticated | Revoke token |
-| DELETE | `/api/self-delete` | Authenticated | Delete current user and unassign lessons |
-| GET | `/api/is-admin` | Authenticated | Return decoded user credentials |
-| GET | `/api/lessons` | Authenticated | Retrieve lessons (`available: true` header for unassigned lessons) |
-| POST | `/api/create-lesson` | Admin | Create lesson |
-| PATCH | `/api/lessons/:lessonId/assign` | Authenticated | Assign lesson to current user |
-| GET | `/api/user-retrieval` | Admin | Retrieve users without passwords |
+| POST | `/api/auth/register` | Public | Register a user (server always stores `admin: false`) |
+| POST | `/api/auth/login` | Public | Login and receive JWT |
+| POST | `/api/auth/logout` | Authenticated | Revoke current token |
+| GET | `/api/users/me` | Authenticated | Return current decoded user credentials |
+| DELETE | `/api/users/me` | Authenticated | Delete current user and unassign their lessons |
+| GET | `/api/lessons` | Authenticated | Retrieve lessons (see lesson query behavior below) |
+| POST | `/api/lessons` | Admin | Create lesson |
+| PATCH | `/api/lessons/:lessonId` | Authenticated | Assign lesson to current user |
+| DELETE | `/api/lessons/:lessonId` | Admin | Remove lesson |
+| GET | `/api/users` | Admin | Retrieve all users (without passwords) |
+| GET | `/api/users/:userId` | Admin | Retrieve one user by id |
+
+### Lesson Query Behavior
+
+`GET /api/lessons` supports `assignedTo` query modes:
+
+- `assignedTo=None`: only unassigned lessons
+- `assignedTo=all`: all lessons
+- `assignedTo=<userId>`: lessons for a specific user id
+- no `assignedTo`: lessons for the authenticated user (`req.user.userId`)
+
+### Validation Rules
+
+Auth payloads:
+
+- register: `username` minimum 3 chars, `password` minimum 6 chars
+- login: `username` and `password` are required
+
+Create lesson payload (`lessonData`):
+
+- `type`: `beginner | intermediate | advanced | expert`
+- `timeLength`: `9-12 | 1-4 | 9-4`
+- `date`: must be a parseable date string
+- `guests`: integer from 1 to 12
+- `assignedTo`: `null`, empty string, or valid 24-char Mongo ObjectId
+
+Assign lesson payload:
+
+- `lessonId` route param must be a valid 24-char Mongo ObjectId
 
 ## Auth and RBAC
 
 - Protected routes require `Authorization: Bearer <token>`.
 - Middleware verifies JWT and checks blacklist revocation status.
+- Expired tokens return `401 Unauthorized: Token expired`.
+- Invalid or malformed tokens return `401 Unauthorized: Invalid token`.
 - `requireAdmin` middleware gates admin-only endpoints.
 - Logout persists revoked tokens in `BlacklistedToken` with TTL expiration.
+
+### Client Behavior on Expired Token
+
+- On startup, expired tokens are removed from local storage.
+- If protected requests return `401`, the client clears the token and resets auth state.
 
 ## Data Model (Current)
 
