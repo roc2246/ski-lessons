@@ -1,3 +1,4 @@
+@use "sass:color";
 @use "../abstracts/tokens" as *;
 
 // --------------------------------------------------------
@@ -70,7 +71,7 @@ button[type="submit"] {
   color: white;
 
   &:hover {
-    background: darken($color-primary, 6%);
+    background: color.adjust($color-primary, $lightness: -6%);
     box-shadow: $shadow-md;
   }
 }
