@@ -32,7 +32,7 @@ export async function ensureLocalAdminUser(
     return User.findOneAndUpdate(
       { username },
       { $set: { admin: true } },
-      { new: true }
+      { returnDocument: "after" }
     ).lean();
   }
 

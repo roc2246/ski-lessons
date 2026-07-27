@@ -207,6 +207,74 @@ describe("lessonCreate", () => {
   });
 });
 
+// =====================
+// lessonUpdate
+// =====================
+describe("lessonUpdate", () => {
+  it("should call fetch with correct arguments", async () => {
+    const lessonId = "lesson123";
+    const lessonData = {
+      type: "advanced",
+      date: "2026-01-11",
+      timeLength: "1-4",
+      guests: 2,
+      assignedTo: "None",
+    };
+
+    globalThis.fetch.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        lesson: {
+          _id: lessonId,
+          ...lessonData,
+          assignedTo: null,
+        },
+      }),
+    });
+
+    const result = await lib.lessonUpdate(lessonId, lessonData);
+
+    expect(globalThis.fetch).toHaveBeenCalledWith(`/api/lessons/${lessonId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer any-token",
+      },
+      body: JSON.stringify({
+        lessonData: {
+          ...lessonData,
+          assignedTo: null,
+        },
+      }),
+    });
+
+    expect(result).toEqual({
+      _id: lessonId,
+      ...lessonData,
+      assignedTo: null,
+    });
+  });
+
+  it("should throw an error if fetch returns non-ok", async () => {
+    const lessonId = "lesson123";
+
+    globalThis.fetch.mockResolvedValue({
+      ok: false,
+      json: vi.fn().mockResolvedValue({ message: "Failed to update lesson" }),
+    });
+
+    await expect(
+      lib.lessonUpdate(lessonId, {
+        type: "advanced",
+        date: "2026-01-11",
+        timeLength: "1-4",
+        guests: 2,
+        assignedTo: null,
+      })
+    ).rejects.toThrow("Failed to update lesson");
+  });
+});
+
 
 // =====================
 // getUsers

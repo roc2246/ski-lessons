@@ -123,6 +123,62 @@ export async function retrieveUsers() {
   }
 }
 
+// ---------- UPDATE LESSON ----------
+export async function updateLesson(id, lessonData) {
+  try {
+    utilities.argValidation([id, lessonData], ["Lesson ID", "Lesson data"]);
+    utilities.dataTypeValidation([id, lessonData], ["ID", "Lesson data"], ["string", "object"]);
+
+    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+    const existingLesson = await Lesson.findById(id).lean();
+
+    if (!existingLesson) {
+      throw createHttpError("Lesson not found", 404);
+    }
+
+    const assignedTo = lessonData.assignedTo ?? null;
+    const parsedDate = new Date(lessonData.date);
+    const conflictingWindows = CONFLICTING_TIME_LENGTHS[lessonData.timeLength] || [lessonData.timeLength];
+
+    if (assignedTo !== null) {
+      const conflict = await Lesson.findOne({
+        _id: { $ne: id },
+        assignedTo,
+        date: parsedDate,
+        timeLength: {
+          $in: conflictingWindows,
+        },
+      });
+
+      if (conflict) {
+        throw createHttpError(
+          `This instructor is already booked on ${lessonData.date} during ${lessonData.timeLength}.`,
+          409
+        );
+      }
+    }
+
+    const updated = await Lesson.findByIdAndUpdate(
+      id,
+      {
+        ...lessonData,
+        assignedTo,
+        date: parsedDate,
+      },
+      { returnDocument: "after", runValidators: true }
+    );
+
+    if (!updated) {
+      throw createHttpError("Lesson not found", 404);
+    }
+
+    return updated;
+  } catch (error) {
+    await notifyIfServerError("Failed to update lesson", error);
+    throw error;
+  }
+}
+
 // ---------- SWITCH LESSON ASSIGNMENT ----------
 export async function switchLessonAssignment(id, newUserId) {
   try {
@@ -162,7 +218,7 @@ export async function switchLessonAssignment(id, newUserId) {
     const updated = await Lesson.findOneAndUpdate(
       { _id: id, assignedTo: null },
       { $set: { assignedTo: newUserId } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!updated) {

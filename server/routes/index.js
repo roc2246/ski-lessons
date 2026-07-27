@@ -7,6 +7,7 @@ import {
 	validateRegisterRequest,
 	validateLoginRequest,
 	validateCreateLessonRequest,
+	validateUpdateLessonRequest,
 	validateAssignLessonRequest,
 } from "../middleware/index.js";
 
@@ -24,6 +25,7 @@ router.delete("/users/me", authenticate, controllers.selfDeleteAccount);
 // Lesson routes
 router.get("/lessons",              authenticate,                                            controllers.manageLessonRetrieval);
 router.post("/lessons",             authenticate, requireAdmin, validateCreateLessonRequest, controllers.manageCreateLesson);
+router.put("/lessons/:lessonId",    authenticate, requireAdmin, validateAssignLessonRequest, validateUpdateLessonRequest, controllers.manageUpdateLesson);
 router.patch("/lessons/:lessonId",  authenticate, validateAssignLessonRequest,               controllers.manageSwitchLessonAssignment);
 router.delete("/lessons/:lessonId", authenticate, requireAdmin,                              controllers.manageRemoveLesson);
 

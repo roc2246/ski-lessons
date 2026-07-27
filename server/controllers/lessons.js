@@ -15,6 +15,22 @@ export async function manageCreateLesson(req, res) {
   }
 }
 
+export async function manageUpdateLesson(req, res) {
+  try {
+    const { lessonId } = req.params;
+    const lessonData = { ...req.body.lessonData };
+    const updatedLesson = await models.updateLesson(lessonId, lessonData);
+
+    res.status(200).json({
+      message: "Lesson updated successfully",
+      lesson: updatedLesson,
+    });
+  } catch (error) {
+    const status = Number.isInteger(error?.status) ? error.status : 500;
+    utilities.sendError(res, status, "Failed to update lesson", error);
+  }
+}
+
 export async function manageLessonRetrieval(req, res) {
   try {
     // req.user is attached by authenticate middleware

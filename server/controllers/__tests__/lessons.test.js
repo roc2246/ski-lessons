@@ -4,7 +4,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("jsonwebtoken", () => ({ default: { sign: vi.fn(), verify: vi.fn() } }));
 vi.mock("../../models/index.js", async () => {
   const actual = await vi.importActual("../../models/index.js");
-  return { ...actual, createLesson: vi.fn(), retrieveLessons: vi.fn(), switchLessonAssignment: vi.fn() };
+  return {
+    ...actual,
+    createLesson: vi.fn(),
+    updateLesson: vi.fn(),
+    retrieveLessons: vi.fn(),
+    switchLessonAssignment: vi.fn(),
+  };
 });
 vi.mock("../../utilities/index.js", async () => {
   const actual = await vi.importActual("../../utilities/index.js");
@@ -39,6 +45,49 @@ describe("manageCreateLesson", () => {
 
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({ message: "Lesson created successfully", lesson });
+  });
+});
+
+// ========== manageUpdateLesson ==========
+describe("manageUpdateLesson", () => {
+  it("should update a lesson successfully", async () => {
+    const req = createReq(
+      { lessonData: { type: "beginner", date: "2026-01-10", timeLength: "9-12", guests: 3, assignedTo: null } },
+      {},
+      { lessonId: "lesson123" }
+    );
+    const res = createRes();
+    const lesson = { _id: "lesson123", ...req.body.lessonData };
+    models.updateLesson.mockResolvedValueOnce(lesson);
+
+    await controllers.manageUpdateLesson(req, res);
+
+    expect(models.updateLesson).toHaveBeenCalledWith("lesson123", req.body.lessonData);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Lesson updated successfully",
+      lesson,
+    });
+  });
+
+  it("should delegate errors to sendError with model status code", async () => {
+    const req = createReq(
+      { lessonData: { type: "beginner", date: "2026-01-10", timeLength: "9-12", guests: 3, assignedTo: null } },
+      {},
+      { lessonId: "lesson123" }
+    );
+    const res = createRes();
+    const modelError = Object.assign(new Error("conflict"), { status: 409 });
+    models.updateLesson.mockRejectedValueOnce(modelError);
+
+    await controllers.manageUpdateLesson(req, res);
+
+    expect(utilities.sendError).toHaveBeenCalledWith(
+      res,
+      409,
+      "Failed to update lesson",
+      modelError
+    );
   });
 });
 

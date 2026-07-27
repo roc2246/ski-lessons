@@ -11,6 +11,9 @@ function AdminHome() {
         <Link to="/delete-lesson" className="admin__link">
           Delete Lesson
         </Link>
+        <Link to="/update-lesson" className="admin__link">
+          Update Lesson
+        </Link>
         <Link to="/instructor" className="admin__link">
           Back
         </Link>

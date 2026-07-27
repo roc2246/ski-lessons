@@ -323,6 +323,147 @@ main {
 }
 
 // ======================================================
+// UPDATE LESSON PAGE
+// ======================================================
+
+.update-lesson {
+  width: min(100%, 56rem);
+  min-height: auto;
+  margin: clamp(2rem, 8vh, 5rem) auto;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-shell);
+  border-radius: calc(var(--radius) * 2);
+  box-shadow: var(--shadow);
+}
+
+.update-lesson::before {
+  content: "Lesson management";
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--color-accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.update-lesson__header {
+  margin-bottom: var(--space-2);
+  text-align: center;
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
+  letter-spacing: -0.03em;
+}
+
+.update-lesson__header::after {
+  content: "Select an existing lesson and update its details.";
+  display: block;
+  max-width: 32rem;
+  margin: var(--space-2) auto var(--space-6);
+  color: var(--color-secondary);
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.update-lesson__status {
+  min-height: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.update-lesson__status--error {
+  color: var(--color-danger);
+}
+
+.update-lesson__status--success {
+  color: var(--color-success);
+}
+
+.update-lesson__form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-5);
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: #f8faf9;
+  border: 1px solid var(--color-border-shell);
+  border-radius: calc(var(--radius) * 1.5);
+}
+
+.update-lesson__form label {
+  margin-bottom: calc(var(--space-2) * -0.5);
+  color: var(--color-text);
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
+.update-lesson__form select,
+.update-lesson__form input {
+  width: 100%;
+  min-height: 2.85rem;
+  padding: 0.7rem 0.9rem;
+  color: var(--color-text);
+  font: inherit;
+  background: #fff;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.update-lesson__form select:focus,
+.update-lesson__form input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem rgba(31, 61, 43, 0.12);
+}
+
+.update-lesson__form label[for="lesson-select"],
+.update-lesson__form #lesson-select,
+.update-lesson__form button {
+  grid-column: 1 / -1;
+}
+
+.update-lesson__form button {
+  min-height: 3rem;
+  margin-top: var(--space-2);
+}
+
+.update-lesson__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  margin-top: var(--space-5);
+  padding: 0.75rem 1rem;
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+  background: rgba(31, 61, 43, 0.08);
+  border-radius: var(--radius);
+}
+
+.update-lesson__link::before {
+  content: "←";
+  margin-right: var(--space-2);
+}
+
+.update-lesson__link:hover {
+  background: rgba(31, 61, 43, 0.14);
+}
+
+@media (max-width: $bp-sm) {
+  .update-lesson__form {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ======================================================
 // DELETE LESSON PAGE
 // ======================================================
 

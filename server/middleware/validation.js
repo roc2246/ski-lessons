@@ -94,6 +94,10 @@ export function validateCreateLessonRequest(req, res, next) {
   next();
 }
 
+export function validateUpdateLessonRequest(req, res, next) {
+  return validateCreateLessonRequest(req, res, next);
+}
+
 export function validateAssignLessonRequest(req, res, next) {
   const lessonId = ensureString(req.params?.lessonId);
 

@@ -195,3 +195,41 @@ export async function lessonDelete(lessonId) {
     throw error;
   }
 }
+
+export async function lessonUpdate(lessonId, updatedLesson) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("No auth token provided");
+  }
+
+  try {
+    const lessonData = {
+      ...updatedLesson,
+      assignedTo:
+        updatedLesson.assignedTo === "None" || updatedLesson.assignedTo === ""
+          ? null
+          : updatedLesson.assignedTo,
+      date: updatedLesson.date,
+    };
+
+    const res = await fetch(`/api/lessons/${lessonId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ lessonData }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      return data.lesson;
+    }
+
+    throw new Error(data.message || "Failed to update lesson");
+  } catch (error) {
+    console.error("Error during lesson update:", error);
+    throw error;
+  }
+}
