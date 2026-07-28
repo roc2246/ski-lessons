@@ -74,7 +74,11 @@ JWT_SECRET=your_jwt_secret
 APP_PASSWORD=your_email_app_password
 SMTP_USER=you@example.com
 NODE_ENV=development
+LOCAL_ADMIN_USERNAME=your_local_admin_username
+LOCAL_ADMIN_PASSWORD=your_strong_local_admin_password
 ```
+
+If `LOCAL_ADMIN_USERNAME` and `LOCAL_ADMIN_PASSWORD` are not set, the server will skip local admin bootstrap in non-production environments and log a warning instead of relying on hardcoded defaults.
 
 ### Run Development Servers
 
@@ -169,6 +173,7 @@ Assign lesson payload:
 - Invalid or malformed tokens return `401 Unauthorized: Invalid token`.
 - `requireAdmin` middleware gates admin-only endpoints.
 - Logout persists revoked tokens in `BlacklistedToken` with TTL expiration.
+- Local development can optionally seed an admin account via `LOCAL_ADMIN_USERNAME` and `LOCAL_ADMIN_PASSWORD`; if those values are absent, the bootstrap step is skipped safely.
 
 ### Client Behavior on Expired Token
 
@@ -227,6 +232,13 @@ Frontend/back-end split:
 
 - `client/` handles pages, components, calendar rendering, and user interaction.
 - `server/` handles auth, RBAC, validation, persistence, and API responses.
+
+## Security Notes
+
+- Never commit real credentials, tokens, or secrets to the repository.
+- For local development, set `LOCAL_ADMIN_USERNAME` and `LOCAL_ADMIN_PASSWORD` in `server/config/.env` if you want to bootstrap an admin account.
+- If those values are not provided, the server skips local admin seeding safely instead of using hardcoded defaults.
+- Rotate any credentials that were ever exposed in a public or shared repository.
 
 ## Screenshots
 
