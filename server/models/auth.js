@@ -12,17 +12,27 @@ async function getUserModel() {
 }
 
 export async function ensureLocalAdminUser(
-  username = process.env.LOCAL_ADMIN_USERNAME || "roc09090",
-  password = process.env.LOCAL_ADMIN_PASSWORD || "Roc*0283"
+  username = process.env.LOCAL_ADMIN_USERNAME,
+  password = process.env.LOCAL_ADMIN_PASSWORD
 ) {
   if (process.env.NODE_ENV === "production") {
     return null;
   }
 
-  utilities.argValidation([username, password], ["Username", "Password"]);
+  const normalizedUsername = typeof username === "string" ? username.trim() : username;
+  const normalizedPassword = typeof password === "string" ? password.trim() : password;
+
+  if (!normalizedUsername || !normalizedPassword) {
+    console.warn(
+      "[auth] Skipping local admin bootstrap: set LOCAL_ADMIN_USERNAME and LOCAL_ADMIN_PASSWORD in server/config/.env"
+    );
+    return null;
+  }
+
+  utilities.argValidation([normalizedUsername, normalizedPassword], ["Username", "Password"]);
 
   const User = await getUserModel();
-  const existing = await User.findOne({ username }).lean();
+  const existing = await User.findOne({ username: normalizedUsername }).lean();
 
   if (existing) {
     if (existing.admin === true) {
@@ -30,15 +40,15 @@ export async function ensureLocalAdminUser(
     }
 
     return User.findOneAndUpdate(
-      { username },
+      { username: normalizedUsername },
       { $set: { admin: true } },
       { returnDocument: "after" }
     ).lean();
   }
 
-  const hashedPassword = await bcrypt.hash(password, 12);
+  const hashedPassword = await bcrypt.hash(normalizedPassword, 12);
   const seededUser = new User({
-    username,
+    username: normalizedUsername,
     password: hashedPassword,
     admin: true,
   });
