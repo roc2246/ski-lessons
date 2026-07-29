@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import Calendar from "../components/calendar-dir/Calendar";
 import InstructorControlls from "../components/InstructorControlls";
-import * as lib from "../utils/calendar-library.js";
+import * as lib from "../utils/calendar-library";
+import type { Lesson } from "../types/domain";
 
-function Instructor({ admin }) {
+function Instructor({ admin }: { admin: boolean }) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [lessons, setLessons] = useState([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
 
   useEffect(() => {
     async function fetchLessons() {
@@ -27,7 +28,7 @@ function Instructor({ admin }) {
           currentDate={currentDate}
           onMonthChange={setCurrentDate}
           lessons={lessons}
-          onAddLesson={(lesson) => console.log("Instructor clicked:", lesson)}
+          onAddLesson={(lesson: Lesson) => console.log("Instructor clicked:", lesson)}
           title="Instructor Calendar"
         />
       </section>

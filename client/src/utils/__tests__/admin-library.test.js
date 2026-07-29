@@ -7,7 +7,7 @@ import {
   afterAll,
   beforeEach,
 } from "vitest";
-import * as lib from "../admin-library.js";
+import * as lib from "../admin-library";
 
 let originalFetch;
 let storage = {};

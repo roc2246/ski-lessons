@@ -1,8 +1,10 @@
+import type { CalendarLesson, Lesson } from "../types/domain";
+
 // ================================
 // Calendar Library (React-friendly)
 // ================================
 
-function getDateParts(dateString) {
+function getDateParts(dateString: string) {
   const datePart = String(dateString).slice(0, 10);
   return datePart.split("-").map(Number);
 }
@@ -10,7 +12,7 @@ function getDateParts(dateString) {
 /**
  * Fetch lessons from the API using the assignedTo filter when provided.
  */
-export async function getLessons(assignedTo) {
+export async function getLessons(assignedTo?: string): Promise<Lesson[]> {
   try {
     const token = localStorage.getItem("token");
     let url = "/api/lessons";
@@ -30,10 +32,11 @@ export async function getLessons(assignedTo) {
       }
       throw new Error(error.message || "Failed to fetch lessons");
     }
-    const { lessons } = await response.json();
+    const { lessons } = (await response.json()) as { lessons: Lesson[] };
     return lessons;
   } catch (err) {
-    console.error("Error retrieving lessons:", err.message);
+    const error = err as Error;
+    console.error("Error retrieving lessons:", error.message);
     throw err;
   }
 }
@@ -42,7 +45,7 @@ export async function getLessons(assignedTo) {
  * Preprocess lessons to add _year, _month, _day, _startDate
  * Handles both ISO date strings and YYYY-MM-DD format
  */
-export function preprocessLessons(lessons) {
+export function preprocessLessons(lessons: Lesson[]): CalendarLesson[] {
   return lessons.map((lesson) => {
     const [year, month, day] = getDateParts(lesson.date);
 
@@ -62,7 +65,7 @@ export function preprocessLessons(lessons) {
 /**
  * Get month name and year string from Date object
  */
-export function getMonthYear(date) {
+export function getMonthYear(date: Date) {
   const monthNames = [
     "January","February","March","April","May","June",
     "July","August","September","October","November","December"
@@ -73,7 +76,7 @@ export function getMonthYear(date) {
 /**
  * Get all dates for a month (array of numbers)
  */
-export function getDatesForMonth(date) {
+export function getDatesForMonth(date: Date) {
   const year = date.getFullYear();
   const month = date.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -83,7 +86,7 @@ export function getDatesForMonth(date) {
 /**
  * Generate array of Date objects for a month
  */
-export function generateCalendarDates(date) {
+export function generateCalendarDates(date: Date) {
   const year = date.getFullYear();
   const month = date.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -97,7 +100,7 @@ export function generateCalendarDates(date) {
 /**
  * Navigate to previous month
  */
-export function prevMonth(currentMonthYear) {
+export function prevMonth(currentMonthYear: string) {
   const [monthStr, yearStr] = currentMonthYear.split(" ");
   const monthNames = [
     "January","February","March","April","May","June",
@@ -122,7 +125,7 @@ export function prevMonth(currentMonthYear) {
 /**
  * Navigate to next month
  */
-export function nextMonth(currentMonthYear) {
+export function nextMonth(currentMonthYear: string) {
   const [monthStr, yearStr] = currentMonthYear.split(" ");
   const monthNames = [
     "January","February","March","April","May","June",
@@ -149,7 +152,7 @@ export function nextMonth(currentMonthYear) {
  * @param {Date} date - Any date in the month you want lessons for
  * @param {string} token - Optional auth token
  */
-export async function getLessonsForMonth(date, token, assignedTo) {
+export async function getLessonsForMonth(date: Date, token?: string | null, assignedTo?: string): Promise<Lesson[]> {
   try {
     if (!token) token = localStorage.getItem("token");
     let url = "/api/lessons";
@@ -171,7 +174,7 @@ export async function getLessonsForMonth(date, token, assignedTo) {
       }
       throw new Error(err.message || "Failed to fetch lessons");
     }
-    const { lessons } = await response.json();
+    const { lessons } = (await response.json()) as { lessons: Lesson[] };
 
     // Filter lessons for the month
     const month = date.getMonth();
@@ -191,7 +194,7 @@ export async function getLessonsForMonth(date, token, assignedTo) {
  * Fetch lessons for the current signed-in user for a specific month.
  * Keeps token lookup in one place so page components stay simple.
  */
-export async function getCurrentMonthLessons(date, assignedTo) {
+export async function getCurrentMonthLessons(date: Date, assignedTo?: string) {
   const token = localStorage.getItem("token");
   if (!token) return [];
 
@@ -205,7 +208,7 @@ export async function getCurrentMonthLessons(date, assignedTo) {
  * @param {object} lesson - Lesson object containing at least the id
  * @returns {Promise<object>} - Updated lesson object
  */
-export async function addLesson(lesson) {
+export async function addLesson(lesson: Lesson): Promise<Lesson> {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("No auth token found");
 
@@ -226,7 +229,7 @@ export async function addLesson(lesson) {
       throw new Error(errorData.message || "Failed to add lesson");
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as { lesson: Lesson };
     return data.lesson; // returns updated lesson
   } catch (err) {
     console.error("Error adding lesson:", err);

@@ -1,7 +1,16 @@
 import React from "react";
-import CalendarHeader from "./CalendarHeader.jsx";
-import CalendarDays from "./CalendarDays.jsx";
-import CalendarDates from "./CalendarDates.jsx";
+import CalendarHeader from "./CalendarHeader";
+import CalendarDays from "./CalendarDays";
+import CalendarDates from "./CalendarDates";
+import type { Lesson } from "../../types/domain";
+
+interface CalendarProps {
+  currentDate: Date;
+  onMonthChange: (value: Date) => void;
+  lessons?: Lesson[];
+  onAddLesson?: (lesson: Lesson) => void;
+  title?: string;
+}
 
 export default function Calendar({
   currentDate,
@@ -9,7 +18,7 @@ export default function Calendar({
   lessons = [],
   onAddLesson,
   title = "",
-}) {
+}: CalendarProps) {
   return (
     <div className="calendar">
       {title && <h1 className="calendar__title">{title}</h1>}

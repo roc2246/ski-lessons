@@ -1,4 +1,12 @@
-export default function CalendarNav({ dir, onClick, arrow }) {
+export default function CalendarNav({
+  dir,
+  onClick,
+  arrow,
+}: {
+  dir: "next" | "prev";
+  onClick: () => void;
+  arrow: string;
+}) {
   return (
     <button
       className={`calendar__nav calendar__nav--${dir}`}

@@ -1,6 +1,7 @@
 import * as lessonLib from "../utils/calendar-library";
+import type { Lesson as LessonType } from "../types/domain";
 
-function formatLessonDate(value) {
+function formatLessonDate(value: unknown) {
   const datePart = String(value ?? "").slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
     return "";
@@ -10,7 +11,12 @@ function formatLessonDate(value) {
   return `${month}/${day}/${year}`;
 }
 
-export default function Lesson({ lesson, onLessonAdded }) {
+interface LessonProps {
+  lesson: LessonType;
+  onLessonAdded?: (lesson: LessonType) => void;
+}
+
+export default function Lesson({ lesson, onLessonAdded }: LessonProps) {
   const handleAddLesson = async () => {
     try {
       const updatedLesson = await lessonLib.addLesson(lesson);

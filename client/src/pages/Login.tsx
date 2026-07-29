@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Field from "../components/Field.jsx";
-import SubmitBtn from "../components/buttons/SubmitBtn.jsx";
-import * as lib from "../utils/auth-library.js";
+import Field from "../components/Field";
+import SubmitBtn from "../components/buttons/SubmitBtn";
+import * as lib from "../utils/auth-library";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -15,7 +16,7 @@ function Login() {
     if (token) navigate("/instructor");
   }, [navigate]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -39,12 +40,12 @@ function Login() {
         <Field 
           type="username" 
           value={username} 
-          onChange={(e) => setUsername(e.target.value)} 
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)} 
         />
         <Field 
           type="password" 
           value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} 
         />
 
         <SubmitBtn type="login">Login</SubmitBtn>

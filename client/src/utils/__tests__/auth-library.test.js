@@ -1,4 +1,4 @@
-import * as lib from "../auth-library.js";
+import * as lib from "../auth-library";
 import { describe, it, vi, expect, beforeEach, afterEach } from "vitest";
 
 let store = {};

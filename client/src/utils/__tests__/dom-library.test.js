@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, it, expect } from "vitest";
-import { createOption } from "../dom-library.js";
+import { createOption } from "../dom-library";
 
 describe("createOption", () => {
   it("creates and appends an option element with the provided value and text", () => {

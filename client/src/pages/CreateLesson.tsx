@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
-import * as adminLib from "../utils/admin-library.js";
-import CreateLessonField from "../components/CreateLessonField.jsx";
+import * as adminLib from "../utils/admin-library";
+import CreateLessonField from "../components/CreateLessonField";
+import type { LessonMutationInput, User } from "../types/domain";
 
 function CreateLesson() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [status, setStatus] = useState("");
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LessonMutationInput>({
     type: "beginner",
     date: "",
     timeLength: "9-12", // default value
@@ -30,13 +32,13 @@ function CreateLesson() {
   }, []);
 
   // Handle input/select changes
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: name === "guests" ? Number(value) : value }));
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Force defaults if somehow blank
@@ -139,7 +141,7 @@ function CreateLesson() {
           onChange={handleChange}
           options={[
             { value: "None", label: "None" },
-            ...users.map((u) => ({ value: u._id, label: u.username })),
+            ...users.map((u: User) => ({ value: u._id, label: u.username })),
           ]}
           required
         />

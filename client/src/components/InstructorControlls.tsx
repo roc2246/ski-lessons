@@ -2,8 +2,7 @@ import { Link } from "react-router-dom";
 import GeneralBtn from "./buttons/GeneralBtn";
 import * as lib from "../utils/auth-library";
 
-export default function InstructorControlls({ admin }) {
-  const token = localStorage.getItem("token"); // ✅ always grab fresh token
+export default function InstructorControlls({ admin }: { admin: boolean }) {
 
   return (
     <section className="instructor__controls">
@@ -12,7 +11,7 @@ export default function InstructorControlls({ admin }) {
       <GeneralBtn
         type="secondary"
         onClick={async () => {
-          await lib.logout(token); // ✅ uses token from localStorage
+          await lib.logout(); // ✅ uses token from localStorage
           window.location.href = "/"; // ✅ hard reload clears app state
         }}
       >

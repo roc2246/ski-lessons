@@ -1,4 +1,13 @@
-function decodeTokenPayload(token) {
+import type {
+  ApiErrorResponse,
+  AuthState,
+  AuthTokenPayload,
+  Lesson,
+  LessonMutationInput,
+  User,
+} from "../types/domain";
+
+function decodeTokenPayload(token: string): AuthTokenPayload | null {
   try {
     const payload = token?.split(".")[1];
 
@@ -14,7 +23,7 @@ function decodeTokenPayload(token) {
   }
 }
 
-export function getStoredAuthState() {
+export function getStoredAuthState(): AuthState {
   const token = localStorage.getItem("token");
 
   if (!token) {
@@ -35,7 +44,7 @@ export function getStoredAuthState() {
   };
 }
 
-export async function isAdmin(token) {
+export async function isAdmin(token: string): Promise<boolean> {
   if (!token) {
     throw new Error("No auth token provided");
   }
@@ -49,20 +58,20 @@ export async function isAdmin(token) {
       },
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as { message?: string; credentials?: { admin?: boolean } };
 
     if (!res.ok) {
       throw new Error(data.message || "Failed to retrieve admin status");
     }
 
-    return data.credentials.admin;
+    return data.credentials?.admin === true;
   } catch (error) {
     console.error("Error checking admin status:", error);
     throw error;
   }
 }
 
-export async function getUsers() {
+export async function getUsers(): Promise<User[]> {
   const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("No auth token provided");
@@ -77,7 +86,7 @@ export async function getUsers() {
       },
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as { message?: string; users?: User[] };
 
     if (!res.ok) {
       throw new Error(data.message || "Failed to retrieve users");
@@ -94,7 +103,7 @@ export async function getUsers() {
   }
 }
 
-export async function getUser(userId) {
+export async function getUser(userId: string): Promise<User> {
   const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("No auth token provided");
@@ -109,7 +118,7 @@ export async function getUser(userId) {
       },
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as { message?: string; user?: User };
 
     if (!res.ok) {
       throw new Error(data.message || "Failed to retrieve user");
@@ -126,7 +135,7 @@ export async function getUser(userId) {
   }
 }
 
-export async function lessonCreate(newLesson) {
+export async function lessonCreate(newLesson: LessonMutationInput): Promise<Lesson> {
   const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("No auth token provided");
@@ -151,7 +160,7 @@ export async function lessonCreate(newLesson) {
       body: JSON.stringify({ lessonData }),
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as { lesson?: Lesson; message?: string };
 
     if (res.ok) {
       console.log("Lesson created successfully:", data.lesson);
@@ -166,7 +175,7 @@ export async function lessonCreate(newLesson) {
   }
 }
 
-export async function lessonDelete(lessonId) {
+export async function lessonDelete(lessonId: string): Promise<{ success?: boolean; message?: string; lesson?: Lesson }> {
   const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("No auth token provided");
@@ -181,7 +190,7 @@ export async function lessonDelete(lessonId) {
       },
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as { success?: boolean; message?: string; lesson?: Lesson };
 
     if (res.ok) {
       console.log("Lesson deleted successfully:", data);
@@ -196,7 +205,7 @@ export async function lessonDelete(lessonId) {
   }
 }
 
-export async function lessonUpdate(lessonId, updatedLesson) {
+export async function lessonUpdate(lessonId: string, updatedLesson: LessonMutationInput): Promise<Lesson> {
   const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("No auth token provided");
@@ -221,10 +230,10 @@ export async function lessonUpdate(lessonId, updatedLesson) {
       body: JSON.stringify({ lessonData }),
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as { lesson?: Lesson; message?: string };
 
     if (res.ok) {
-      return data.lesson;
+      return data.lesson as Lesson;
     }
 
     throw new Error(data.message || "Failed to update lesson");

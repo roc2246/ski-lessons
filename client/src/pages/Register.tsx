@@ -1,8 +1,9 @@
 import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import * as lib from "../utils/auth-library"; // assuming your auth-library has a register() function
 import { useNavigate, Link } from "react-router-dom"; // for navigation after register
 import Field from "../components/Field";
-import SubmitBtn from "../components/buttons/SubmitBtn.jsx";
+import SubmitBtn from "../components/buttons/SubmitBtn";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -10,7 +11,7 @@ function Register() {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await lib.register(username, password, isAdmin);
@@ -29,19 +30,19 @@ function Register() {
         <Field
           type="username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
         />
 
         <Field
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
         />
 
         <Field
           type="checkbox"
           value={""}
-          onChange={(e) => setIsAdmin(e.target.checked)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setIsAdmin(e.target.checked)}
         />
 
         <SubmitBtn type="new-user">Register</SubmitBtn>

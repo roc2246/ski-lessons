@@ -1,7 +1,13 @@
-// src/utils/auth-library.js
+import type { ApiErrorResponse } from "../types/domain";
+
+interface LoginResponse {
+  token?: string;
+  message?: string;
+  error?: string;
+}
 
 // --------------------- LOGIN ---------------------
-export async function login(username, password) {
+export async function login(username: string, password: string): Promise<LoginResponse | null> {
   try {
     const res = await fetch("/api/auth/login", {
       method: "POST",
@@ -10,7 +16,7 @@ export async function login(username, password) {
     });
 
     const text = await res.text();
-    const data = text ? JSON.parse(text) : null;
+    const data = (text ? JSON.parse(text) : null) as LoginResponse | null;
 
     if (!res.ok) {
       alert(data?.error || "Login failed"); // match test
@@ -27,7 +33,9 @@ export async function login(username, password) {
     return data;
   } catch (error) {
     console.error("Error during login:", error);
-    alert(error.message || "Something went wrong during login");
+    const err = error as Error;
+    alert(err.message || "Something went wrong during login");
+    return null;
   }
 }
 
@@ -56,7 +64,7 @@ export async function logout() {
 
 
 // --------------------- REGISTER ---------------------
-export async function register(username, password, admin) {
+export async function register(username: string, password: string, admin: boolean) {
   try {
     const res = await fetch("/api/auth/register", {
       method: "POST",
@@ -64,7 +72,7 @@ export async function register(username, password, admin) {
       body: JSON.stringify({ username, password, admin }),
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as ApiErrorResponse;
 
     if (res.ok) {
       alert(`${username} registered`);

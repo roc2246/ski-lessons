@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
 import { Link } from "react-router-dom";
-import * as adminLib from "../utils/admin-library.js";
-import * as calendarLib from "../utils/calendar-library.js";
+import * as adminLib from "../utils/admin-library";
+import * as calendarLib from "../utils/calendar-library";
+import type { Lesson, User } from "../types/domain";
 
-function formatLessonDate(value) {
+function formatLessonDate(value: unknown) {
   if (value instanceof Date) {
     return `${value.getMonth() + 1}/${value.getDate()}/${value.getFullYear()}`;
   }
@@ -18,10 +20,10 @@ function formatLessonDate(value) {
 }
 
 function DeleteLesson() {
-  const [lessons, setLessons] = useState([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
   const [status, setStatus] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [userLookup, setUserLookup] = useState({});
+  const [userLookup, setUserLookup] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function fetchLessons() {
@@ -39,7 +41,7 @@ function DeleteLesson() {
         const users = await adminLib.getUsers();
 
         const lookup = Object.fromEntries(
-          users.map((user) => [user._id, user.username])
+          users.map((user: User) => [user._id, user.username])
         );
 
         setUserLookup(lookup);
@@ -52,7 +54,7 @@ function DeleteLesson() {
     fetchUsers();
   }, []);
 
-  const handleDelete = async (lessonId) => {
+  const handleDelete = async (lessonId: string) => {
     const confirmed = window.confirm(
       "Are you sure you want to permanently delete this lesson?"
     );
@@ -75,7 +77,7 @@ function DeleteLesson() {
     }
   };
 
-  const filteredLessons = lessons.filter((lesson) => {
+  const filteredLessons = lessons.filter((lesson: Lesson) => {
     const query = searchTerm.trim().toLowerCase();
 
     if (!query) return true;
@@ -121,7 +123,7 @@ function DeleteLesson() {
             className="delete-lessons__search"
             type="search"
             value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchTerm(event.target.value)}
             placeholder="Search by type, date, time, or instructor"
           />
 
@@ -153,7 +155,7 @@ function DeleteLesson() {
               </p>
             </div>
           ) : (
-            filteredLessons.map((lesson) => {
+            filteredLessons.map((lesson: Lesson) => {
               const assignedToLabel = lesson.assignedTo
                 ? userLookup[lesson.assignedTo] || lesson.assignedTo
                 : "Unassigned";

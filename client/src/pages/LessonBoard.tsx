@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Calendar from "../components/calendar-dir/Calendar";
-import * as lib from "../utils/calendar-library.js";
-import LessonBoardControlls from "../components/LessonBoardControlls.jsx";
+import * as lib from "../utils/calendar-library";
+import LessonBoardControlls from "../components/LessonBoardControlls";
+import type { Lesson } from "../types/domain";
 
 function LessonBoard() {
   const navigate = useNavigate();
   const assignedTo = "None";
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [lessons, setLessons] = useState([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -29,7 +30,7 @@ function LessonBoard() {
     fetchLessons();
   }, [currentDate]);
 
-  const handleLessonAdded = (updatedLesson) => {
+  const handleLessonAdded = (updatedLesson: Lesson) => {
     setLessons((currentLessons) =>
       currentLessons.filter((lesson) => lesson._id !== updatedLesson._id)
     );

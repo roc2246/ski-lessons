@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
-import * as adminLib from "../utils/admin-library.js";
-import * as calendarLib from "../utils/calendar-library.js";
+import * as adminLib from "../utils/admin-library";
+import * as calendarLib from "../utils/calendar-library";
+import type { Lesson, LessonMutationInput, User } from "../types/domain";
 
-function formatDateForInput(value) {
+function formatDateForInput(value: unknown) {
   if (!value) return "";
 
   // Keep calendar dates timezone-safe by working from YYYY-MM-DD strings.
@@ -12,7 +14,7 @@ function formatDateForInput(value) {
   return datePattern.test(datePart) ? datePart : "";
 }
 
-function formatDateForDisplay(value) {
+function formatDateForDisplay(value: unknown) {
   const datePart = formatDateForInput(value);
   if (!datePart) return "";
 
@@ -20,7 +22,7 @@ function formatDateForDisplay(value) {
   return `${month}/${day}/${year}`;
 }
 
-function buildLessonLabel(lesson, userLookup) {
+function buildLessonLabel(lesson: Lesson, userLookup: Record<string, string>) {
   const assignedToLabel = lesson.assignedTo
     ? userLookup[lesson.assignedTo] || lesson.assignedTo
     : "Unassigned";
@@ -29,11 +31,11 @@ function buildLessonLabel(lesson, userLookup) {
 }
 
 function UpdateLesson() {
-  const [lessons, setLessons] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedLessonId, setSelectedLessonId] = useState("");
   const [status, setStatus] = useState("");
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LessonMutationInput>({
     type: "beginner",
     date: "",
     timeLength: "9-12",
@@ -42,7 +44,7 @@ function UpdateLesson() {
   });
 
   const userLookup = useMemo(
-    () => Object.fromEntries(users.map((user) => [user._id, user.username])),
+    () => Object.fromEntries(users.map((user: User) => [user._id, user.username])),
     [users]
   );
   const isErrorStatus = status.toLowerCase().includes("failed");
@@ -74,7 +76,7 @@ function UpdateLesson() {
   useEffect(() => {
     if (!selectedLessonId) return;
 
-    const selected = lessons.find((lesson) => lesson._id === selectedLessonId);
+    const selected = lessons.find((lesson: Lesson) => lesson._id === selectedLessonId);
     if (!selected) return;
 
     setFormData({
@@ -86,7 +88,7 @@ function UpdateLesson() {
     });
   }, [selectedLessonId, lessons]);
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     setFormData((previous) => ({
       ...previous,
@@ -94,7 +96,7 @@ function UpdateLesson() {
     }));
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!selectedLessonId) {
@@ -108,7 +110,7 @@ function UpdateLesson() {
       const updatedLesson = await adminLib.lessonUpdate(selectedLessonId, formData);
 
       setLessons((previousLessons) =>
-        previousLessons.map((lesson) =>
+        previousLessons.map((lesson: Lesson) =>
           lesson._id === selectedLessonId ? updatedLesson : lesson
         )
       );
@@ -149,7 +151,7 @@ function UpdateLesson() {
             onChange={(event) => setSelectedLessonId(event.target.value)}
             required
           >
-            {lessons.map((lesson) => (
+            {lessons.map((lesson: Lesson) => (
               <option key={lesson._id} value={lesson._id}>
                 {buildLessonLabel(lesson, userLookup)}
               </option>
@@ -214,7 +216,7 @@ function UpdateLesson() {
             required
           >
             <option value="None">None</option>
-            {users.map((user) => (
+            {users.map((user: User) => (
               <option key={user._id} value={user._id}>
                 {user.username}
               </option>

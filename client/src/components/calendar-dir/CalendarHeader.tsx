@@ -2,10 +2,16 @@ import React from "react";
 import CalendarNav from "./CalendarNav";
 import CalendarMonthYear from "./CalendarMonthYear";
 
-export default function CalendarHeader({ currentDate, onMonthChange }) {
+export default function CalendarHeader({
+  currentDate,
+  onMonthChange,
+}: {
+  currentDate: Date;
+  onMonthChange: (value: Date) => void;
+}) {
   const monthYearString = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
 
-  const handleMonth = (dir) => {
+  const handleMonth = (dir: number) => {
     const newDate = new Date(currentDate);
     newDate.setMonth(currentDate.getMonth() + dir);
     onMonthChange(newDate);

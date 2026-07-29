@@ -1,8 +1,16 @@
 import { useState, useEffect } from "react";
+import type { MouseEvent } from "react";
 import Lesson from "../Lesson";
+import type { Lesson as LessonType } from "../../types/domain";
 
-function CalendarDate({ day, lessons = [], onAddLesson }) {
-  const [localLessons, setLocalLessons] = useState([]);
+interface CalendarDateProps {
+  day: Date;
+  lessons?: LessonType[];
+  onAddLesson?: (lesson: LessonType) => void;
+}
+
+function CalendarDate({ day, lessons = [], onAddLesson }: CalendarDateProps) {
+  const [localLessons, setLocalLessons] = useState<LessonType[]>([]);
   const [showLessons, setShowLessons] = useState(false);
 
   useEffect(() => {
@@ -15,7 +23,7 @@ function CalendarDate({ day, lessons = [], onAddLesson }) {
     }
   };
 
-  const handleLessonAdded = (updatedLesson) => {
+  const handleLessonAdded = (updatedLesson: LessonType) => {
     setLocalLessons((prev) =>
       prev.filter((lesson) => lesson._id !== updatedLesson._id),
     );
@@ -43,7 +51,7 @@ function CalendarDate({ day, lessons = [], onAddLesson }) {
       <p>{lessonCount} {lessonCount === 1 ? "lesson" : "lessons"}</p>
 
       {showLessons && (
-        <div className="module" onClick={(e) => e.stopPropagation()}>
+        <div className="module" onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
           <button className="btn" onClick={() => setShowLessons(false)}>
             X
           </button>

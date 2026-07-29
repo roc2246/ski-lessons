@@ -1,17 +1,18 @@
 import CalendarDate from "./CalendarDate";
+import type { Lesson } from "../../types/domain";
 
-function getDateParts(dateString) {
+function getDateParts(dateString: string) {
   const datePart = String(dateString).slice(0, 10);
   return datePart.split("-").map(Number);
 }
 
 
-function parseLocalDate(dateString) {
+function parseLocalDate(dateString: string): Date {
   const [year, month, day] = getDateParts(dateString);
   return new Date(year, month - 1, day);
 }
 
-function isSameCalendarDay(dateA, dateB) {
+function isSameCalendarDay(dateA: Date, dateB: Date): boolean {
   return (
     dateA.getFullYear() === dateB.getFullYear() &&
     dateA.getMonth() === dateB.getMonth() &&
@@ -23,6 +24,10 @@ export default function CalendarDates({
   currentDate,
   lessons = [],
   onAddLesson,
+}: {
+  currentDate: Date;
+  lessons?: Lesson[];
+  onAddLesson?: (lesson: Lesson) => void;
 }) {
   const firstDayOffset = new Date(
     currentDate.getFullYear(),
@@ -51,7 +56,7 @@ export default function CalendarDates({
         />
       ))}
       {dates.map((day) => {
-        const lessonsForDay = lessons.filter((lesson) => {
+        const lessonsForDay = lessons.filter((lesson: Lesson) => {
           const lessonDate = parseLocalDate(lesson.date);
           return isSameCalendarDay(lessonDate, day);
         });

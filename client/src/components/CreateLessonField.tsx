@@ -1,5 +1,21 @@
 import React from "react";
 
+interface LessonFieldOption {
+  value: string | number;
+  label: string;
+}
+
+interface CreateLessonFieldProps {
+  label: string;
+  name: string;
+  type?: string;
+  value: string | number;
+  onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  options?: LessonFieldOption[];
+  min?: number;
+  required?: boolean;
+}
+
 export default function CreateLessonField({
   label,
   name,
@@ -9,7 +25,7 @@ export default function CreateLessonField({
   options = [],
   min,
   required = false,
-}) {
+}: CreateLessonFieldProps) {
   // Ensure select always has a valid value
   const selectValue = type === "select" ? value || options[0]?.value || "" : value;
 

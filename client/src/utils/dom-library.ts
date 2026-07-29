@@ -1,4 +1,4 @@
-export function createOption(control, value, innerText) {
+export function createOption(control: HTMLSelectElement, value: string, innerText: string) {
   const opt = document.createElement("option");
   opt.value = value;
   opt.innerText = innerText;

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import * as lib from "../calendar-library.js";
+import * as lib from "../calendar-library";
 
 // ========================
 // Global Mocks
