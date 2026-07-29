@@ -12,7 +12,7 @@
     "heroku-postbuild": "cd client && npm install --include=dev && npm run build"
   },
   "engines": {
-    "node": "22.x"
+    "node": ">=20 <23"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
