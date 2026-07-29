@@ -1,0 +1,272 @@
+import * as utilities from "../utilities/index.js";
+import { errorEmail } from "../email/index.js";
+
+const CONFLICTING_TIME_LENGTHS: Record<string, string[]> = {
+  "9-12": ["9-12", "9-4"],
+  "1-4": ["1-4", "9-4"],
+  "9-4": ["9-12", "1-4", "9-4"],
+};
+
+function createHttpError(message: string, status: number): Error & { status?: number } {
+  const error = new Error(message) as Error & { status?: number };
+  error.status = status;
+  return error;
+}
+
+function getDateKey(value: string | Date | null | undefined) {
+  const date = new Date(value ?? "");
+  return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
+}
+
+async function notifyIfServerError(subject: string, error: unknown) {
+  const status = Number.isInteger((error as { status?: number })?.status) ? (error as { status?: number }).status : 500;
+  if (status && status >= 500) {
+    await errorEmail(subject, error instanceof Error ? error.toString() : String(error));
+  }
+}
+
+export async function createLesson(lessonData: Record<string, unknown>) {
+  try {
+    const requiredFields = ["type", "date", "timeLength", "guests"] as const;
+
+    for (const field of requiredFields) {
+      if (lessonData[field] === undefined || lessonData[field] === null) {
+        throw new Error(`Required fields missing: ${field.charAt(0).toUpperCase()}${field.slice(1)}`);
+      }
+    }
+
+    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+
+    const assignedTo = lessonData.assignedTo ?? null;
+
+    if (assignedTo !== null) {
+      const exists = await Lesson.exists({
+        date: lessonData.date,
+        assignedTo,
+        timeLength: {
+          $in: CONFLICTING_TIME_LENGTHS[String(lessonData.timeLength)] ?? [String(lessonData.timeLength)],
+        },
+      });
+
+      const errorMessage = `This instructor is already booked on ${lessonData.date} during ${lessonData.timeLength}.`;
+
+      if (exists) {
+        throw createHttpError(errorMessage, 409);
+      }
+    }
+
+    const newLesson = new Lesson({
+      ...lessonData,
+      assignedTo,
+      date: new Date(String(lessonData.date)),
+    });
+
+    await newLesson.save();
+
+    return newLesson;
+  } catch (error) {
+    await notifyIfServerError("Failed to create lesson", error);
+    throw error;
+  }
+}
+
+export async function retrieveLessons(param: Record<string, unknown>, limit = 50, skip = 0) {
+  try {
+    if (typeof param !== "object" || param === null || Array.isArray(param)) {
+      throw new Error("Param must be a object");
+    }
+
+    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+
+    return await Lesson.find(param).limit(limit).skip(skip).lean();
+  } catch (error) {
+    await notifyIfServerError("Failed to retrieve lessons", error);
+    throw error;
+  }
+}
+
+export async function retrieveAvailableLessonsForUser(userId: string, limit = 50, skip = 0) {
+  try {
+    const [availableLessons, userLessons] = await Promise.all([
+      retrieveLessons({ assignedTo: null }, limit, skip),
+      retrieveLessons({ assignedTo: userId }),
+    ]);
+
+    return availableLessons.filter((lesson: any) => {
+      const lessonDateKey = getDateKey(lesson.date);
+      if (!lessonDateKey) return false;
+
+      return !userLessons.some((userLesson: any) => {
+        const userLessonDateKey = getDateKey(userLesson.date);
+        if (!userLessonDateKey || userLessonDateKey !== lessonDateKey) {
+          return false;
+        }
+
+        const conflicts = CONFLICTING_TIME_LENGTHS[lesson.timeLength] || [];
+        return conflicts.includes(userLesson.timeLength);
+      });
+    });
+  } catch (error) {
+    await notifyIfServerError("Failed to retrieve available lessons", error);
+    throw error;
+  }
+}
+
+export async function retrieveUsers() {
+  try {
+    const User = utilities.getModel(utilities.UserSchema, "User");
+    return await User.find({}).select("-password").lean();
+  } catch (error) {
+    await notifyIfServerError("Failed to retrieve users", error);
+    throw error;
+  }
+}
+
+export async function updateLesson(id: string, lessonData: Record<string, unknown>) {
+  try {
+    if (typeof id !== "string") {
+      throw new Error("Lesson ID must be a string");
+    }
+
+    if (typeof lessonData !== "object" || lessonData === null || Array.isArray(lessonData)) {
+      throw new Error("Lesson data must be an object");
+    }
+
+    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+    const existingLesson = await Lesson.findById(id).lean();
+
+    if (!existingLesson) {
+      throw createHttpError("Lesson not found", 404);
+    }
+
+    const assignedTo = lessonData.assignedTo ?? null;
+    const parsedDate = new Date(String(lessonData.date));
+    const conflictingWindows = CONFLICTING_TIME_LENGTHS[String(lessonData.timeLength)] || [String(lessonData.timeLength)];
+
+    if (assignedTo !== null) {
+      const conflict = await Lesson.findOne({
+        _id: { $ne: id },
+        assignedTo,
+        date: parsedDate,
+        timeLength: {
+          $in: conflictingWindows,
+        },
+      });
+
+      if (conflict) {
+        throw createHttpError(
+          `This instructor is already booked on ${lessonData.date} during ${lessonData.timeLength}.`,
+          409
+        );
+      }
+    }
+
+    const updated = await Lesson.findByIdAndUpdate(
+      id,
+      {
+        ...lessonData,
+        assignedTo,
+        date: parsedDate,
+      },
+      { returnDocument: "after", runValidators: true }
+    );
+
+    if (!updated) {
+      throw createHttpError("Lesson not found", 404);
+    }
+
+    return updated;
+  } catch (error) {
+    await notifyIfServerError("Failed to update lesson", error);
+    throw error;
+  }
+}
+
+export async function switchLessonAssignment(id: string, newUserId: string | null) {
+  try {
+    if (typeof id !== "string") {
+      throw new Error("Lesson ID must be a string");
+    }
+
+    if (newUserId !== null && typeof newUserId !== "string") {
+      throw createHttpError("New User ID must be a string or null", 400);
+    }
+
+    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+
+    const lessonToAssign = await Lesson.findById(id).lean();
+
+    if (!lessonToAssign) {
+      throw createHttpError("Lesson not found", 404);
+    }
+
+    if (newUserId !== null) {
+      const conflictingLesson = await Lesson.findOne({
+        _id: { $ne: id },
+        assignedTo: newUserId,
+        date: lessonToAssign.date,
+        timeLength: {
+          $in: CONFLICTING_TIME_LENGTHS[lessonToAssign.timeLength as string],
+        },
+      });
+
+      if (conflictingLesson) {
+        throw createHttpError(
+          `User is already assigned to a lesson on ${lessonToAssign.date} during ${lessonToAssign.timeLength}`,
+          409
+        );
+      }
+    }
+
+    const updated = await Lesson.findOneAndUpdate(
+      { _id: id, assignedTo: null },
+      { $set: { assignedTo: newUserId } },
+      { returnDocument: "after" }
+    );
+
+    if (!updated) {
+      throw createHttpError("Lesson already assigned", 409);
+    }
+
+    return updated;
+  } catch (error) {
+    await notifyIfServerError("Failed to switch lesson assignment", error);
+    throw error;
+  }
+}
+
+export async function unassignAllLessons(userId: string) {
+  try {
+    if (typeof userId !== "string") {
+      throw new Error("User ID must be a string");
+    }
+
+    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+    await Lesson.updateMany({ assignedTo: userId }, { assignedTo: null });
+  } catch (error) {
+    await notifyIfServerError("Failed to unassign lessons", error);
+    throw error;
+  }
+}
+
+export async function removeLesson(id: string) {
+  try {
+    if (typeof id !== "string") {
+      throw new Error("Lesson ID must be a string");
+    }
+
+    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+
+    const deleted = await Lesson.findByIdAndDelete(id);
+    if (!deleted) throw createHttpError("Lesson not found or already deleted", 404);
+
+    return {
+      success: true,
+      message: "Lesson successfully removed",
+      lesson: deleted,
+    };
+  } catch (error) {
+    await notifyIfServerError("Failed to remove lesson", error);
+    throw error;
+  }
+}
