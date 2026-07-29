@@ -41,8 +41,20 @@ function mongoSanitizeMiddleware(req: Request, _res: Response, next: NextFunctio
   next();
 }
 
-await dbConnect();
-await ensureLocalAdminUser();
+let databaseReady = false;
+
+try {
+  await dbConnect();
+  databaseReady = true;
+} catch (error) {
+  console.warn("MongoDB unavailable; continuing in degraded mode.", error);
+}
+
+try {
+  await ensureLocalAdminUser();
+} catch (error) {
+  console.warn("Admin bootstrap skipped due to startup issue.", error);
+}
 
 app.use(helmet());
 app.use(express.json());
@@ -68,4 +80,7 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
+  if (!databaseReady) {
+    console.warn("MongoDB is not available; API routes that depend on the database will fail until the connection is restored.");
+  }
 });
