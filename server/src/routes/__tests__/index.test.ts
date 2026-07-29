@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import router from "../routes/index.js";
+import router from "../index.js";
 
 vi.mock("express", () => {
   const routeHandlers = new Map<string, Array<(...args: unknown[]) => unknown>>();
