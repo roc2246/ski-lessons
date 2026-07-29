@@ -211,7 +211,7 @@ function UpdateLesson() {
           <select
             id="assignedTo"
             name="assignedTo"
-            value={formData.assignedTo}
+            value={formData.assignedTo ?? "None"}
             onChange={handleChange}
             required
           >

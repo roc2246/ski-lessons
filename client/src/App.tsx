@@ -20,19 +20,20 @@ function App() {
       setAdmin(false);
       return;
     }
+    const authToken = token;
 
     let cancelled = false;
 
     async function syncAdminState() {
       try {
-        const isAdmin = await lib.isAdmin(token);
+        const isAdmin = await lib.isAdmin(authToken);
         if (!cancelled) {
           setAdmin(isAdmin);
         }
       } catch (error) {
         console.error("Failed to determine admin status:", error);
 
-        const message = String(error?.message || "").toLowerCase();
+        const message = String((error as { message?: string })?.message || "").toLowerCase();
         const isAuthError = message.includes("unauthorized") || message.includes("token");
 
         if (!cancelled && isAuthError) {

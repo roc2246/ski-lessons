@@ -163,6 +163,9 @@ export async function lessonCreate(newLesson: LessonMutationInput): Promise<Less
     const data = (await res.json()) as { lesson?: Lesson; message?: string };
 
     if (res.ok) {
+      if (!data.lesson) {
+        throw new Error("Malformed response: missing lesson field");
+      }
       console.log("Lesson created successfully:", data.lesson);
       return data.lesson;
     } else {

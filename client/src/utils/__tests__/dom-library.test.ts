@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+// @ts-nocheck
 
 import { describe, it, expect } from "vitest";
 import { createOption } from "../dom-library";

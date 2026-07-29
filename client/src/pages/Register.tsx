@@ -18,7 +18,7 @@ function Register() {
       navigate("/"); // go back to login page
     } catch (err) {
       console.error(err);
-      alert(err.message || "Registration failed");
+      alert((err as { message?: string })?.message || "Registration failed");
     }
   };
 

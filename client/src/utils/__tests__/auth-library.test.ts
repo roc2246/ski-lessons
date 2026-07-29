@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as lib from "../auth-library";
 import { describe, it, vi, expect, beforeEach, afterEach } from "vitest";
 
@@ -78,6 +80,15 @@ describe("login", () => {
 
     expect(alert).toHaveBeenCalledWith("Invalid credentials");
     expect(localStorage.getItem("token")).toBeNull();
+  });
+
+  it("should return null when login request throws", async () => {
+    fetch.mockRejectedValueOnce(new Error("Network down"));
+
+    const result = await lib.login("test", "test");
+
+    expect(result).toBeNull();
+    expect(alert).toHaveBeenCalledWith("Network down");
   });
 });
 

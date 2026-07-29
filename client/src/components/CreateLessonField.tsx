@@ -9,7 +9,7 @@ interface CreateLessonFieldProps {
   label: string;
   name: string;
   type?: string;
-  value: string | number;
+  value: string | number | null;
   onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   options?: LessonFieldOption[];
   min?: number;
@@ -26,8 +26,9 @@ export default function CreateLessonField({
   min,
   required = false,
 }: CreateLessonFieldProps) {
+  const normalizedValue = value ?? "";
   // Ensure select always has a valid value
-  const selectValue = type === "select" ? value || options[0]?.value || "" : value;
+  const selectValue = type === "select" ? normalizedValue || options[0]?.value || "" : normalizedValue;
 
   return (
     <div className="create-lesson__field">
@@ -45,7 +46,7 @@ export default function CreateLessonField({
           <input
             type={type}
             name={name}
-            value={value}
+            value={normalizedValue}
             onChange={onChange}
             min={min}
             required={required}

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {
   describe,
   it,
@@ -204,6 +206,17 @@ describe("lessonCreate", () => {
     expect(consoleSpy).toHaveBeenCalledWith("Error during lesson creation:", error);
 
     consoleSpy.mockRestore();
+  });
+
+  it("should throw if lesson field is missing on successful response", async () => {
+    globalThis.fetch.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ message: "ok" }),
+    });
+
+    await expect(
+      lib.lessonCreate({ type: "Beginner", date: "2025-12-20" })
+    ).rejects.toThrow("Malformed response: missing lesson field");
   });
 });
 
