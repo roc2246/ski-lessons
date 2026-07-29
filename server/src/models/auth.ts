@@ -153,6 +153,16 @@ export async function getUser(id: string) {
   }
 }
 
+export async function getUsers(userId?: string) {
+  try {
+    const User = utilities.getModel(utilities.UserSchema, "User");
+    const query = typeof userId === "string" ? { _id: { $ne: userId } } : {};
+    return await User.find(query).select("-password").lean();
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function logoutUser(token: string) {
   try {
     if (typeof token !== "string") {

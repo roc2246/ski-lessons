@@ -1,11 +1,12 @@
 export interface ErrorResponsePayload {
   message: string;
-  error: string;
+  error?: string;
+  [key: string]: unknown;
 }
 
 export interface ErrorResponseWriter {
   status(code: number): {
-    json(body: ErrorResponsePayload): unknown;
+    json(body: unknown): unknown;
   };
 }
 
