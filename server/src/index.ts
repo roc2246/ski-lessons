@@ -13,6 +13,7 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const clientDistPath = path.resolve(__dirname, "../../client/dist");
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -41,11 +42,11 @@ app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
 
 app.use("/api", routes);
-app.use(express.static(path.join(__dirname, "../client/dist")));
+app.use(express.static(clientDistPath));
 
 if (process.env.NODE_ENV === "production") {
   app.get(/.*/, (_req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+    res.sendFile(path.join(clientDistPath, "index.html"));
   });
 }
 
