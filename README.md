@@ -16,7 +16,7 @@ Full-stack MERN application for managing ski lesson bookings with role-based acc
 | Layer | Technology |
 | --- | --- |
 | Frontend | React 19, Vite, React Router |
-| Backend | Node.js, Express, Nodemon |
+| Backend | Node.js, Express, TypeScript, Nodemon |
 | Database | MongoDB with Mongoose |
 | Auth | JSON Web Tokens (JWT) |
 | Styling | SCSS + CSS modules/partials |
@@ -132,6 +132,7 @@ All endpoints are mounted under `/api`.
 | DELETE | `/api/users/me` | Authenticated | Delete current user and unassign their lessons |
 | GET | `/api/lessons` | Authenticated | Retrieve lessons (see lesson query behavior below) |
 | POST | `/api/lessons` | Admin | Create lesson |
+| PUT | `/api/lessons/:lessonId` | Admin | Update lesson |
 | PATCH | `/api/lessons/:lessonId` | Authenticated | Assign lesson to current user |
 | DELETE | `/api/lessons/:lessonId` | Admin | Remove lesson |
 | GET | `/api/users` | Admin | Retrieve all users (without passwords) |
@@ -192,7 +193,7 @@ Assign lesson payload:
 ### Lesson
 
 - `type: String`
-- `date: Date` (UTC)
+- `date: String` (calendar date in `YYYY-MM-DD` format)
 - `timeLength: String`
 - `guests: Number`
 - `assignedTo: ObjectId | null` (ref `User`)
@@ -212,21 +213,17 @@ cd server
 npm run migrate:lessons
 ```
 
-This script converts:
-
-- `date` string -> `Date`
-- `assignedTo: "None"` -> `null`
-- `assignedTo` ObjectId-like string -> `ObjectId`
+This script normalizes legacy records by converting `assignedTo: "None"` to `null`, coercing ObjectId-like `assignedTo` strings, and rewriting malformed date values through a safe parse path.
 
 ## Architecture Flow
 
 Request lifecycle:
 
-1. Route selection in `server/routes/index.js`
+1. Route selection in `server/src/routes/index.ts`
 2. Middleware execution (`authenticate`, `requireAdmin`, request validation)
-3. Controller orchestration (`server/controllers/*.js`)
-4. Model/data access (`server/models/*.js`)
-5. Utility and schema support (`server/utilities/*.js`)
+3. Controller orchestration (`server/src/controllers/*.ts`)
+4. Model/data access (`server/src/models/*.ts`)
+5. Utility and schema support (`server/src/utilities/*.ts`)
 
 Frontend/back-end split:
 
