@@ -44,7 +44,7 @@ app.use("/api", routes);
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
 if (process.env.NODE_ENV === "production") {
-  app.get("*", (_req: Request, res: Response) => {
+  app.get(/.*/, (_req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, "../client/dist/index.html"));
   });
 }
