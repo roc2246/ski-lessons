@@ -1,9 +1,12 @@
+import type { Request, Response } from "express";
 import * as models from "../models/index.js";
 import * as utilities from "../utilities/index.js";
 
-export async function manageCreateLesson(req: { body: { lessonData?: Record<string, unknown> } }, res: utilities.ErrorResponseWriter) {
+export async function manageCreateLesson(req: Request, res: Response) {
+  const lessonReq = req as Request & { body?: { lessonData?: Record<string, unknown> } };
+
   try {
-    const lessonData = { ...(req.body.lessonData ?? {}) };
+    const lessonData = { ...((lessonReq.body?.lessonData ?? {}) as Record<string, unknown>) };
     const createdLesson = await models.createLesson(lessonData);
     res.status(201).json({
       message: "Lesson created successfully",
@@ -15,10 +18,12 @@ export async function manageCreateLesson(req: { body: { lessonData?: Record<stri
   }
 }
 
-export async function manageUpdateLesson(req: { params?: { lessonId?: string }; body?: { lessonData?: Record<string, unknown> } }, res: utilities.ErrorResponseWriter) {
+export async function manageUpdateLesson(req: Request, res: Response) {
+  const lessonReq = req as Request & { params?: { lessonId?: string }; body?: { lessonData?: Record<string, unknown> } };
+
   try {
-    const { lessonId } = req.params ?? {};
-    const lessonData = { ...(req.body?.lessonData ?? {}) };
+    const { lessonId } = lessonReq.params ?? {};
+    const lessonData = { ...((lessonReq.body?.lessonData ?? {}) as Record<string, unknown>) };
     const updatedLesson = await models.updateLesson(lessonId as string, lessonData);
 
     res.status(200).json({
@@ -31,9 +36,11 @@ export async function manageUpdateLesson(req: { params?: { lessonId?: string }; 
   }
 }
 
-export async function manageLessonRetrieval(req: { user?: { userId?: string }; query?: Record<string, string | undefined> }, res: utilities.ErrorResponseWriter) {
+export async function manageLessonRetrieval(req: Request, res: Response) {
+  const lessonReq = req as Request & { user?: { userId?: string }; query?: Record<string, string | undefined> };
+
   try {
-    const assignedToParam = req.query?.assignedTo;
+    const assignedToParam = lessonReq.query?.assignedTo;
 
     let lessons;
     if (assignedToParam === "None") {
@@ -43,7 +50,7 @@ export async function manageLessonRetrieval(req: { user?: { userId?: string }; q
     } else if (assignedToParam) {
       lessons = await models.retrieveLessons({ assignedTo: assignedToParam });
     } else {
-      lessons = await models.retrieveLessons({ assignedTo: req.user?.userId });
+      lessons = await models.retrieveLessons({ assignedTo: lessonReq.user?.userId });
     }
 
     return res.status(200).json({
@@ -54,7 +61,7 @@ export async function manageLessonRetrieval(req: { user?: { userId?: string }; q
             ? "All lessons retrieved"
             : assignedToParam
               ? `Lessons retrieved for assignedTo=${assignedToParam}`
-              : `Lessons retrieved for user ID ${req.user?.userId}`,
+              : `Lessons retrieved for user ID ${lessonReq.user?.userId}`,
       lessons,
     });
   } catch (error) {
@@ -62,10 +69,12 @@ export async function manageLessonRetrieval(req: { user?: { userId?: string }; q
   }
 }
 
-export async function manageSwitchLessonAssignment(req: { params?: { lessonId?: string }; user?: { userId?: string } }, res: utilities.ErrorResponseWriter) {
+export async function manageSwitchLessonAssignment(req: Request, res: Response) {
+  const lessonReq = req as Request & { params?: { lessonId?: string }; user?: { userId?: string } };
+
   try {
-    const { lessonId } = req.params ?? {};
-    const newUserId = req.user?.userId ?? null;
+    const { lessonId } = lessonReq.params ?? {};
+    const newUserId = lessonReq.user?.userId ?? null;
     const updatedLesson = await models.switchLessonAssignment(lessonId as string, newUserId);
 
     res.status(200).json({
@@ -78,9 +87,11 @@ export async function manageSwitchLessonAssignment(req: { params?: { lessonId?: 
   }
 }
 
-export async function manageRemoveLesson(req: { params?: { lessonId?: string } }, res: utilities.ErrorResponseWriter) {
+export async function manageRemoveLesson(req: Request, res: Response) {
+  const lessonReq = req as Request & { params?: { lessonId?: string } };
+
   try {
-    const { lessonId } = req.params ?? {};
+    const { lessonId } = lessonReq.params ?? {};
     const result = await models.removeLesson(lessonId as string);
     res.status(200).json(result);
   } catch (error) {

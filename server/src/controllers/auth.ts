@@ -1,9 +1,12 @@
+import type { Request, Response } from "express";
 import * as models from "../models/index.js";
 import * as utilities from "../utilities/index.js";
 
-export async function manageNewUser(req: { body: { username?: unknown; password?: unknown } }, res: utilities.ErrorResponseWriter) {
+export async function manageNewUser(req: Request, res: Response) {
+  const authReq = req as Request & { body?: { username?: unknown; password?: unknown } };
+
   try {
-    const { username, password } = req.body;
+    const { username, password } = authReq.body ?? {};
     await models.newUser(username as string, password as string, false);
     res.status(201).json({ message: `${username} registered` });
   } catch (error) {
@@ -11,9 +14,11 @@ export async function manageNewUser(req: { body: { username?: unknown; password?
   }
 }
 
-export async function manageLogin(req: { body: { username?: unknown; password?: unknown } }, res: utilities.ErrorResponseWriter) {
+export async function manageLogin(req: Request, res: Response) {
+  const authReq = req as Request & { body?: { username?: unknown; password?: unknown } };
+
   try {
-    const { username, password } = req.body;
+    const { username, password } = authReq.body ?? {};
     const token = await models.loginUser(username as string, password as string);
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
@@ -21,18 +26,22 @@ export async function manageLogin(req: { body: { username?: unknown; password?: 
   }
 }
 
-export async function manageLogout(req: { token?: unknown }, res: utilities.ErrorResponseWriter) {
+export async function manageLogout(req: Request, res: Response) {
+  const authReq = req as Request & { token?: unknown };
+
   try {
-    await models.logoutUser(req.token as string);
+    await models.logoutUser(authReq.token as string);
     res.status(200).json({ message: "Successfully logged out" });
   } catch (error) {
     utilities.sendError(res, 500, "Logout failed", error);
   }
 }
 
-export async function decodeUser(req: { user?: { userId: string; username: string; admin: boolean } }, res: utilities.ErrorResponseWriter) {
+export async function decodeUser(req: Request, res: Response) {
+  const authReq = req as Request & { user?: { userId?: string; username?: string; admin?: boolean } };
+
   try {
-    const { userId, username, admin } = req.user ?? { userId: "", username: "", admin: false };
+    const { userId, username, admin } = authReq.user ?? { userId: "", username: "", admin: false };
     res.status(200).json({
       message: `Retrieved credentials for ${username}`,
       credentials: { userId, username, admin },
@@ -42,9 +51,11 @@ export async function decodeUser(req: { user?: { userId: string; username: strin
   }
 }
 
-export async function selfDeleteAccount(req: { user?: { username?: string; userId?: string } }, res: utilities.ErrorResponseWriter) {
+export async function selfDeleteAccount(req: Request, res: Response) {
+  const authReq = req as Request & { user?: { username?: string; userId?: string } };
+
   try {
-    const { username, userId } = req.user ?? {};
+    const { username, userId } = authReq.user ?? {};
     if (!username || !userId) {
       throw new Error("User credentials missing");
     }
@@ -58,9 +69,11 @@ export async function selfDeleteAccount(req: { user?: { username?: string; userI
   }
 }
 
-export async function manageGetUsers(req: { user?: { userId?: string } }, res: utilities.ErrorResponseWriter) {
+export async function manageGetUsers(req: Request, res: Response) {
+  const authReq = req as Request & { user?: { userId?: string } };
+
   try {
-    const { userId } = req.user ?? {};
+    const { userId } = authReq.user ?? {};
     const users = await models.getUsers(userId as string);
     res.status(200).json({ message: "Users retrieved successfully", users });
   } catch (error) {

@@ -1,14 +1,12 @@
+import type { Response } from "express";
+
 export interface ErrorResponsePayload {
   message: string;
   error?: string;
   [key: string]: unknown;
 }
 
-export interface ErrorResponseWriter {
-  status(code: number): {
-    json(body: unknown): unknown;
-  };
-}
+export type ErrorResponseWriter = Response;
 
 export function sendError(
   res: ErrorResponseWriter,

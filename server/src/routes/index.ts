@@ -1,0 +1,32 @@
+import express from "express";
+import * as controllers from "../controllers/index.js";
+import { manageGetUsers as manageUserDetail } from "../controllers/users.js";
+import {
+  authenticate,
+  requireAdmin,
+  validateRegisterRequest,
+  validateLoginRequest,
+  validateCreateLessonRequest,
+  validateUpdateLessonRequest,
+  validateAssignLessonRequest,
+} from "../middleware/index.js";
+
+const router = express.Router();
+
+router.post("/auth/register", validateRegisterRequest, controllers.manageNewUser);
+router.post("/auth/login", validateLoginRequest, controllers.manageLogin);
+router.post("/auth/logout", authenticate, controllers.manageLogout);
+
+router.get("/users/me", authenticate, controllers.decodeUser);
+router.delete("/users/me", authenticate, controllers.selfDeleteAccount);
+
+router.get("/lessons", authenticate, controllers.manageLessonRetrieval);
+router.post("/lessons", authenticate, requireAdmin, validateCreateLessonRequest, controllers.manageCreateLesson);
+router.put("/lessons/:lessonId", authenticate, requireAdmin, validateAssignLessonRequest, validateUpdateLessonRequest, controllers.manageUpdateLesson);
+router.patch("/lessons/:lessonId", authenticate, validateAssignLessonRequest, controllers.manageSwitchLessonAssignment);
+router.delete("/lessons/:lessonId", authenticate, requireAdmin, controllers.manageRemoveLesson);
+
+router.get("/users", authenticate, requireAdmin, controllers.manageUserRetrieval);
+router.get("/users/:userId", authenticate, requireAdmin, manageUserDetail);
+
+export default router;

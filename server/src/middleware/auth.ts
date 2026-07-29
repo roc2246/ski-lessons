@@ -1,3 +1,4 @@
+import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import * as utilities from "../utilities/index.js";
 import * as models from "../models/index.js";
@@ -8,19 +9,20 @@ interface AuthenticatedUser {
   admin?: boolean;
 }
 
-interface AuthRequest {
-  headers?: { authorization?: string };
+type AuthRequest = Request & {
   user?: AuthenticatedUser;
   token?: string;
-}
+};
 
 function hasName(error: unknown): error is { name: string } {
   return typeof error === "object" && error !== null && "name" in error && typeof (error as { name?: unknown }).name === "string";
 }
 
-export async function authenticate(req: AuthRequest, res: utilities.ErrorResponseWriter, next: () => void) {
+export async function authenticate(req: Request, res: Response, next: NextFunction) {
+  const authReq = req as AuthRequest;
+
   try {
-    const authHeader = req.headers?.authorization;
+    const authHeader = authReq.headers?.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return utilities.sendError(res, 401, "Unauthorized: No token provided");
     }
@@ -42,12 +44,12 @@ export async function authenticate(req: AuthRequest, res: utilities.ErrorRespons
       return utilities.sendError(res, 401, "Unauthorized: Token has been revoked");
     }
 
-    req.user = {
+    authReq.user = {
       userId: normalizedUser.userId,
       ...(typeof normalizedUser.username === "string" ? { username: normalizedUser.username } : {}),
       ...(typeof normalizedUser.admin === "boolean" ? { admin: normalizedUser.admin } : {}),
     };
-    req.token = token;
+    authReq.token = token;
     next();
   } catch (error) {
     if (hasName(error) && error.name === "TokenExpiredError") {
@@ -62,8 +64,10 @@ export async function authenticate(req: AuthRequest, res: utilities.ErrorRespons
   }
 }
 
-export function requireAdmin(req: { user?: { admin?: boolean } }, res: utilities.ErrorResponseWriter, next: () => void) {
-  if (req.user?.admin !== true) {
+export function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  const authReq = req as AuthRequest;
+
+  if (authReq.user?.admin !== true) {
     return utilities.sendError(res, 403, "Forbidden: Admin access required");
   }
   next();

@@ -1,3 +1,4 @@
+import type { NextFunction, Request, Response } from "express";
 import * as utilities from "../utilities/index.js";
 
 const OBJECT_ID_REGEX = /^[a-fA-F0-9]{24}$/;
@@ -29,9 +30,10 @@ interface ValidationRequest {
   };
 }
 
-export function validateRegisterRequest(req: ValidationRequest, res: utilities.ErrorResponseWriter, next: () => void) {
-  const username = ensureString(req.body?.username);
-  const password = ensureString(req.body?.password);
+export function validateRegisterRequest(req: Request, res: Response, next: NextFunction) {
+  const validationReq = req as ValidationRequest;
+  const username = ensureString(validationReq.body?.username);
+  const password = ensureString(validationReq.body?.password);
 
   if (!username || username.length < 3) {
     return utilities.sendError(res, 400, "Validation failed", new Error("Username must be at least 3 characters"));
@@ -41,31 +43,33 @@ export function validateRegisterRequest(req: ValidationRequest, res: utilities.E
     return utilities.sendError(res, 400, "Validation failed", new Error("Password must be at least 6 characters"));
   }
 
-  if (req.body) {
-    req.body.username = username;
-    req.body.password = password;
-    req.body.admin = false;
+  if (validationReq.body) {
+    validationReq.body.username = username;
+    validationReq.body.password = password;
+    validationReq.body.admin = false;
   }
   next();
 }
 
-export function validateLoginRequest(req: ValidationRequest, res: utilities.ErrorResponseWriter, next: () => void) {
-  const username = ensureString(req.body?.username);
-  const password = ensureString(req.body?.password);
+export function validateLoginRequest(req: Request, res: Response, next: NextFunction) {
+  const validationReq = req as ValidationRequest;
+  const username = ensureString(validationReq.body?.username);
+  const password = ensureString(validationReq.body?.password);
 
   if (!username || !password) {
     return utilities.sendError(res, 400, "Validation failed", new Error("Username and password are required"));
   }
 
-  if (req.body) {
-    req.body.username = username;
-    req.body.password = password;
+  if (validationReq.body) {
+    validationReq.body.username = username;
+    validationReq.body.password = password;
   }
   next();
 }
 
-export function validateCreateLessonRequest(req: ValidationRequest, res: utilities.ErrorResponseWriter, next: () => void) {
-  const lessonData = req.body?.lessonData;
+export function validateCreateLessonRequest(req: Request, res: Response, next: NextFunction) {
+  const validationReq = req as ValidationRequest;
+  const lessonData = validationReq.body?.lessonData;
   if (!lessonData || typeof lessonData !== "object") {
     return utilities.sendError(res, 400, "Validation failed", new Error("lessonData is required"));
   }
@@ -100,8 +104,8 @@ export function validateCreateLessonRequest(req: ValidationRequest, res: utiliti
 
   const normalizedAssignedTo = assignedTo === undefined || assignedTo === "" ? null : assignedTo;
 
-  if (req.body) {
-    req.body.lessonData = {
+  if (validationReq.body) {
+    validationReq.body.lessonData = {
       ...lessonData,
       type,
       timeLength,
@@ -114,19 +118,20 @@ export function validateCreateLessonRequest(req: ValidationRequest, res: utiliti
   next();
 }
 
-export function validateUpdateLessonRequest(req: ValidationRequest, res: utilities.ErrorResponseWriter, next: () => void) {
+export function validateUpdateLessonRequest(req: Request, res: Response, next: NextFunction) {
   return validateCreateLessonRequest(req, res, next);
 }
 
-export function validateAssignLessonRequest(req: ValidationRequest, res: utilities.ErrorResponseWriter, next: () => void) {
-  const lessonId = ensureString(req.params?.lessonId);
+export function validateAssignLessonRequest(req: Request, res: Response, next: NextFunction) {
+  const validationReq = req as ValidationRequest;
+  const lessonId = ensureString(validationReq.params?.lessonId);
 
   if (!OBJECT_ID_REGEX.test(lessonId)) {
     return utilities.sendError(res, 400, "Validation failed", new Error("Invalid lessonId"));
   }
 
-  if (req.params) {
-    req.params.lessonId = lessonId;
+  if (validationReq.params) {
+    validationReq.params.lessonId = lessonId;
   }
   next();
 }
