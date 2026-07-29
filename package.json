@@ -4,12 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "cd client && npm install && npm run build",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "npm --prefix server install --include=dev && npm --prefix server run build",
+    "build:client": "npm --prefix client install --include=dev && npm --prefix client run build",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "start": "node ./server/dist/index.js",
-    "heroku-postbuild": "cd client && npm install --include=dev && npm run build"
+    "heroku-postbuild": "npm run build"
   },
   "engines": {
     "node": ">=20 <23"
