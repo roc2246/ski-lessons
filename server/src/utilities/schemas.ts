@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 interface LessonDocument {
   type: string;
-  date: Date;
+  date: string;
   timeLength: string;
   guests: number;
   assignedTo?: mongoose.Types.ObjectId | null;
@@ -28,7 +28,7 @@ interface BlacklistedTokenDocument {
 export const LessonSchema = new mongoose.Schema<LessonDocument>(
   {
     type: { type: String, required: true },
-    date: { type: Date, required: true },
+    date: { type: String, required: true },
     timeLength: { type: String, required: true },
     guests: { type: Number, required: true },
     assignedTo: {

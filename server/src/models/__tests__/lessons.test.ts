@@ -109,6 +109,20 @@ describe("createLesson", () => {
     expect(result.save).toHaveBeenCalled();
   });
 
+  it("preserves the selected lesson date as a date-only string", async () => {
+    const lessonInput = {
+      type: "private",
+      date: "2025-12-01",
+      timeLength: "2 hours",
+      guests: 2,
+      assignedTo: "user123",
+    };
+
+    const result = await models.createLesson(lessonInput);
+
+    expect(result.date).toBe("2025-12-01");
+  });
+
   it("throws if required field missing", async () => {
     await expect(
       models.createLesson({
@@ -163,6 +177,18 @@ describe("updateLesson", () => {
     expect(result.timeLength).toBe("1-4");
     expect(result.guests).toBe(4);
     expect(result.assignedTo).toBe("newUser123");
+  });
+
+  it("preserves the selected date when updating a lesson", async () => {
+    const result = await models.updateLesson("validLessonId", {
+      type: "advanced",
+      date: "2025-12-03",
+      timeLength: "9-12",
+      guests: 2,
+      assignedTo: null,
+    });
+
+    expect(result.date).toBe("2025-12-03");
   });
 
   it("throws if lesson to update is not found", async () => {

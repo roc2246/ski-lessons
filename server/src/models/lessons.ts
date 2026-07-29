@@ -18,6 +18,32 @@ function getDateKey(value: string | Date | null | undefined) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
 }
 
+function normalizeLessonDate(value: unknown): string | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+
+    const isoLike = /^\d{4}-\d{2}-\d{2}$/;
+    if (isoLike.test(trimmed)) {
+      return trimmed;
+    }
+
+    const parsed = new Date(trimmed);
+    return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10);
+  }
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value.toISOString().slice(0, 10);
+  }
+
+  const parsed = new Date(String(value));
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10);
+}
+
 async function notifyIfServerError(subject: string, error: unknown) {
   const status = Number.isInteger((error as { status?: number })?.status) ? (error as { status?: number }).status : 500;
   if (status && status >= 500) {
@@ -38,17 +64,22 @@ export async function createLesson(lessonData: Record<string, unknown>) {
     const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
 
     const assignedTo = lessonData.assignedTo ?? null;
+    const normalizedDate = normalizeLessonDate(lessonData.date);
+
+    if (!normalizedDate) {
+      throw new Error("Invalid lesson date");
+    }
 
     if (assignedTo !== null) {
       const exists = await Lesson.exists({
-        date: lessonData.date,
+        date: normalizedDate,
         assignedTo,
         timeLength: {
           $in: CONFLICTING_TIME_LENGTHS[String(lessonData.timeLength)] ?? [String(lessonData.timeLength)],
         },
       });
 
-      const errorMessage = `This instructor is already booked on ${lessonData.date} during ${lessonData.timeLength}.`;
+      const errorMessage = `This instructor is already booked on ${normalizedDate} during ${lessonData.timeLength}.`;
 
       if (exists) {
         throw createHttpError(errorMessage, 409);
@@ -58,7 +89,7 @@ export async function createLesson(lessonData: Record<string, unknown>) {
     const newLesson = new Lesson({
       ...lessonData,
       assignedTo,
-      date: new Date(String(lessonData.date)),
+      date: normalizedDate,
     });
 
     await newLesson.save();
@@ -140,8 +171,12 @@ export async function updateLesson(id: string, lessonData: Record<string, unknow
     }
 
     const assignedTo = lessonData.assignedTo ?? null;
-    const parsedDate = new Date(String(lessonData.date));
+    const parsedDate = normalizeLessonDate(lessonData.date);
     const conflictingWindows = CONFLICTING_TIME_LENGTHS[String(lessonData.timeLength)] || [String(lessonData.timeLength)];
+
+    if (!parsedDate) {
+      throw new Error("Invalid lesson date");
+    }
 
     if (assignedTo !== null) {
       const conflict = await Lesson.findOne({
@@ -155,7 +190,7 @@ export async function updateLesson(id: string, lessonData: Record<string, unknow
 
       if (conflict) {
         throw createHttpError(
-          `This instructor is already booked on ${lessonData.date} during ${lessonData.timeLength}.`,
+          `This instructor is already booked on ${parsedDate} during ${lessonData.timeLength}.`,
           409
         );
       }

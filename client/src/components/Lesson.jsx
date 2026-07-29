@@ -1,5 +1,15 @@
 import * as lessonLib from "../utils/calendar-library";
 
+function formatLessonDate(value) {
+  const datePart = String(value ?? "").slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+    return "";
+  }
+
+  const [year, month, day] = datePart.split("-");
+  return `${month}/${day}/${year}`;
+}
+
 export default function Lesson({ lesson, onLessonAdded }) {
   const handleAddLesson = async () => {
     try {
@@ -12,7 +22,7 @@ export default function Lesson({ lesson, onLessonAdded }) {
       }
     } catch (err) {
       alert(
-        `User is already assigned to a lesson on ${lesson.date} at ${lesson.timeLength}`,
+        `User is already assigned to a lesson on ${formatLessonDate(lesson.date)} at ${lesson.timeLength}`,
       );
       console.error(err);
     }

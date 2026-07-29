@@ -3,6 +3,20 @@ import { Link } from "react-router-dom";
 import * as adminLib from "../utils/admin-library.js";
 import * as calendarLib from "../utils/calendar-library.js";
 
+function formatLessonDate(value) {
+  if (value instanceof Date) {
+    return `${value.getMonth() + 1}/${value.getDate()}/${value.getFullYear()}`;
+  }
+
+  const datePart = String(value ?? "").slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+    return "";
+  }
+
+  const [year, month, day] = datePart.split("-");
+  return `${month}/${day}/${year}`;
+}
+
 function DeleteLesson() {
   const [lessons, setLessons] = useState([]);
   const [status, setStatus] = useState("");
@@ -72,7 +86,7 @@ function DeleteLesson() {
 
     const searchableText = `
       ${lesson.type || ""}
-      ${new Date(lesson.date).toLocaleDateString()}
+      ${formatLessonDate(lesson.date)}
       ${lesson.timeLength || ""}
       ${assignedToLabel}
     `.toLowerCase();
@@ -157,7 +171,7 @@ function DeleteLesson() {
                     <div className="delete-lessons__metadata">
                       <span>
                         <strong>Date:</strong>{" "}
-                        {new Date(lesson.date).toLocaleDateString()}
+                        {formatLessonDate(lesson.date)}
                       </span>
 
                       <span>
@@ -174,9 +188,7 @@ function DeleteLesson() {
                     type="button"
                     className="delete-lessons__delete"
                     onClick={() => handleDelete(lesson._id)}
-                    aria-label={`Delete ${lesson.type || "lesson"} on ${new Date(
-                      lesson.date
-                    ).toLocaleDateString()}`}
+                    aria-label={`Delete ${lesson.type || "lesson"} on ${formatLessonDate(lesson.date)}`}
                   >
                     Delete
                   </button>
