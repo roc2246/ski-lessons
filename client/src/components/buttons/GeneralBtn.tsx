@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 
+type GeneralBtnVariant = "primary" | "secondary" | "danger";
+
 interface GeneralBtnProps {
-  type?: string;
+  type?: GeneralBtnVariant;
   onClick?: () => void | Promise<void>;
   children: ReactNode;
 }

@@ -41,7 +41,7 @@ function Register() {
 
         <Field
           type="checkbox"
-          value={""}
+          value={isAdmin}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setIsAdmin(e.target.checked)}
         />
 

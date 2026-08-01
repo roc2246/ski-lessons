@@ -9,6 +9,7 @@ import DeleteLesson from "./pages/DeleteLesson";
 import UpdateLesson from "./pages/UpdateLesson";
 import LessonBoard from "./pages/LessonBoard";
 import * as lib from "./utils/admin-library";
+import { getErrorMessage } from "./utils/response-guards";
 
 function App() {
   const initialAuth = lib.getStoredAuthState();
@@ -33,7 +34,7 @@ function App() {
       } catch (error) {
         console.error("Failed to determine admin status:", error);
 
-        const message = String((error as { message?: string })?.message || "").toLowerCase();
+        const message = getErrorMessage(error, "").toLowerCase();
         const isAuthError = message.includes("unauthorized") || message.includes("token");
 
         if (!cancelled && isAuthError) {

@@ -1,63 +1,76 @@
-// @ts-nocheck
-
 import * as lib from "../auth-library";
 import { describe, it, vi, expect, beforeEach, afterEach } from "vitest";
 
-let store = {};
+const fetchMock = vi.fn<typeof fetch>();
+const storage = new Map<string, string>();
 
-// ----- Mock localStorage -----
+const localStorageMock: Storage = {
+  get length() {
+    return storage.size;
+  },
+  clear() {
+    storage.clear();
+  },
+  getItem(key) {
+    return storage.get(key) ?? null;
+  },
+  key(index) {
+    return Array.from(storage.keys())[index] ?? null;
+  },
+  removeItem(key) {
+    storage.delete(key);
+  },
+  setItem(key, value) {
+    storage.set(key, value);
+  },
+};
+
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function textResponse(body: string, status = 200): Response {
+  return new Response(body, { status });
+}
+
 beforeEach(() => {
-  store = {};
-  globalThis.localStorage = {
-    getItem: (key) => store[key] || null,
-    setItem: (key, value) => {
-      store[key] = value;
-    },
-    removeItem: (key) => {
-      delete store[key];
-    },
-    clear: () => {
-      store = {};
-    },
-  };
+  vi.stubGlobal("localStorage", localStorageMock);
+  localStorage.clear();
+  vi.stubGlobal("fetch", fetchMock);
+  vi.stubGlobal("alert", vi.fn());
+  vi.stubGlobal("confirm", vi.fn(() => true));
+  vi.stubGlobal("location", { href: "" } as Location);
 
-  // Mock location
-  globalThis.location = { href: "" };
+  fetchMock.mockImplementation(async (input) => {
+    const url = String(input);
 
-  // Mock alert/confirm
-  globalThis.alert = vi.fn();
-  globalThis.confirm = vi.fn(() => true);
-
-  // Mock fetch
-  globalThis.fetch = vi.fn((url) => {
     if (url === "/api/auth/login") {
-      return Promise.resolve({
-        ok: true,
-        text: async () => JSON.stringify({ token: "abc123" }),
-      });
-    } else if (url === "/api/auth/register") {
-      return Promise.resolve({
-        ok: true,
-        json: async () => ({ username: "newuser" }),
-      });
-    } else if (url === "/api/auth/logout") {
-      return Promise.resolve({ ok: true });
-    } else if (url === "/api/users/me") {
-      return Promise.resolve({
-        ok: true,
-        json: async () => ({ message: "Account deleted successfully" }),
-      });
+      return textResponse(JSON.stringify({ token: "abc123" }));
     }
-    return Promise.resolve({
-      ok: false,
-      text: async () => JSON.stringify({ error: "Not found" }),
-    });
+
+    if (url === "/api/auth/register") {
+      return jsonResponse({ username: "newuser" });
+    }
+
+    if (url === "/api/auth/logout") {
+      return textResponse("", 200);
+    }
+
+    if (url === "/api/users/me") {
+      return jsonResponse({ message: "Account deleted successfully" });
+    }
+
+    return textResponse(JSON.stringify({ error: "Not found" }), 404);
   });
 });
 
 afterEach(() => {
+  localStorage.clear();
   vi.restoreAllMocks();
-  store = {};
+  vi.unstubAllGlobals();
 });
 
 // ----- LOGIN -----
@@ -71,10 +84,7 @@ describe("login", () => {
   });
 
   it("should alert on failed login", async () => {
-    fetch.mockResolvedValueOnce({
-      ok: false,
-      text: async () => JSON.stringify({ error: "Invalid credentials" }),
-    });
+    fetchMock.mockResolvedValueOnce(textResponse(JSON.stringify({ error: "Invalid credentials" }), 401));
 
     await lib.login("test", "wrongpass");
 
@@ -83,7 +93,7 @@ describe("login", () => {
   });
 
   it("should return null when login request throws", async () => {
-    fetch.mockRejectedValueOnce(new Error("Network down"));
+    fetchMock.mockRejectedValueOnce(new Error("Network down"));
 
     const result = await lib.login("test", "test");
 
@@ -99,11 +109,11 @@ describe("logout", () => {
   });
 
   it("should call /api/auth/logout and remove token", async () => {
-    fetch.mockResolvedValueOnce({ ok: true });
+    fetchMock.mockResolvedValueOnce(textResponse("", 200));
 
-    await lib.logout("abc123");
+    await lib.logout();
 
-    expect(fetch).toHaveBeenCalledWith("/api/auth/logout", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/auth/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -116,9 +126,9 @@ describe("logout", () => {
 
   it("should handle fetch errors gracefully", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    fetch.mockRejectedValueOnce(new Error("Network error"));
+    fetchMock.mockRejectedValueOnce(new Error("Network error"));
 
-    await lib.logout("abc123");
+    await lib.logout();
 
     expect(consoleSpy).toHaveBeenCalledWith(
       "Logout request failed:",
@@ -137,10 +147,7 @@ describe("register", () => {
   });
 
   it("should alert error message on failed registration", async () => {
-    fetch.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ error: "Username exists" }),
-    });
+    fetchMock.mockResolvedValueOnce(jsonResponse({ error: "Username exists" }, 400));
 
     await lib.register("newuser", "pass", true);
     expect(alert).toHaveBeenCalledWith("Username exists");
@@ -148,7 +155,7 @@ describe("register", () => {
 
   it("should log errors when fetch fails", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    fetch.mockRejectedValueOnce(new Error("Network error"));
+    fetchMock.mockRejectedValueOnce(new Error("Network error"));
 
     await lib.register("newuser", "pass", false);
     expect(consoleSpy).toHaveBeenCalledWith(
@@ -166,13 +173,13 @@ describe("selfDeleteFrontend", () => {
   });
 
   it("should confirm deletion and call API on confirm", async () => {
-    await lib.selfDeleteFrontend("abc123");
+    await lib.selfDeleteFrontend();
 
     expect(globalThis.confirm).toHaveBeenCalledWith(
       "Are you sure you want to delete your account? This action cannot be undone."
     );
 
-    expect(fetch).toHaveBeenCalledWith("/api/users/me", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/users/me", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

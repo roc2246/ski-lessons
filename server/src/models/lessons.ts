@@ -1,5 +1,6 @@
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
+import { getErrorStatus } from "../utilities/type-guards.js";
 
 const CONFLICTING_TIME_LENGTHS: Record<string, string[]> = {
   "9-12": ["9-12", "9-4"],
@@ -50,7 +51,7 @@ function normalizeLessonDate(value: unknown): string | null {
 }
 
 async function notifyIfServerError(subject: string, error: unknown) {
-  const status = Number.isInteger((error as { status?: number })?.status) ? (error as { status?: number }).status : 500;
+  const status = getErrorStatus(error);
   if (status && status >= 500) {
     await errorEmail(subject, error instanceof Error ? error.toString() : String(error));
   }
@@ -248,14 +249,17 @@ export async function switchLessonAssignment(id: string, newUserId: string | nul
         throw createHttpError("Lesson has invalid time length", 500);
       }
 
-      const conflictingLesson = await Lesson.findOne({
-        _id: { $ne: id },
-        assignedTo: newUserId,
-        date: lessonToAssign.date,
-        timeLength: {
-          $in: CONFLICTING_TIME_LENGTHS[lessonToAssign.timeLength],
-        },
-      });
+      const conflictingWindows = CONFLICTING_TIME_LENGTHS[lessonToAssign.timeLength] ?? [lessonToAssign.timeLength];
+
+      const conflictingLesson = await Lesson.findOne()
+        .where("_id")
+        .ne(id)
+        .where("assignedTo")
+        .equals(newUserId)
+        .where("date")
+        .equals(lessonToAssign.date)
+        .where("timeLength")
+        .in(conflictingWindows);
 
       if (conflictingLesson) {
         throw createHttpError(

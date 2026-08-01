@@ -1,5 +1,6 @@
 import type { CalendarLesson, Lesson } from "../types/domain";
 import { getRequiredAuthToken } from "./token-library";
+import { getErrorMessage, getString, isLesson, isLessonArray, readJsonObject } from "./response-guards";
 
 // ================================
 // Calendar Library (React-friendly)
@@ -27,17 +28,20 @@ export async function getLessons(assignedTo?: string): Promise<Lesson[]> {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) {
-      const error = await response.json();
+      const error = await readJsonObject(response);
       if (response.status === 401) {
         localStorage.removeItem("token");
       }
-      throw new Error(error.message || "Failed to fetch lessons");
+      throw new Error(getString(error.message) ?? "Failed to fetch lessons");
     }
-    const { lessons } = (await response.json()) as { lessons: Lesson[] };
-    return lessons;
+    const data = await readJsonObject(response);
+    if (!isLessonArray(data.lessons)) {
+      throw new Error("Malformed response: missing lessons field");
+    }
+
+    return data.lessons;
   } catch (err) {
-    const error = err as Error;
-    console.error("Error retrieving lessons:", error.message);
+    console.error("Error retrieving lessons:", getErrorMessage(err));
     throw err;
   }
 }
@@ -91,7 +95,7 @@ export function generateCalendarDates(date: Date) {
   const year = date.getFullYear();
   const month = date.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const dates = [];
+  const dates: Date[] = [];
   for (let day = 1; day <= daysInMonth; day++) {
     dates.push(new Date(year, month, day));
   }
@@ -169,13 +173,17 @@ export async function getLessonsForMonth(date: Date, token?: string | null, assi
       },
     });
     if (!response.ok) {
-      const err = await response.json();
+      const err = await readJsonObject(response);
       if (response.status === 401) {
         localStorage.removeItem("token");
       }
-      throw new Error(err.message || "Failed to fetch lessons");
+      throw new Error(getString(err.message) ?? "Failed to fetch lessons");
     }
-    const { lessons } = (await response.json()) as { lessons: Lesson[] };
+    const data = await readJsonObject(response);
+    if (!isLessonArray(data.lessons)) {
+      throw new Error("Malformed response: missing lessons field");
+    }
+    const lessons = data.lessons;
 
     // Filter lessons for the month
     const month = date.getMonth();
@@ -223,15 +231,19 @@ export async function addLesson(lesson: Lesson): Promise<Lesson> {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await readJsonObject(response);
       if (response.status === 401) {
         localStorage.removeItem("token");
       }
-      throw new Error(errorData.message || "Failed to add lesson");
+      throw new Error(getString(errorData.message) ?? "Failed to add lesson");
     }
 
-    const data = (await response.json()) as { lesson: Lesson };
-    return data.lesson; // returns updated lesson
+    const data = await readJsonObject(response);
+    if (!isLesson(data.lesson)) {
+      throw new Error("Malformed response: missing lesson field");
+    }
+
+    return data.lesson;
   } catch (err) {
     console.error("Error adding lesson:", err);
     throw err;

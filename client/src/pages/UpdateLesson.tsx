@@ -3,6 +3,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
 import * as adminLib from "../utils/admin-library";
 import * as calendarLib from "../utils/calendar-library";
+import { UNASSIGNED_LESSON_VALUE } from "../types/domain";
 import type { Lesson, LessonMutationInput, User } from "../types/domain";
 
 function formatDateForInput(value: unknown) {
@@ -41,7 +42,7 @@ function UpdateLesson() {
     date: "",
     timeLength: "9-12",
     guests: 1,
-    assignedTo: "None",
+    assignedTo: UNASSIGNED_LESSON_VALUE,
   });
 
   const userLookup = useMemo(
@@ -85,7 +86,7 @@ function UpdateLesson() {
       date: formatDateForInput(selected.date),
       timeLength: selected.timeLength || "9-12",
       guests: Number(selected.guests) || 1,
-      assignedTo: selected.assignedTo || "None",
+      assignedTo: selected.assignedTo || UNASSIGNED_LESSON_VALUE,
     });
   }, [selectedLessonId, lessons]);
 
@@ -223,7 +224,7 @@ function UpdateLesson() {
             onChange={handleChange}
             required
           >
-            <option value="None">None</option>
+            <option value={UNASSIGNED_LESSON_VALUE}>{UNASSIGNED_LESSON_VALUE}</option>
             {users.map((user: User) => (
               <option key={user._id} value={user._id}>
                 {user.username}

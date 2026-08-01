@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-// @ts-nocheck
 
 import { describe, it, expect } from "vitest";
 import { createOption } from "../dom-library";
@@ -10,9 +9,11 @@ describe("createOption", () => {
 
     createOption(select, "ski", "Ski Lesson");
 
+    const option = select.children[0] as HTMLOptionElement;
+
     expect(select.children).toHaveLength(1);
-    expect(select.children[0].tagName).toBe("OPTION");
-    expect(select.children[0].value).toBe("ski");
-    expect(select.children[0].innerText).toBe("Ski Lesson");
+    expect(option.tagName).toBe("OPTION");
+    expect(option.value).toBe("ski");
+    expect(option.innerText).toBe("Ski Lesson");
   });
 });

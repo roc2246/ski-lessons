@@ -1,46 +1,49 @@
 import type { Request, Response } from "express";
 import * as models from "../models/index.js";
 import * as utilities from "../utilities/index.js";
+import { getErrorStatus, getRecord } from "../utilities/type-guards.js";
+
+function getRouteParam(value: string | string[] | undefined, paramName: string): string {
+  if (typeof value !== "string" || !value) {
+    throw new Error(`Missing or invalid ${paramName}`);
+  }
+
+  return value;
+}
 
 export async function manageCreateLesson(req: Request, res: Response) {
-  const lessonReq = req as Request & { body?: { lessonData?: Record<string, unknown> } };
-
   try {
-    const lessonData = { ...((lessonReq.body?.lessonData ?? {}) as Record<string, unknown>) };
+    const lessonData = { ...(getRecord(req.body?.lessonData) ?? {}) };
     const createdLesson = await models.createLesson(lessonData);
     res.status(201).json({
       message: "Lesson created successfully",
       lesson: createdLesson,
     });
   } catch (error) {
-    const status = Number.isInteger((error as { status?: number })?.status) ? (error as { status?: number }).status : 500;
+    const status = getErrorStatus(error);
     utilities.sendError(res, status ?? 500, "Failed to create lesson", error);
   }
 }
 
 export async function manageUpdateLesson(req: Request, res: Response) {
-  const lessonReq = req as Request & { params?: { lessonId?: string }; body?: { lessonData?: Record<string, unknown> } };
-
   try {
-    const { lessonId } = lessonReq.params ?? {};
-    const lessonData = { ...((lessonReq.body?.lessonData ?? {}) as Record<string, unknown>) };
-    const updatedLesson = await models.updateLesson(lessonId as string, lessonData);
+    const lessonId = getRouteParam(req.params.lessonId, "lessonId");
+    const lessonData = { ...(getRecord(req.body?.lessonData) ?? {}) };
+    const updatedLesson = await models.updateLesson(lessonId, lessonData);
 
     res.status(200).json({
       message: "Lesson updated successfully",
       lesson: updatedLesson,
     });
   } catch (error) {
-    const status = Number.isInteger((error as { status?: number })?.status) ? (error as { status?: number }).status : 500;
+    const status = getErrorStatus(error);
     utilities.sendError(res, status ?? 500, "Failed to update lesson", error);
   }
 }
 
 export async function manageLessonRetrieval(req: Request, res: Response) {
-  const lessonReq = req as Request & { user?: { userId?: string }; query?: Record<string, string | undefined> };
-
   try {
-    const assignedToParam = lessonReq.query?.assignedTo;
+    const assignedToParam = typeof req.query.assignedTo === "string" ? req.query.assignedTo : undefined;
 
     let lessons;
     if (assignedToParam === "None") {
@@ -50,7 +53,7 @@ export async function manageLessonRetrieval(req: Request, res: Response) {
     } else if (assignedToParam) {
       lessons = await models.retrieveLessons({ assignedTo: assignedToParam });
     } else {
-      lessons = await models.retrieveLessons({ assignedTo: lessonReq.user?.userId });
+      lessons = await models.retrieveLessons({ assignedTo: req.user?.userId });
     }
 
     return res.status(200).json({
@@ -61,7 +64,7 @@ export async function manageLessonRetrieval(req: Request, res: Response) {
             ? "All lessons retrieved"
             : assignedToParam
               ? `Lessons retrieved for assignedTo=${assignedToParam}`
-              : `Lessons retrieved for user ID ${lessonReq.user?.userId}`,
+              : `Lessons retrieved for user ID ${req.user?.userId}`,
       lessons,
     });
   } catch (error) {
@@ -70,32 +73,28 @@ export async function manageLessonRetrieval(req: Request, res: Response) {
 }
 
 export async function manageSwitchLessonAssignment(req: Request, res: Response) {
-  const lessonReq = req as Request & { params?: { lessonId?: string }; user?: { userId?: string } };
-
   try {
-    const { lessonId } = lessonReq.params ?? {};
-    const newUserId = lessonReq.user?.userId ?? null;
-    const updatedLesson = await models.switchLessonAssignment(lessonId as string, newUserId);
+    const lessonId = getRouteParam(req.params.lessonId, "lessonId");
+    const newUserId = req.user?.userId ?? null;
+    const updatedLesson = await models.switchLessonAssignment(lessonId, newUserId);
 
     res.status(200).json({
       message: "Lesson assignment updated",
       lesson: updatedLesson,
     });
   } catch (error) {
-    const status = Number.isInteger((error as { status?: number })?.status) ? (error as { status?: number }).status : 500;
+    const status = getErrorStatus(error);
     utilities.sendError(res, status ?? 500, "Failed to switch lesson assignment", error);
   }
 }
 
 export async function manageRemoveLesson(req: Request, res: Response) {
-  const lessonReq = req as Request & { params?: { lessonId?: string } };
-
   try {
-    const { lessonId } = lessonReq.params ?? {};
-    const result = await models.removeLesson(lessonId as string);
+    const lessonId = getRouteParam(req.params.lessonId, "lessonId");
+    const result = await models.removeLesson(lessonId);
     res.status(200).json(result);
   } catch (error) {
-    const status = Number.isInteger((error as { status?: number })?.status) ? (error as { status?: number }).status : 500;
+    const status = getErrorStatus(error);
     utilities.sendError(res, status ?? 500, "Failed to remove lesson", error);
   }
 }

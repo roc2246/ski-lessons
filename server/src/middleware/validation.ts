@@ -2,16 +2,22 @@ import type { NextFunction, Request, Response } from "express";
 import * as utilities from "../utilities/index.js";
 
 const OBJECT_ID_REGEX = /^[a-fA-F0-9]{24}$/;
-const LESSON_TYPES = new Set(["beginner", "intermediate", "advanced", "expert"]);
-const LESSON_WINDOWS = new Set(["9-12", "1-4", "9-4"]);
+const LESSON_TYPES = ["beginner", "intermediate", "advanced", "expert"] as const;
+const LESSON_WINDOWS = ["9-12", "1-4", "9-4"] as const;
+
+type LessonType = typeof LESSON_TYPES[number];
+type LessonWindow = typeof LESSON_WINDOWS[number];
+
+const LESSON_TYPE_SET = new Set<string>(LESSON_TYPES);
+const LESSON_WINDOW_SET = new Set<string>(LESSON_WINDOWS);
 
 function ensureString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
 interface LessonPayload {
-  type?: unknown;
-  timeLength?: unknown;
+  type?: LessonType | unknown;
+  timeLength?: LessonWindow | unknown;
   date?: unknown;
   guests?: unknown;
   assignedTo?: unknown;
@@ -80,11 +86,11 @@ export function validateCreateLessonRequest(req: Request, res: Response, next: N
   const guests = Number(lessonData.guests);
   const assignedTo = lessonData.assignedTo;
 
-  if (!LESSON_TYPES.has(type)) {
+  if (!LESSON_TYPE_SET.has(type)) {
     return utilities.sendError(res, 400, "Validation failed", new Error("Invalid lesson type"));
   }
 
-  if (!LESSON_WINDOWS.has(timeLength)) {
+  if (!LESSON_WINDOW_SET.has(timeLength)) {
     return utilities.sendError(res, 400, "Validation failed", new Error("Invalid lesson timeLength"));
   }
 

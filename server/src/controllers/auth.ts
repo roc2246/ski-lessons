@@ -40,13 +40,11 @@ export async function manageLogin(req: Request, res: Response) {
 }
 
 export async function manageLogout(req: Request, res: Response) {
-  const authReq = req as Request & { token?: unknown };
-
   try {
-    if (typeof authReq.token !== "string") {
+    if (typeof req.token !== "string") {
       throw new Error("Invalid token");
     }
-    await models.logoutUser(authReq.token);
+    await models.logoutUser(req.token);
     res.status(200).json({ message: "Successfully logged out" });
   } catch (error) {
     utilities.sendError(res, 500, "Logout failed", error);
@@ -54,10 +52,8 @@ export async function manageLogout(req: Request, res: Response) {
 }
 
 export async function decodeUser(req: Request, res: Response) {
-  const authReq = req as Request & { user?: { userId?: string; username?: string; admin?: boolean } };
-
   try {
-    const { userId, username, admin } = authReq.user ?? { userId: "", username: "", admin: false };
+    const { userId, username, admin } = req.user ?? { userId: "", username: "", admin: false };
     res.status(200).json({
       message: `Retrieved credentials for ${username}`,
       credentials: { userId, username, admin },
@@ -68,10 +64,8 @@ export async function decodeUser(req: Request, res: Response) {
 }
 
 export async function selfDeleteAccount(req: Request, res: Response) {
-  const authReq = req as Request & { user?: { username?: string; userId?: string } };
-
   try {
-    const { username, userId } = authReq.user ?? {};
+    const { username, userId } = req.user ?? {};
     if (!username || !userId) {
       throw new Error("User credentials missing");
     }
@@ -86,10 +80,8 @@ export async function selfDeleteAccount(req: Request, res: Response) {
 }
 
 export async function manageGetUsers(req: Request, res: Response) {
-  const authReq = req as Request & { user?: { userId?: string } };
-
   try {
-    const { userId } = authReq.user ?? {};
+    const { userId } = req.user ?? {};
     const users = await models.getUsers(typeof userId === "string" ? userId : undefined);
     res.status(200).json({ message: "Users retrieved successfully", users });
   } catch (error) {

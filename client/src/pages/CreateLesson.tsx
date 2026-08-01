@@ -3,6 +3,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
 import * as adminLib from "../utils/admin-library";
 import CreateLessonField from "../components/CreateLessonField";
+import { UNASSIGNED_LESSON_VALUE } from "../types/domain";
 import type { LessonMutationInput, User } from "../types/domain";
 
 function CreateLesson() {
@@ -15,7 +16,7 @@ function CreateLesson() {
     date: "",
     timeLength: "9-12", // default value
     guests: 1,
-    assignedTo: "None", // default value
+    assignedTo: UNASSIGNED_LESSON_VALUE, // default value
   });
 
   // Fetch users
@@ -51,7 +52,7 @@ function CreateLesson() {
       ...formData,
       type: formData.type || "beginner",
       timeLength: formData.timeLength || "9-12",
-      assignedTo: formData.assignedTo || "None",
+      assignedTo: formData.assignedTo || UNASSIGNED_LESSON_VALUE,
     };
 
     console.log("Submitting lesson:", dataToSend);
@@ -64,11 +65,11 @@ function CreateLesson() {
 
       // Reset form to defaults
       setFormData({
-        type: "",
+        type: "beginner",
         date: "",
         timeLength: "9-12",
         guests: 1,
-        assignedTo: "None",
+        assignedTo: UNASSIGNED_LESSON_VALUE,
       });
       setStatus("");
     } catch (err) {
@@ -148,7 +149,7 @@ function CreateLesson() {
           value={formData.assignedTo}
           onChange={handleChange}
           options={[
-            { value: "None", label: "None" },
+            { value: UNASSIGNED_LESSON_VALUE, label: UNASSIGNED_LESSON_VALUE },
             ...users.map((u: User) => ({ value: u._id, label: u.username })),
           ]}
           required

@@ -1,30 +1,51 @@
-// @ts-nocheck
-
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import * as lib from "../calendar-library";
+import type { Lesson } from "../../types/domain";
+
+const fetchMock = vi.fn<typeof fetch>();
+const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+const storage = new Map<string, string>();
+
+const localStorageMock: Storage = {
+  get length() {
+    return storage.size;
+  },
+  clear() {
+    storage.clear();
+  },
+  getItem(key) {
+    return storage.get(key) ?? null;
+  },
+  key(index) {
+    return Array.from(storage.keys())[index] ?? null;
+  },
+  removeItem(key) {
+    storage.delete(key);
+  },
+  setItem(key, value) {
+    storage.set(key, value);
+  },
+};
+
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
 
 // ========================
 // Global Mocks
 // ========================
 beforeAll(() => {
-  // LocalStorage mock
-  globalThis.localStorage = {
-    store: {},
-    getItem(key) { return this.store[key] || null; },
-    setItem(key, value) { this.store[key] = value; },
-    removeItem(key) { delete this.store[key]; },
-    clear() { this.store = {}; },
-  };
-
-  // Fetch / console mocks
-  globalThis.fetch = vi.fn();
-  globalThis.console.error = vi.fn();
+  vi.stubGlobal("fetch", fetchMock);
+  vi.stubGlobal("localStorage", localStorageMock);
 });
 
 beforeEach(() => {
   localStorage.clear();
-  fetch.mockReset();
-  console.error.mockReset();
+  fetchMock.mockReset();
+  consoleErrorSpy.mockReset();
 });
 
 // ========================
@@ -33,25 +54,19 @@ beforeEach(() => {
 describe("getLessons", () => {
   it("fetches lessons successfully", async () => {
     localStorage.setItem("token", "token123");
-    const mockLessons = [{ date: "2025-10-25", timeLength: "10:00-11:00" }];
-    fetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({ lessons: mockLessons }),
-    });
+    const mockLessons: Lesson[] = [{ _id: "1", type: "beginner", date: "2025-10-25", timeLength: "9-12", guests: 2, assignedTo: null }];
+    fetchMock.mockResolvedValue(jsonResponse({ lessons: mockLessons }));
 
     const lessons = await lib.getLessons("true");
     expect(lessons).toEqual(mockLessons);
-    expect(fetch).toHaveBeenCalledWith("/api/lessons?assignedTo=true", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/lessons?assignedTo=true", {
       headers: { Authorization: "Bearer token123" },
     });
   });
 
   it("throws error when response not ok", async () => {
     localStorage.setItem("token", "token123");
-    fetch.mockResolvedValue({
-      ok: false,
-      json: async () => ({ message: "fail" }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ message: "fail" }, 400));
 
     await expect(lib.getLessons("true")).rejects.toThrow("fail");
     expect(console.error).toHaveBeenCalled();
@@ -63,18 +78,18 @@ describe("getLessons", () => {
 // ========================
 describe("preprocessLessons", () => {
   it("adds _year, _month, _day, _startDate", () => {
-    const lessons = [{ date: "2025-10-25", timeLength: "09:30-10:30" }];
+    const lessons: Lesson[] = [{ _id: "1", type: "beginner", date: "2025-10-25", timeLength: "9-12", guests: 1, assignedTo: null }];
     const processed = lib.preprocessLessons(lessons);
     expect(processed[0]._year).toBe(2025);
     expect(processed[0]._month).toBe(10);
     expect(processed[0]._day).toBe(25);
     expect(processed[0]._startDate instanceof Date).toBe(true);
     expect(processed[0]._startDate.getHours()).toBe(9);
-    expect(processed[0]._startDate.getMinutes()).toBe(30);
+    expect(processed[0]._startDate.getMinutes()).toBe(0);
   });
 
   it("handles time without colon", () => {
-    const lessons = [{ date: "2025-10-25", timeLength: "9-10:30" }];
+    const lessons: Lesson[] = [{ _id: "1", type: "beginner", date: "2025-10-25", timeLength: "9-12", guests: 1, assignedTo: null }];
     const processed = lib.preprocessLessons(lessons);
     expect(processed[0]._startDate.getHours()).toBe(9);
     expect(processed[0]._startDate.getMinutes()).toBe(0);
@@ -144,14 +159,11 @@ describe("prevMonth & nextMonth", () => {
 describe("getLessonsForMonth", () => {
   it("filters lessons correctly for the month", async () => {
     const date = new Date(2025, 9, 1); // October
-    const lessons = [
-      { date: "2025-10-02", timeLength: "10:00-11:00" },
-      { date: "2025-11-03", timeLength: "11:00-12:00" },
+    const lessons: Lesson[] = [
+      { _id: "1", type: "beginner", date: "2025-10-02", timeLength: "9-12", guests: 2, assignedTo: null },
+      { _id: "2", type: "advanced", date: "2025-11-03", timeLength: "1-4", guests: 1, assignedTo: null },
     ];
-    fetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({ lessons }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ lessons }));
 
     const result = await lib.getLessonsForMonth(date, "token123");
     expect(result).toHaveLength(1);
@@ -159,7 +171,7 @@ describe("getLessonsForMonth", () => {
   });
 
   it("returns empty array on fetch failure", async () => {
-    fetch.mockRejectedValue(new Error("fail"));
+    fetchMock.mockRejectedValue(new Error("fail"));
     const result = await lib.getLessonsForMonth(new Date(), "token123");
     expect(result).toEqual([]);
     expect(console.error).toHaveBeenCalled();

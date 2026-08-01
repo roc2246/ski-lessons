@@ -1,7 +1,9 @@
 import type { ChangeEvent } from "react";
 
+type FieldType = "username" | "password" | "checkbox";
+
 interface FieldProps {
-  type: string;
+  type: FieldType;
   value: string | boolean;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }

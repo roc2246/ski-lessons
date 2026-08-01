@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import {
   describe,
   it,
@@ -10,40 +8,74 @@ import {
   beforeEach,
 } from "vitest";
 import * as lib from "../admin-library";
+import { UNASSIGNED_LESSON_VALUE } from "../../types/domain";
+import type { Lesson, LessonMutationInput, User } from "../../types/domain";
 
-let originalFetch;
-let storage = {};
+const fetchMock = vi.fn<typeof fetch>();
+const storage = new Map<string, string>();
+
+const localStorageMock: Storage = {
+  get length() {
+    return storage.size;
+  },
+  clear() {
+    storage.clear();
+  },
+  getItem(key) {
+    return storage.get(key) ?? null;
+  },
+  key(index) {
+    return Array.from(storage.keys())[index] ?? null;
+  },
+  removeItem(key) {
+    storage.delete(key);
+  },
+  setItem(key, value) {
+    storage.set(key, value);
+  },
+};
+
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function buildLesson(overrides: Partial<Lesson> = {}): Lesson {
+  return {
+    _id: "lesson-1",
+    type: "beginner",
+    date: "2025-12-20",
+    timeLength: "9-12",
+    guests: 2,
+    assignedTo: null,
+    ...overrides,
+  };
+}
+
+function buildLessonInput(overrides: Partial<LessonMutationInput> = {}): LessonMutationInput {
+  return {
+    type: "beginner",
+    date: "2025-12-20",
+    timeLength: "9-12",
+    guests: 2,
+    assignedTo: UNASSIGNED_LESSON_VALUE,
+    ...overrides,
+  };
+}
 
 beforeAll(() => {
-  // Save original fetch (Node 18+ or browser)
-  originalFetch = globalThis.fetch;
-
-  // Stub global fetch
-  vi.stubGlobal("fetch", vi.fn());
-
-  // Stub localStorage for helpers that read auth tokens
-  vi.stubGlobal("localStorage", {
-    getItem: (key) => storage[key] ?? null,
-    setItem: (key, value) => {
-      storage[key] = String(value);
-    },
-    removeItem: (key) => {
-      delete storage[key];
-    },
-    clear: () => {
-      storage = {};
-    },
-  });
+  vi.stubGlobal("fetch", fetchMock);
+  vi.stubGlobal("localStorage", localStorageMock);
 });
 
 afterAll(() => {
-  // Restore original fetch
-  vi.stubGlobal("fetch", originalFetch);
+  vi.unstubAllGlobals();
 });
 
 beforeEach(() => {
-  // Reset fetch call history before each test
-  globalThis.fetch.mockReset();
+  fetchMock.mockReset();
   localStorage.clear();
   localStorage.setItem("token", "any-token");
 });
@@ -56,16 +88,11 @@ describe("isAdmin", () => {
   it("should call fetch with correct arguments", async () => {
     const fakeToken = "fakeToken123";
 
-    globalThis.fetch.mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        credentials: { admin: true },
-      }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ credentials: { admin: true } }));
 
     const result = await lib.isAdmin(fakeToken);
 
-    expect(globalThis.fetch).toHaveBeenCalledWith("/api/users/me", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/users/me", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -79,12 +106,7 @@ describe("isAdmin", () => {
   it("should return false if admin is false", async () => {
     const fakeToken = "fakeToken456";
 
-    globalThis.fetch.mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        credentials: { admin: false },
-      }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ credentials: { admin: false } }));
 
     const result = await lib.isAdmin(fakeToken);
     expect(result).toBe(false);
@@ -93,12 +115,7 @@ describe("isAdmin", () => {
   it("should throw an error if fetch returns non-ok", async () => {
     const fakeToken = "fakeToken789";
 
-    globalThis.fetch.mockResolvedValue({
-      ok: false,
-      json: vi.fn().mockResolvedValue({
-        message: "Unauthorized access",
-      }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ message: "Unauthorized access" }, 401));
 
     await expect(lib.isAdmin(fakeToken)).rejects.toThrow(
       "Unauthorized access"
@@ -108,7 +125,7 @@ describe("isAdmin", () => {
   it("should throw an error if fetch rejects (network error)", async () => {
     const error = new Error("Network failure");
 
-    globalThis.fetch.mockRejectedValue(error);
+    fetchMock.mockRejectedValue(error);
 
     await expect(lib.isAdmin("fakeToken")).rejects.toThrow(
       "Network failure"
@@ -116,10 +133,7 @@ describe("isAdmin", () => {
   });
 
   it("should throw an error if token is missing", async () => {
-    await expect(lib.isAdmin(undefined)).rejects.toThrow(
-      "No auth token provided"
-    );
-    await expect(lib.isAdmin(null)).rejects.toThrow(
+    await expect(lib.isAdmin("")).rejects.toThrow(
       "No auth token provided"
     );
   });
@@ -128,7 +142,7 @@ describe("isAdmin", () => {
     const error = new Error("Network failure");
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    globalThis.fetch.mockRejectedValue(error);
+    fetchMock.mockRejectedValue(error);
 
     await expect(lib.isAdmin("fakeToken")).rejects.toThrow(
       "Network failure"
@@ -149,46 +163,43 @@ describe("isAdmin", () => {
 // =====================
 describe("lessonCreate", () => {
   it("should call fetch with correct arguments", async () => {
-    const lessonData = { type: "Beginner Snowboarding", date: "2025-12-20" };
-    const expectedLessonData = { ...lessonData };
+    const lessonData = buildLessonInput({ assignedTo: "user123" });
+    const expectedLesson = buildLesson({ assignedTo: "user123" });
 
-    globalThis.fetch.mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        lesson: { ...expectedLessonData, assignedTo: "user123" },
-      }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ lesson: expectedLesson }));
 
-    const result = await lib.lessonCreate(lessonData, "any-token");
+    const result = await lib.lessonCreate(lessonData);
 
-    expect(globalThis.fetch).toHaveBeenCalledWith("/api/lessons", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/lessons", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer any-token",
       },
-      body: JSON.stringify({ lessonData: expectedLessonData }),
+      body: JSON.stringify({
+        lessonData: {
+          ...lessonData,
+          assignedTo: "user123",
+        },
+      }),
     });
 
-    expect(result).toEqual({ ...expectedLessonData, assignedTo: "user123" });
+    expect(result).toEqual(expectedLesson);
   });
 
   it("should throw an error if fetch returns non-ok", async () => {
-    globalThis.fetch.mockResolvedValue({
-      ok: false,
-      json: vi.fn().mockResolvedValue({ message: "Failed to create lesson" }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ message: "Failed to create lesson" }, 400));
 
-    await expect(lib.lessonCreate({ type: "Intermediate", date: "2025-12-20" }, "any-token")).rejects.toThrow(
+    await expect(lib.lessonCreate(buildLessonInput({ type: "intermediate" }))).rejects.toThrow(
       "Failed to create lesson"
     );
   });
 
   it("should throw on network failure", async () => {
     const error = new Error("Network failure");
-    globalThis.fetch.mockRejectedValue(error);
+    fetchMock.mockRejectedValue(error);
 
-    await expect(lib.lessonCreate({ type: "Advanced", date: "2025-12-20" }, "any-token")).rejects.toThrow(
+    await expect(lib.lessonCreate(buildLessonInput({ type: "advanced" }))).rejects.toThrow(
       "Network failure"
     );
   });
@@ -197,9 +208,9 @@ describe("lessonCreate", () => {
     const error = new Error("Network failure");
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    globalThis.fetch.mockRejectedValue(error);
+    fetchMock.mockRejectedValue(error);
 
-    await expect(lib.lessonCreate({ type: "Freestyle", date: "2025-12-20" }, "any-token")).rejects.toThrow(
+    await expect(lib.lessonCreate(buildLessonInput({ type: "expert" }))).rejects.toThrow(
       "Network failure"
     );
 
@@ -209,14 +220,9 @@ describe("lessonCreate", () => {
   });
 
   it("should throw if lesson field is missing on successful response", async () => {
-    globalThis.fetch.mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({ message: "ok" }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ message: "ok" }));
 
-    await expect(
-      lib.lessonCreate({ type: "Beginner", date: "2025-12-20" })
-    ).rejects.toThrow("Malformed response: missing lesson field");
+    await expect(lib.lessonCreate(buildLessonInput())).rejects.toThrow("Malformed response: missing lesson field");
   });
 });
 
@@ -226,28 +232,21 @@ describe("lessonCreate", () => {
 describe("lessonUpdate", () => {
   it("should call fetch with correct arguments", async () => {
     const lessonId = "lesson123";
-    const lessonData = {
+    const lessonData: LessonMutationInput = {
       type: "advanced",
       date: "2026-01-11",
       timeLength: "1-4",
       guests: 2,
-      assignedTo: "None",
+      assignedTo: UNASSIGNED_LESSON_VALUE,
     };
 
-    globalThis.fetch.mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        lesson: {
-          _id: lessonId,
-          ...lessonData,
-          assignedTo: null,
-        },
-      }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({
+      lesson: buildLesson({ _id: lessonId, ...lessonData, assignedTo: null }),
+    }));
 
     const result = await lib.lessonUpdate(lessonId, lessonData);
 
-    expect(globalThis.fetch).toHaveBeenCalledWith(`/api/lessons/${lessonId}`, {
+    expect(fetchMock).toHaveBeenCalledWith(`/api/lessons/${lessonId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -271,10 +270,7 @@ describe("lessonUpdate", () => {
   it("should throw an error if fetch returns non-ok", async () => {
     const lessonId = "lesson123";
 
-    globalThis.fetch.mockResolvedValue({
-      ok: false,
-      json: vi.fn().mockResolvedValue({ message: "Failed to update lesson" }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ message: "Failed to update lesson" }, 400));
 
     await expect(
       lib.lessonUpdate(lessonId, {
@@ -294,19 +290,16 @@ describe("lessonUpdate", () => {
 // =====================
 describe("getUsers", () => {
   it("should call fetch with correct arguments", async () => {
-    const users = [{ name: "John" }, { name: "Sarah" }];
+    const users: User[] = [
+      { _id: "1", username: "John", admin: false },
+      { _id: "2", username: "Sarah", admin: true },
+    ];
 
-    globalThis.fetch.mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        message: "Users retrieved",
-        users,
-      }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ message: "Users retrieved", users }));
 
     const result = await lib.getUsers();
 
-    expect(globalThis.fetch).toHaveBeenCalledWith("/api/users", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/users", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -318,12 +311,7 @@ describe("getUsers", () => {
   });
 
   it("should throw if users field is missing", async () => {
-    globalThis.fetch.mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        message: "Users retrieved",
-      }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ message: "Users retrieved" }));
 
     await expect(lib.getUsers()).rejects.toThrow(
       "Malformed response: missing users field"
@@ -332,7 +320,7 @@ describe("getUsers", () => {
 
   it("should throw on fetch failure", async () => {
     const error = new Error("Network failure");
-    globalThis.fetch.mockRejectedValue(error);
+    fetchMock.mockRejectedValue(error);
 
     await expect(lib.getUsers()).rejects.toThrow("Network failure");
   });
@@ -341,7 +329,7 @@ describe("getUsers", () => {
     const error = new Error("Network failure");
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    globalThis.fetch.mockRejectedValue(error);
+    fetchMock.mockRejectedValue(error);
 
     await expect(lib.getUsers()).rejects.toThrow("Network failure");
 
@@ -354,18 +342,12 @@ describe("getUsers", () => {
   });
 
   it("should return users exactly as provided", async () => {
-    const users = [
-      { id: 1, name: "Test A" },
-      { id: 2, name: "Test B" },
+    const users: User[] = [
+      { _id: "1", username: "Test A", admin: false },
+      { _id: "2", username: "Test B", admin: false },
     ];
 
-    globalThis.fetch.mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        message: "Users retrieved",
-        users,
-      }),
-    });
+    fetchMock.mockResolvedValue(jsonResponse({ message: "Users retrieved", users }));
 
     const result = await lib.getUsers();
     expect(result).toEqual(users);

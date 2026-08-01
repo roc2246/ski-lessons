@@ -1,5 +1,7 @@
 import React from "react";
 
+type CreateLessonFieldType = "text" | "number" | "date" | "select";
+
 interface LessonFieldOption {
   value: string | number;
   label: string;
@@ -8,7 +10,7 @@ interface LessonFieldOption {
 interface CreateLessonFieldProps {
   label: string;
   name: string;
-  type?: string;
+  type?: CreateLessonFieldType;
   value: string | number | null;
   onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   options?: LessonFieldOption[];
@@ -27,6 +29,7 @@ export default function CreateLessonField({
   required = false,
 }: CreateLessonFieldProps) {
   const normalizedValue = value ?? "";
+
   // Ensure select always has a valid value
   const selectValue = type === "select" ? normalizedValue || options[0]?.value || "" : normalizedValue;
 

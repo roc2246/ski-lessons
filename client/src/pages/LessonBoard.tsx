@@ -1,3 +1,4 @@
+import { UNASSIGNED_LESSON_VALUE } from "../types/domain";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Calendar from "../components/calendar-dir/Calendar";
@@ -7,7 +8,7 @@ import type { Lesson } from "../types/domain";
 
 function LessonBoard() {
   const navigate = useNavigate();
-  const assignedTo = "None";
+  const assignedTo = UNASSIGNED_LESSON_VALUE;
   const [currentDate, setCurrentDate] = useState(new Date());
   const [lessons, setLessons] = useState<Lesson[]>([]);
 

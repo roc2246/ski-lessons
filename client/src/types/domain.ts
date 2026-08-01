@@ -1,8 +1,16 @@
+export const LESSON_TYPES = ["beginner", "intermediate", "advanced", "expert"] as const;
+export const LESSON_TIME_WINDOWS = ["9-12", "1-4", "9-4"] as const;
+export const UNASSIGNED_LESSON_VALUE = "None" as const;
+
+export type LessonType = typeof LESSON_TYPES[number];
+export type LessonTimeWindow = typeof LESSON_TIME_WINDOWS[number];
+export type LessonAssignmentInput = string | typeof UNASSIGNED_LESSON_VALUE | null;
+
 export interface Lesson {
   _id: string;
-  type: string;
+  type: LessonType;
   date: string;
-  timeLength: string;
+  timeLength: LessonTimeWindow;
   guests: number;
   assignedTo: string | null;
 }
@@ -42,9 +50,9 @@ export interface ApiErrorResponse {
 }
 
 export interface LessonMutationInput {
-  type: string;
+  type: LessonType;
   date: string;
-  timeLength: string;
+  timeLength: LessonTimeWindow;
   guests: number;
-  assignedTo: string | "None" | null;
+  assignedTo: LessonAssignmentInput;
 }

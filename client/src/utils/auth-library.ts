@@ -1,5 +1,6 @@
 import type { ApiErrorResponse } from "../types/domain";
 import { getRequiredAuthToken } from "./token-library";
+import { getErrorMessage, getString, parseJsonObject, readJsonObject } from "./response-guards";
 
 interface LoginResponse {
   token?: string;
@@ -17,7 +18,14 @@ export async function login(username: string, password: string): Promise<LoginRe
     });
 
     const text = await res.text();
-    const data = (text ? JSON.parse(text) : null) as LoginResponse | null;
+    const dataObject = text ? parseJsonObject(text) : null;
+    const data: LoginResponse | null = dataObject
+      ? {
+          token: getString(dataObject.token),
+          message: getString(dataObject.message),
+          error: getString(dataObject.error),
+        }
+      : null;
 
     if (!res.ok) {
       alert(data?.error || "Login failed"); // match test
@@ -34,8 +42,7 @@ export async function login(username: string, password: string): Promise<LoginRe
     return data;
   } catch (error) {
     console.error("Error during login:", error);
-    const err = error as Error;
-    alert(err.message || "Something went wrong during login");
+    alert(getErrorMessage(error, "Something went wrong during login"));
     return null;
   }
 }
@@ -70,7 +77,7 @@ export async function register(username: string, password: string, admin: boolea
       body: JSON.stringify({ username, password, admin }),
     });
 
-    const data = (await res.json()) as ApiErrorResponse;
+    const data = await readJsonObject(res) as ApiErrorResponse;
 
     if (res.ok) {
       alert(`${username} registered`);
@@ -102,14 +109,14 @@ export async function selfDeleteFrontend() {
       },
     });
 
-    const data = await res.json();
+    const data = await readJsonObject(res);
 
     if (res.ok) {
       localStorage.removeItem("token");
-      alert(data.message || "Account deleted successfully"); // matches test
+      alert(getString(data.message) ?? "Account deleted successfully");
       globalThis.location.href = "/";
     } else {
-      alert(data.message || "Failed to delete account");
+      alert(getString(data.message) ?? "Failed to delete account");
     }
   } catch (error) {
     console.error("Error deleting account:", error);

@@ -7,6 +7,17 @@ import type {
   User,
 } from "../types/domain";
 import { getRequiredAuthToken } from "./token-library";
+import {
+  getBoolean,
+  getErrorMessage,
+  getRecord,
+  getString,
+  isAuthTokenPayload,
+  isLesson,
+  isUser,
+  isUserArray,
+  readJsonObject,
+} from "./response-guards";
 
 function decodeTokenPayload(token: string): AuthTokenPayload | null {
   try {
@@ -18,7 +29,8 @@ function decodeTokenPayload(token: string): AuthTokenPayload | null {
 
     const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
     const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
-    return JSON.parse(globalThis.atob(padded));
+    const parsed = JSON.parse(globalThis.atob(padded));
+    return isAuthTokenPayload(parsed) ? parsed : null;
   } catch {
     return null;
   }
@@ -59,13 +71,14 @@ export async function isAdmin(token: string): Promise<boolean> {
       },
     });
 
-    const data = (await res.json()) as { message?: string; credentials?: { admin?: boolean } };
+    const data = await readJsonObject(res);
+    const credentials = getRecord(data.credentials);
 
     if (!res.ok) {
-      throw new Error(data.message || "Failed to retrieve admin status");
+      throw new Error(getString(data.message) ?? "Failed to retrieve admin status");
     }
 
-    return data.credentials?.admin === true;
+    return getBoolean(credentials?.admin) === true;
   } catch (error) {
     console.error("Error checking admin status:", error);
     throw error;
@@ -84,13 +97,13 @@ export async function getUsers(): Promise<User[]> {
       },
     });
 
-    const data = (await res.json()) as { message?: string; users?: User[] };
+    const data = await readJsonObject(res);
 
     if (!res.ok) {
-      throw new Error(data.message || "Failed to retrieve users");
+      throw new Error(getString(data.message) ?? "Failed to retrieve users");
     }
 
-    if (!data || !Array.isArray(data.users)) {
+    if (!isUserArray(data.users)) {
       throw new Error("Malformed response: missing users field");
     }
 
@@ -113,13 +126,13 @@ export async function getUser(userId: string): Promise<User> {
       },
     });
 
-    const data = (await res.json()) as { message?: string; user?: User };
+    const data = await readJsonObject(res);
 
     if (!res.ok) {
-      throw new Error(data.message || "Failed to retrieve user");
+      throw new Error(getString(data.message) ?? "Failed to retrieve user");
     }
 
-    if (!data || !data.user) {
+    if (!isUser(data.user)) {
       throw new Error("Malformed response: missing user field");
     }
 
@@ -130,16 +143,17 @@ export async function getUser(userId: string): Promise<User> {
   }
 }
 
+function normalizeAssignedTo(assignedTo: LessonMutationInput["assignedTo"]): string | null {
+  return assignedTo === "None" || assignedTo === "" ? null : assignedTo;
+}
+
 export async function lessonCreate(newLesson: LessonMutationInput): Promise<Lesson> {
   const token = getRequiredAuthToken();
 
   try {
     const lessonData = {
       ...newLesson,
-      assignedTo:
-        newLesson.assignedTo === "None" || newLesson.assignedTo === ""
-          ? null
-          : newLesson.assignedTo,
+      assignedTo: normalizeAssignedTo(newLesson.assignedTo),
       date: newLesson.date,
     };
 
@@ -152,17 +166,17 @@ export async function lessonCreate(newLesson: LessonMutationInput): Promise<Less
       body: JSON.stringify({ lessonData }),
     });
 
-    const data = (await res.json()) as { lesson?: Lesson; message?: string };
+    const data = await readJsonObject(res);
 
     if (res.ok) {
-      if (!data.lesson) {
+      if (!isLesson(data.lesson)) {
         throw new Error("Malformed response: missing lesson field");
       }
       console.log("Lesson created successfully:", data.lesson);
       return data.lesson;
     } else {
       console.error("Lesson creation failed:", data);
-      throw new Error(data.message || "Failed to create lesson");
+      throw new Error(getString(data.message) ?? "Failed to create lesson");
     }
   } catch (error) {
     console.error("Error during lesson creation:", error);
@@ -182,14 +196,20 @@ export async function lessonDelete(lessonId: string): Promise<{ success?: boolea
       },
     });
 
-    const data = (await res.json()) as { success?: boolean; message?: string; lesson?: Lesson };
+    const data = await readJsonObject(res);
+    const lesson = isLesson(data.lesson) ? data.lesson : undefined;
+    const result = {
+      success: typeof data.success === "boolean" ? data.success : undefined,
+      message: getString(data.message),
+      lesson,
+    };
 
     if (res.ok) {
-      console.log("Lesson deleted successfully:", data);
-      return data;
+      console.log("Lesson deleted successfully:", result);
+      return result;
     } else {
-      console.error("Lesson deletion failed:", data);
-      throw new Error(data.message || "Failed to delete lesson");
+      console.error("Lesson deletion failed:", result);
+      throw new Error(result.message ?? "Failed to delete lesson");
     }
   } catch (error) {
     console.error("Error during lesson deletion:", error);
@@ -203,10 +223,7 @@ export async function lessonUpdate(lessonId: string, updatedLesson: LessonMutati
   try {
     const lessonData = {
       ...updatedLesson,
-      assignedTo:
-        updatedLesson.assignedTo === "None" || updatedLesson.assignedTo === ""
-          ? null
-          : updatedLesson.assignedTo,
+      assignedTo: normalizeAssignedTo(updatedLesson.assignedTo),
       date: updatedLesson.date,
     };
 
@@ -219,13 +236,17 @@ export async function lessonUpdate(lessonId: string, updatedLesson: LessonMutati
       body: JSON.stringify({ lessonData }),
     });
 
-    const data = (await res.json()) as { lesson?: Lesson; message?: string };
+    const data = await readJsonObject(res);
 
     if (res.ok) {
-      return data.lesson as Lesson;
+      if (!isLesson(data.lesson)) {
+        throw new Error("Malformed response: missing lesson field");
+      }
+
+      return data.lesson;
     }
 
-    throw new Error(data.message || "Failed to update lesson");
+    throw new Error(getString(data.message) ?? "Failed to update lesson");
   } catch (error) {
     console.error("Error during lesson update:", error);
     throw error;

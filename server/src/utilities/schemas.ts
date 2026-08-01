@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-interface LessonDocument {
+export interface LessonDocument {
   type: string;
   date: string;
   timeLength: string;
@@ -10,7 +10,7 @@ interface LessonDocument {
   updatedAt?: Date;
 }
 
-interface UserDocument {
+export interface UserDocument {
   username: string;
   password: string;
   admin: boolean;
@@ -18,7 +18,7 @@ interface UserDocument {
   updatedAt?: Date;
 }
 
-interface BlacklistedTokenDocument {
+export interface BlacklistedTokenDocument {
   token: string;
   expiresAt: Date;
   createdAt?: Date;
