@@ -251,15 +251,14 @@ export async function switchLessonAssignment(id: string, newUserId: string | nul
 
       const conflictingWindows = CONFLICTING_TIME_LENGTHS[lessonToAssign.timeLength] ?? [lessonToAssign.timeLength];
 
-      const conflictingLesson = await Lesson.findOne()
-        .where("_id")
-        .ne(id)
-        .where("assignedTo")
-        .equals(newUserId)
-        .where("date")
-        .equals(lessonToAssign.date)
-        .where("timeLength")
-        .in(conflictingWindows);
+      const conflictingLesson = await Lesson.findOne({
+        _id: { $ne: id },
+        assignedTo: newUserId,
+        date: lessonToAssign.date,
+        timeLength: {
+          $in: conflictingWindows,
+        },
+      });
 
       if (conflictingLesson) {
         throw createHttpError(
