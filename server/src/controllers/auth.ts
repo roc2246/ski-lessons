@@ -2,12 +2,27 @@ import type { Request, Response } from "express";
 import * as models from "../models/index.js";
 import * as utilities from "../utilities/index.js";
 
-export async function manageNewUser(req: Request, res: Response) {
-  const authReq = req as Request & { body?: { username?: unknown; password?: unknown } };
+interface AuthRequestBody {
+  username: string;
+  password: string;
+}
 
+function parseAuthRequestBody(body: unknown): AuthRequestBody {
+  const raw = (typeof body === "object" && body !== null) ? (body as Record<string, unknown>) : {};
+  const username = typeof raw.username === "string" ? raw.username : "";
+  const password = typeof raw.password === "string" ? raw.password : "";
+
+  if (!username || !password) {
+    throw new Error("Username and password are required");
+  }
+
+  return { username, password };
+}
+
+export async function manageNewUser(req: Request, res: Response) {
   try {
-    const { username, password } = authReq.body ?? {};
-    await models.newUser(username as string, password as string, false);
+    const { username, password } = parseAuthRequestBody(req.body);
+    await models.newUser(username, password, false);
     res.status(201).json({ message: `${username} registered` });
   } catch (error) {
     utilities.sendError(res, 400, "Failed to register user", error);
@@ -15,11 +30,9 @@ export async function manageNewUser(req: Request, res: Response) {
 }
 
 export async function manageLogin(req: Request, res: Response) {
-  const authReq = req as Request & { body?: { username?: unknown; password?: unknown } };
-
   try {
-    const { username, password } = authReq.body ?? {};
-    const token = await models.loginUser(username as string, password as string);
+    const { username, password } = parseAuthRequestBody(req.body);
+    const token = await models.loginUser(username, password);
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     utilities.sendError(res, 401, "Login failed", error);
@@ -30,7 +43,10 @@ export async function manageLogout(req: Request, res: Response) {
   const authReq = req as Request & { token?: unknown };
 
   try {
-    await models.logoutUser(authReq.token as string);
+    if (typeof authReq.token !== "string") {
+      throw new Error("Invalid token");
+    }
+    await models.logoutUser(authReq.token);
     res.status(200).json({ message: "Successfully logged out" });
   } catch (error) {
     utilities.sendError(res, 500, "Logout failed", error);
@@ -74,7 +90,7 @@ export async function manageGetUsers(req: Request, res: Response) {
 
   try {
     const { userId } = authReq.user ?? {};
-    const users = await models.getUsers(userId as string);
+    const users = await models.getUsers(typeof userId === "string" ? userId : undefined);
     res.status(200).json({ message: "Users retrieved successfully", users });
   } catch (error) {
     utilities.sendError(res, 500, "Failed to retrieve users", error);

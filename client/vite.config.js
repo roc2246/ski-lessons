@@ -4,14 +4,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const apiProxyTarget =
+  process.env.VITE_API_URL ||
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:2000"
+    : "https://ski-lessons-7410677781cb.herokuapp.com");
+
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api":
-        process.env.NODE_ENV === "development"
-          ? "http://localhost:2000"
-          : "https://ski-lessons-7410677781cb.herokuapp.com", // your backend URL
+      "/api": apiProxyTarget,
     },
   },
 });

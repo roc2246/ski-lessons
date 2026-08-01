@@ -5,7 +5,7 @@ interface SubmitBtnProps {
     children: ReactNode;
 }
 
-export default function SumbitBtn({type, children}: SubmitBtnProps){
+export default function SubmitBtn({type, children}: SubmitBtnProps){
     return(
       <button type="submit" className={`btn btn--primary ${type}__submit`}>
          {children}

@@ -18,6 +18,28 @@ function hasName(error: unknown): error is { name: string } {
   return typeof error === "object" && error !== null && "name" in error && typeof (error as { name?: unknown }).name === "string";
 }
 
+function isAuthenticatedUserPayload(value: unknown): value is AuthenticatedUser {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const payload = value as Record<string, unknown>;
+
+  if (typeof payload.userId !== "string" || !payload.userId) {
+    return false;
+  }
+
+  if ("username" in payload && payload.username !== undefined && typeof payload.username !== "string") {
+    return false;
+  }
+
+  if ("admin" in payload && payload.admin !== undefined && typeof payload.admin !== "boolean") {
+    return false;
+  }
+
+  return true;
+}
+
 export async function authenticate(req: Request, res: Response, next: NextFunction) {
   const authReq = req as AuthRequest;
 
@@ -33,9 +55,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET ?? "development-secret");
-    const userPayload = decoded as unknown;
-    const normalizedUser = userPayload as Partial<AuthenticatedUser>;
-    if (!normalizedUser.userId) {
+    if (!isAuthenticatedUserPayload(decoded)) {
       throw new Error("Invalid token payload");
     }
 
@@ -45,9 +65,9 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     }
 
     authReq.user = {
-      userId: normalizedUser.userId,
-      ...(typeof normalizedUser.username === "string" ? { username: normalizedUser.username } : {}),
-      ...(typeof normalizedUser.admin === "boolean" ? { admin: normalizedUser.admin } : {}),
+      userId: decoded.userId,
+      ...(typeof decoded.username === "string" ? { username: decoded.username } : {}),
+      ...(typeof decoded.admin === "boolean" ? { admin: decoded.admin } : {}),
     };
     authReq.token = token;
     next();

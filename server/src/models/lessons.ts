@@ -7,6 +7,11 @@ const CONFLICTING_TIME_LENGTHS: Record<string, string[]> = {
   "9-4": ["9-12", "1-4", "9-4"],
 };
 
+interface LessonScheduleView {
+  date: string | Date | null | undefined;
+  timeLength: string;
+}
+
 function createHttpError(message: string, status: number): Error & { status?: number } {
   const error = new Error(message) as Error & { status?: number };
   error.status = status;
@@ -118,16 +123,19 @@ export async function retrieveLessons(param: Record<string, unknown>, limit = 50
 
 export async function retrieveAvailableLessonsForUser(userId: string, limit = 50, skip = 0) {
   try {
-    const [availableLessons, userLessons] = await Promise.all([
+    const [availableLessonsRaw, userLessonsRaw] = await Promise.all([
       retrieveLessons({ assignedTo: null }, limit, skip),
       retrieveLessons({ assignedTo: userId }),
     ]);
 
-    return availableLessons.filter((lesson: any) => {
+    const availableLessons = availableLessonsRaw as LessonScheduleView[];
+    const userLessons = userLessonsRaw as LessonScheduleView[];
+
+    return availableLessons.filter((lesson) => {
       const lessonDateKey = getDateKey(lesson.date);
       if (!lessonDateKey) return false;
 
-      return !userLessons.some((userLesson: any) => {
+      return !userLessons.some((userLesson) => {
         const userLessonDateKey = getDateKey(userLesson.date);
         if (!userLessonDateKey || userLessonDateKey !== lessonDateKey) {
           return false;
@@ -236,12 +244,16 @@ export async function switchLessonAssignment(id: string, newUserId: string | nul
     }
 
     if (newUserId !== null) {
+      if (typeof lessonToAssign.timeLength !== "string") {
+        throw createHttpError("Lesson has invalid time length", 500);
+      }
+
       const conflictingLesson = await Lesson.findOne({
         _id: { $ne: id },
         assignedTo: newUserId,
         date: lessonToAssign.date,
         timeLength: {
-          $in: CONFLICTING_TIME_LENGTHS[lessonToAssign.timeLength as string],
+          $in: CONFLICTING_TIME_LENGTHS[lessonToAssign.timeLength],
         },
       });
 

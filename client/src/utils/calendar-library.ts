@@ -194,7 +194,7 @@ export async function getLessonsForMonth(date: Date, token?: string | null, assi
  * Fetch lessons for the current signed-in user for a specific month.
  * Keeps token lookup in one place so page components stay simple.
  */
-export async function getCurrentMonthLessons(date: Date, assignedTo?: string) {
+export async function getCurrentMonthLessons(date: Date, assignedTo?: string): Promise<Lesson[]> {
   const token = localStorage.getItem("token");
   if (!token) return [];
 
