@@ -82,6 +82,13 @@ LOCAL_ADMIN_PASSWORD=your_strong_local_admin_password
 
 If `LOCAL_ADMIN_USERNAME` and `LOCAL_ADMIN_PASSWORD` are not set, the server will skip local admin bootstrap in non-production environments and log a warning instead of relying on hardcoded defaults.
 
+### Operational Notes
+
+- The backend reads environment values from `server/config/.env` at startup.
+- The server exposes `GET /health` for quick readiness checks. It returns `200` when MongoDB is reachable and `503` while the database is unavailable.
+- If you change backend TypeScript source, rebuild the server before running the compiled entrypoint so `dist/` stays current.
+- The server can start in a degraded mode when MongoDB is unavailable, but database-backed routes will fail until the connection is restored.
+
 ### Run Development Servers
 
 Terminal 1 (backend):
@@ -108,6 +115,13 @@ npm run dev
 ```
 
 Frontend runs on Vite default (`http://localhost:5173`) and calls backend API routes mounted at `/api`.
+
+### Local Development Flow
+
+1. Start the backend first so the API is available.
+2. Open the frontend in a second terminal to use the React app.
+3. Check `http://localhost:2000/health` after startup to confirm the server is responding.
+4. If you see stale backend behavior, rerun `npm --prefix server run build` before restarting the server.
 
 ## Scripts
 
