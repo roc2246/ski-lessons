@@ -12,6 +12,10 @@ dotenv.config({ path: envPath });
 
 let isConnected = false;
 
+export function isDatabaseReady(): boolean {
+  return isConnected;
+}
+
 export async function dbConnect() {
   if (isConnected) return;
 

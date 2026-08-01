@@ -2,6 +2,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
+import { getJwtSecret } from "../utilities/config.js";
+
+type StatusError = Error & { status?: number };
 
 interface AuthUserDocument {
   _id: { toString(): string };
@@ -13,6 +16,12 @@ interface AuthUserDocument {
 
 function getBlacklistedTokenModel() {
   return utilities.getModel(utilities.BlacklistedTokenSchema, "BlacklistedToken");
+}
+
+function createStatusError(message: string, status: number): StatusError {
+  const error = new Error(message) as StatusError;
+  error.status = status;
+  return error;
 }
 
 async function getUserModel() {
@@ -113,7 +122,7 @@ export async function loginUser(username: string, password: string) {
         username: userCreds.username,
         admin: userCreds.admin,
       },
-      process.env.JWT_SECRET ?? "development-secret",
+      getJwtSecret(),
       { expiresIn: "1h" }
     );
   } catch (error) {
@@ -166,11 +175,11 @@ export async function getUsers(userId?: string) {
 export async function logoutUser(token: string) {
   try {
     if (typeof token !== "string") {
-      throw new Error("Token must be a string");
+      throw createStatusError("Token must be a string", 400);
     }
 
     if (typeof jwt.decode !== "function") {
-      throw new Error("Invalid token: unable to decode");
+      throw createStatusError("Invalid token: unable to decode", 401);
     }
 
     const decoded = jwt.decode(token);
@@ -179,7 +188,7 @@ export async function logoutUser(token: string) {
       : null;
 
     if (!expiresAt) {
-      throw new Error("Invalid token: missing expiration");
+      throw createStatusError("Invalid token: missing expiration", 401);
     }
 
     const BlacklistedToken = getBlacklistedTokenModel();
@@ -195,10 +204,15 @@ export async function logoutUser(token: string) {
 
 export async function isTokenBlacklisted(token: string) {
   if (typeof token !== "string") {
-    throw new Error("Token must be a string");
+    throw createStatusError("Token must be a string", 400);
   }
 
-  const BlacklistedToken = getBlacklistedTokenModel();
-  const found = await BlacklistedToken.exists({ token });
-  return Boolean(found);
+  try {
+    const BlacklistedToken = getBlacklistedTokenModel();
+    const found = await BlacklistedToken.exists({ token });
+    return Boolean(found);
+  } catch (error) {
+    await errorEmail("Token blacklist lookup failed", error instanceof Error ? error.toString() : String(error));
+    throw createStatusError("Token blacklist lookup failed", 503);
+  }
 }

@@ -2,7 +2,8 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import * as models from "../models/index.js";
 import { sendError } from "../utilities/index.js";
-import { hasErrorName } from "../utilities/type-guards.js";
+import { getJwtSecret } from "../utilities/config.js";
+import { getErrorStatus, hasErrorName } from "../utilities/type-guards.js";
 
 interface AuthenticatedUser {
   userId: string;
@@ -44,7 +45,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       return sendError(res, 401, "Unauthorized: Invalid token");
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET ?? "development-secret");
+    const decoded = jwt.verify(token, getJwtSecret());
     if (!isAuthenticatedUserPayload(decoded)) {
       throw new Error("Invalid token payload");
     }
@@ -62,6 +63,12 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     req.token = token;
     next();
   } catch (error) {
+    const status = getErrorStatus(error, 401);
+
+    if (status >= 500) {
+      return sendError(res, status, "Authorization check failed", error);
+    }
+
     if (hasErrorName(error) && error.name === "TokenExpiredError") {
       return sendError(res, 401, "Unauthorized: Token expired");
     }

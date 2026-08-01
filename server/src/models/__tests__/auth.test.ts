@@ -9,6 +9,10 @@ import jwt from "jsonwebtoken";
 import { errorEmail } from "../../email/index.js";
 import * as utilities from "../../utilities/index.js";
 
+beforeEach(() => {
+  process.env.JWT_SECRET = "test-secret";
+});
+
 const blacklistedTokenModel: any = {
   updateOne: vi.fn(() => Promise.resolve()),
   exists: vi.fn(() => Promise.resolve(false)),
@@ -133,5 +137,11 @@ describe("logoutUser", () => {
   it("persists token to blacklist store", async () => {
     await models.logoutUser("fake.token");
     expect(blacklistedTokenModel.updateOne).toHaveBeenCalled();
+  });
+
+  it("throws 401-style errors when token data is invalid", async () => {
+    (jwt.decode as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce(null);
+
+    await expect(models.logoutUser("bad.token")).rejects.toThrow("Invalid token: missing expiration");
   });
 });

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import * as models from "../models/index.js";
 import * as utilities from "../utilities/index.js";
+import { getErrorStatus } from "../utilities/type-guards.js";
 
 interface AuthRequestBody {
   username: string;
@@ -42,12 +43,13 @@ export async function manageLogin(req: Request, res: Response) {
 export async function manageLogout(req: Request, res: Response) {
   try {
     if (typeof req.token !== "string") {
-      throw new Error("Invalid token");
+      throw Object.assign(new Error("Invalid token"), { status: 401 });
     }
     await models.logoutUser(req.token);
     res.status(200).json({ message: "Successfully logged out" });
   } catch (error) {
-    utilities.sendError(res, 500, "Logout failed", error);
+    const status = getErrorStatus(error);
+    utilities.sendError(res, status, "Logout failed", error);
   }
 }
 

@@ -6,10 +6,12 @@ import routes from "./routes/index.js";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { dbConnect, ensureLocalAdminUser } from "./models/index.js";
+import { dbConnect, ensureLocalAdminUser, isDatabaseReady } from "./models/index.js";
 import { sanitizeRequest } from "./middleware/sanitize.js";
+import { validateRuntimeConfig } from "./utilities/config.js";
 
 dotenv.config();
+validateRuntimeConfig();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,7 +43,26 @@ const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeade
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
 
-app.use("/api", routes);
+app.get("/health", (_req: Request, res: Response) => {
+  const ready = isDatabaseReady();
+
+  return res.status(ready ? 200 : 503).json({
+    status: ready ? "ok" : "degraded",
+    databaseReady: ready,
+  });
+});
+
+app.use("/api", (req: Request, res: Response, next: NextFunction) => {
+  if (!isDatabaseReady()) {
+    return res.status(503).json({
+      message: "Service unavailable",
+      error: "Database unavailable",
+      path: req.path,
+    });
+  }
+
+  next();
+}, routes);
 app.use(express.static(clientDistPath));
 
 if (process.env.NODE_ENV === "production") {

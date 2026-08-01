@@ -26,6 +26,9 @@ vi.mock("../../models/index.js", () => ({
 }));
 
 beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  process.env.JWT_SECRET = "test-secret";
+});
 
 describe("authenticate", () => {
   it("rejects requests with no bearer token", async () => {
