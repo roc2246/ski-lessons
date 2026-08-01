@@ -19,7 +19,7 @@ Full-stack MERN application for managing ski lesson bookings with role-based acc
 | Backend | Node.js, Express, TypeScript, Nodemon |
 | Database | MongoDB with Mongoose |
 | Auth | JSON Web Tokens (JWT) |
-| Styling | SCSS + CSS modules/partials |
+| Styling | SCSS partial architecture |
 | Testing | Vitest |
 
 ## Repository Structure
@@ -33,20 +33,22 @@ client/
     scss/
 
 server/
-  controllers/
-  middleware/
-  models/
-  routes/
-  utilities/
-  scripts/
-  email/
+  src/
+    controllers/
+    middleware/
+    models/
+    routes/
+    utilities/
+    scripts/
+    email/
+  dist/
 ```
 
 ## Quick Start
 
 ### Prerequisites
 
-- Node.js 22.x (matches `engines.node`)
+- Node.js >= 20 and < 23 (matches `engines.node`)
 - npm
 - MongoDB instance
 
@@ -86,7 +88,16 @@ Terminal 1 (backend):
 
 ```bash
 cd server
+# Required once after TypeScript source changes before running dist output.
+npm run build
 npm run dev
+```
+
+Optional while actively editing backend TypeScript in another terminal:
+
+```bash
+cd server
+npx tsc -p tsconfig.json --watch
 ```
 
 Terminal 2 (frontend):
@@ -102,22 +113,53 @@ Frontend runs on Vite default (`http://localhost:5173`) and calls backend API ro
 
 Root (`package.json`):
 
-- `npm run build` builds client
+- `npm run build` builds server and client
+- `npm run build:server` installs server deps and compiles TypeScript to `server/dist`
+- `npm run build:client` installs client deps and builds Vite assets
 - `npm run test` runs Vitest
-- `npm run start` starts `server/index.js`
+- `npm run test:run` runs Vitest once
+- `npm run test:coverage` runs Vitest with coverage
+- `npm run start` starts `server/dist/index.js`
 
 Server (`server/package.json`):
 
-- `npm run dev` starts nodemon
+- `npm run dev` starts nodemon using `dist/index.js`
+- `npm run build` compiles TypeScript to `dist`
 - `npm run start` starts node server
 - `npm run test` runs server Vitest tests
-- `npm run migrate:lessons` migrates legacy lesson records
+- `npm run migrate:lessons` runs compiled migration at `dist/scripts/migrate-lessons.js`
 
 Client (`client/package.json`):
 
 - `npm run dev` starts Vite
 - `npm run build` creates production build
+- `npm run typecheck` runs TypeScript checks
+- `npm run lint` runs ESLint
 - `npm run test` runs client Vitest tests
+
+## Development Workflow
+
+Recommended local workflow:
+
+```bash
+# from project root
+npm --prefix server run build
+npm --prefix server run dev
+
+# in a second terminal
+npm --prefix client run dev
+```
+
+Recommended validation workflow before pushing:
+
+```bash
+npm --prefix client run lint
+npm --prefix client run typecheck
+npm --prefix client run test -- --run
+npm --prefix client run build
+npm --prefix server run test -- --run
+npm --prefix server run build
+```
 
 ## API Overview
 
@@ -147,6 +189,8 @@ All endpoints are mounted under `/api`.
 - `assignedTo=<userId>`: lessons for a specific user id
 - no `assignedTo`: lessons for the authenticated user (`req.user.userId`)
 
+Note: `None` is case-sensitive in the current controller logic.
+
 ### Validation Rules
 
 Auth payloads:
@@ -165,6 +209,65 @@ Create lesson payload (`lessonData`):
 Assign lesson payload:
 
 - `lessonId` route param must be a valid 24-char Mongo ObjectId
+
+### API Request/Response Examples
+
+Login request:
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "username": "instructor1",
+  "password": "correct-horse-battery"
+}
+```
+
+Login success response:
+
+```json
+{
+  "message": "Login successful",
+  "token": "<jwt>"
+}
+```
+
+Create lesson request (admin):
+
+```http
+POST /api/lessons
+Authorization: Bearer <jwt>
+Content-Type: application/json
+
+{
+  "lessonData": {
+    "type": "intermediate",
+    "timeLength": "9-12",
+    "date": "2026-12-18",
+    "guests": 4,
+    "assignedTo": null
+  }
+}
+```
+
+Validation failure example:
+
+```json
+{
+  "message": "Validation failed",
+  "error": "Guests must be an integer from 1 to 12"
+}
+```
+
+Conflict example:
+
+```json
+{
+  "message": "Failed to create lesson",
+  "error": "This instructor is already booked on 2026-12-18 during 9-12."
+}
+```
 
 ## Auth and RBAC
 
@@ -215,6 +318,8 @@ npm run migrate:lessons
 
 This script normalizes legacy records by converting `assignedTo: "None"` to `null`, coercing ObjectId-like `assignedTo` strings, and rewriting malformed date values through a safe parse path.
 
+The migration script runs from compiled server output. Run `npm run build` in `server/` first if `dist/scripts/migrate-lessons.js` is missing.
+
 ## Architecture Flow
 
 Request lifecycle:
@@ -229,6 +334,31 @@ Frontend/back-end split:
 
 - `client/` handles pages, components, calendar rendering, and user interaction.
 - `server/` handles auth, RBAC, validation, persistence, and API responses.
+
+## SCSS Architecture
+
+- Entry point: `client/src/scss/main.scss`
+- Token and breakpoint source of truth: `client/src/scss/abstracts/_tokens.scss`
+- Shared responsive and reduced-motion mixins: `respond-min`, `respond-max`, `motion-reduce`
+- Layout partials live in `client/src/scss/layouts/`
+- Component partials live in `client/src/scss/components/`
+
+Guidelines:
+
+- Prefer token references over hardcoded color values.
+- Keep selectors shallow and BEM-friendly.
+- Use shared mixins for breakpoints and reduced-motion consistency.
+
+## Troubleshooting
+
+- Backend dev starts but serves stale code:
+  Run `npm --prefix server run build` again because nodemon runs `dist/index.js`.
+- Migration command fails with missing script in `dist`:
+  Run `npm --prefix server run build` before `npm --prefix server run migrate:lessons`.
+- MongoDB unavailable on startup:
+  Server can start in degraded mode, but DB-dependent API routes will fail until MongoDB is reachable.
+- Unexpected 401 after idle time:
+  Token may be expired or revoked; log in again.
 
 ## Security Notes
 

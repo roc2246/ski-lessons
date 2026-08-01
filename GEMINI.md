@@ -81,7 +81,7 @@ Use:
 Prefer:
 - Separation of routes, controllers, and models
 - JWT for stateless authentication
-- Joi or custom validation utilities (see `server/utilities/validation.js`)
+- Centralized validation middleware (see `server/src/middleware/validation.ts`)
 
 **React**
 Use:
