@@ -44,27 +44,32 @@ export async function manageUpdateLesson(req: Request, res: Response) {
 export async function manageLessonRetrieval(req: Request, res: Response) {
   try {
     const assignedToParam = typeof req.query.assignedTo === "string" ? req.query.assignedTo : undefined;
+    const currentUserId = req.user?.userId;
 
     let lessons;
     if (assignedToParam === "None") {
-      lessons = await models.retrieveLessons({ assignedTo: null });
+      lessons = typeof currentUserId === "string"
+        ? await models.retrieveAvailableLessonsForUser(currentUserId)
+        : await models.retrieveLessons({ assignedTo: null });
     } else if (assignedToParam === "all") {
       lessons = await models.retrieveLessons({});
     } else if (assignedToParam) {
       lessons = await models.retrieveLessons({ assignedTo: assignedToParam });
     } else {
-      lessons = await models.retrieveLessons({ assignedTo: req.user?.userId });
+      lessons = await models.retrieveLessons({ assignedTo: currentUserId });
     }
 
     return res.status(200).json({
       message:
         assignedToParam === "None"
-          ? "Lessons with assignedTo=None retrieved"
+          ? typeof currentUserId === "string"
+            ? `Available lessons retrieved for user ID ${currentUserId}`
+            : "Lessons with assignedTo=None retrieved"
           : assignedToParam === "all"
             ? "All lessons retrieved"
             : assignedToParam
               ? `Lessons retrieved for assignedTo=${assignedToParam}`
-              : `Lessons retrieved for user ID ${req.user?.userId}`,
+              : `Lessons retrieved for user ID ${currentUserId}`,
       lessons,
     });
   } catch (error) {
