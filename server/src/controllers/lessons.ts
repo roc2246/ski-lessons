@@ -48,9 +48,7 @@ export async function manageLessonRetrieval(req: Request, res: Response) {
 
     let lessons;
     if (assignedToParam === "None") {
-      lessons = typeof currentUserId === "string"
-        ? await models.retrieveAvailableLessonsForUser(currentUserId)
-        : await models.retrieveLessons({ assignedTo: null });
+      lessons = await models.retrieveLessons({ assignedTo: null });
     } else if (assignedToParam === "all") {
       lessons = await models.retrieveLessons({});
     } else if (assignedToParam) {
@@ -62,9 +60,7 @@ export async function manageLessonRetrieval(req: Request, res: Response) {
     return res.status(200).json({
       message:
         assignedToParam === "None"
-          ? typeof currentUserId === "string"
-            ? `Available lessons retrieved for user ID ${currentUserId}`
-            : "Lessons with assignedTo=None retrieved"
+          ? "Lessons with assignedTo=None retrieved"
           : assignedToParam === "all"
             ? "All lessons retrieved"
             : assignedToParam

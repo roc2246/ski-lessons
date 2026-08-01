@@ -7,7 +7,6 @@ vi.mock("../../models/index.js", async () => {
     createLesson: vi.fn(),
     updateLesson: vi.fn(),
     retrieveLessons: vi.fn(),
-    retrieveAvailableLessonsForUser: vi.fn(),
     switchLessonAssignment: vi.fn(),
     removeLesson: vi.fn(),
   };
@@ -92,19 +91,18 @@ describe("manageLessonRetrieval", () => {
     expect(res.json).toHaveBeenCalledWith({ message: "Lessons retrieved for user ID uid123", lessons });
   });
 
-  it("retrieves only available unassigned lessons for the current user", async () => {
+  it("retrieves all unassigned lessons when assignedTo=None", async () => {
     const lessons = [{ _id: "l2", assignedTo: null }];
-    (models.retrieveAvailableLessonsForUser as any).mockResolvedValueOnce(lessons);
+    (models.retrieveLessons as any).mockResolvedValueOnce(lessons);
     const req: any = { user: { userId: "uid123" }, query: { assignedTo: "None" } };
     const res = createRes();
 
     await controllers.manageLessonRetrieval(req, res);
 
-    expect(models.retrieveAvailableLessonsForUser).toHaveBeenCalledWith("uid123");
-    expect(models.retrieveLessons).not.toHaveBeenCalled();
+    expect(models.retrieveLessons).toHaveBeenCalledWith({ assignedTo: null });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
-      message: "Available lessons retrieved for user ID uid123",
+      message: "Lessons with assignedTo=None retrieved",
       lessons,
     });
   });
