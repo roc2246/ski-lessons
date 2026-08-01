@@ -208,7 +208,7 @@ footer {
 // RESPONSIVE
 // -----------------------------------------------------
 
-@media (max-width: $bp-content) {
+@include respond-max($bp-content) {
 
   .two-column{
 
@@ -221,7 +221,7 @@ footer {
   }
 }
 
-@media (max-width: $bp-tablet) {
+@include respond-max($bp-tablet) {
 
   .app,
   .app-shell {

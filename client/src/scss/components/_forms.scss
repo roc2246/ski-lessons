@@ -88,7 +88,7 @@
   &:disabled {
     cursor: not-allowed;
     color: var(--color-secondary);
-    background: #edf1ef;
+    background: var(--color-panel-strong);
     opacity: 0.75;
   }
 
@@ -139,7 +139,7 @@
   padding: var(--space-3) var(--space-4);
   border: 0.0625rem solid var(--color-border-muted);
   border-radius: var(--radius);
-  background: #f8faf9;
+  background: var(--color-panel-muted);
 }
 
 .field:has(.field__input[type="checkbox"]) .field__label {
@@ -201,7 +201,7 @@
 // Responsive Enhancements
 // --------------------------------------------------------
 
-@media (min-width: $bp-sm) {
+@include respond-min($bp-sm) {
   .create-lesson__form {
     gap: var(--space-6);
   }
@@ -218,7 +218,7 @@
   }
 }
 
-@media (max-width: $bp-2xs) {
+@include respond-max($bp-2xs) {
   .field__input,
   .create-lesson__field input,
   .create-lesson__field select {

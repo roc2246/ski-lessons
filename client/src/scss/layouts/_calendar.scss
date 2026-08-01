@@ -10,7 +10,7 @@
   margin-top: var(--space-5);
   padding-inline: var(--space-3);
 
-  @media (min-width: $bp-sm) {
+  @include respond-min($bp-sm) {
     margin-top: var(--space-8);
     padding-inline: var(--space-5);
   }
@@ -120,7 +120,7 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0.3rem;
 
-  @media (min-width: $bp-sm) {
+  @include respond-min($bp-sm) {
     gap: 0.55rem;
   }
 }
@@ -176,7 +176,7 @@
    */
   &[role="button"] {
     cursor: pointer;
-    background: #edf6f0;
+    background: var(--color-calendar-date-bg);
     border-color: rgba(31, 98, 59, 0.48);
     box-shadow: inset 0 0 0 1px rgba(31, 98, 59, 0.06);
 
@@ -216,7 +216,7 @@
   }
 
   &[role="button"]:hover {
-    background: #e3f1e8;
+    background: var(--color-calendar-date-bg-hover);
     border-color: var(--color-primary);
     box-shadow: 0 0.55rem 1.2rem rgba(31, 61, 43, 0.17);
     transform: translateY(-2px);
@@ -235,7 +235,7 @@
   }
 
   &.active {
-    background: #e5f2e9;
+    background: var(--color-calendar-date-bg-active);
     border-color: var(--color-accent);
     box-shadow:
       0 0 0 0.12rem rgba(217, 164, 65, 0.24),
@@ -245,7 +245,7 @@
     &::after {
       content: "Selected";
       background: var(--color-accent);
-      color: #17261d;
+      color: var(--color-text);
     }
   }
 
@@ -367,7 +367,7 @@
     min-height: 2rem;
     padding: 0;
     color: var(--color-secondary);
-    background: #eef3f0;
+    background: var(--color-calendar-close-bg);
     border: 0;
     border-radius: 50%;
     font-size: 0.8rem;
@@ -412,8 +412,8 @@
   gap: 0.35rem;
   align-items: start;
   color: var(--color-text);
-  background: #f4f8f5;
-  border: 1px solid #d9e5de;
+  background: var(--color-calendar-lesson-bg);
+  border: 1px solid var(--color-calendar-lesson-border);
   border-left: 0.3rem solid var(--color-primary);
   border-radius: 0.65rem;
   text-align: left;
@@ -467,8 +467,8 @@
     transform 120ms ease;
 
   &:hover {
-    background: #162f21;
-    border-color: #162f21;
+    background: var(--color-button-dark-hover);
+    border-color: var(--color-button-dark-hover);
     box-shadow: 0 0.35rem 0.85rem rgba(31, 61, 43, 0.2);
     transform: translateY(-1px);
   }
@@ -486,7 +486,7 @@
 /* ======================================================
    RESPONSIVE CALENDAR
 ====================================================== */
-@media (max-width: $bp-sm) {
+@include respond-max($bp-sm) {
   .calendar-section {
     padding-inline: var(--space-2);
   }
@@ -536,7 +536,7 @@
 }
 
 
-@media (max-width: $bp-2xs) {
+@include respond-max($bp-2xs) {
   .calendar__days,
   .calendar__dates {
     gap: 0.18rem;
@@ -571,7 +571,7 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include motion-reduce {
   .calendar__nav,
   .calendar__date,
   .calendar__lesson-btn,

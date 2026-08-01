@@ -578,17 +578,17 @@ main {
   margin: 0 0 var(--space-4);
   padding: 0.8rem 1rem;
   color: var(--color-primary);
-  background: #edf5f0;
-  border: 1px solid #d5e4da;
+  background: var(--color-status-info-bg);
+  border: 1px solid var(--color-status-info-border);
   border-radius: var(--radius);
   font-size: 0.9rem;
   font-weight: 650;
 }
 
 .delete-lessons__status--error {
-  color: #8e2525;
-  background: #fff3f3;
-  border-color: #ecc1c1;
+  color: var(--color-status-error-text);
+  background: var(--color-status-error-bg);
+  border-color: var(--color-status-error-border);
 }
 
 .delete-lessons__list {
@@ -650,9 +650,9 @@ main {
   min-height: 2.75rem;
   padding: 0.65rem 1rem;
   flex-shrink: 0;
-  color: #9a2323;
+  color: var(--color-delete-text);
   background: #fff;
-  border: 1px solid #ddb5b5;
+  border: 1px solid var(--color-delete-border);
   border-radius: var(--radius);
   font: inherit;
   font-size: 0.86rem;
@@ -668,8 +668,8 @@ main {
 
 .delete-lessons__delete:hover {
   color: #fff;
-  background: #a12626;
-  border-color: #a12626;
+  background: var(--color-delete-bg-hover);
+  border-color: var(--color-delete-bg-hover);
   box-shadow: 0 0.4rem 0.9rem rgba(161, 38, 38, 0.22);
   transform: translateY(-1px);
 }
@@ -738,7 +738,7 @@ main {
 // RESPONSIVE BEHAVIOR
 // ======================================================
 
-@media (max-width: $bp-sm) {
+@include respond-max($bp-sm) {
   main {
     padding: var(--space-3);
   }
@@ -815,7 +815,7 @@ main {
   }
 }
 
-@media (min-width: $bp-md) {
+@include respond-min($bp-md) {
   .login,
   .new-user {
     padding: var(--space-8);
@@ -831,7 +831,7 @@ main {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include motion-reduce {
   .instructor__link,
   .lesson-board__link,
   .admin__link,
