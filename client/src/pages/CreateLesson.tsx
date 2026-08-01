@@ -8,6 +8,7 @@ import type { LessonMutationInput, User } from "../types/domain";
 function CreateLesson() {
   const [users, setUsers] = useState<User[]>([]);
   const [status, setStatus] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<LessonMutationInput>({
     type: "beginner",
@@ -41,6 +42,10 @@ function CreateLesson() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (isSubmitting) {
+      return;
+    }
+
     // Force defaults if somehow blank
     const dataToSend = {
       ...formData,
@@ -52,6 +57,7 @@ function CreateLesson() {
     console.log("Submitting lesson:", dataToSend);
 
     setStatus("Creating lesson...");
+    setIsSubmitting(true);
     try {
       await adminLib.lessonCreate(dataToSend);
       alert("Lesson created successfully!");
@@ -69,6 +75,8 @@ function CreateLesson() {
       console.error(err);
       alert("Failed to create lesson.");
       setStatus("Failed to create lesson.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -84,7 +92,7 @@ function CreateLesson() {
         {status}
       </div>
 
-      <form className="create-lesson__form" onSubmit={handleSubmit}>
+      <form className="create-lesson__form" onSubmit={handleSubmit} aria-busy={isSubmitting}>
         <CreateLessonField
           label="Lesson Type:"
           type="select"
@@ -146,8 +154,8 @@ function CreateLesson() {
           required
         />
 
-        <button type="submit" id="create-btn">
-          Create Lesson
+        <button type="submit" id="create-btn" disabled={isSubmitting}>
+          {isSubmitting ? "Creating..." : "Create Lesson"}
         </button>
       </form>
 

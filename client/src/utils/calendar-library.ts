@@ -1,4 +1,5 @@
 import type { CalendarLesson, Lesson } from "../types/domain";
+import { getRequiredAuthToken } from "./token-library";
 
 // ================================
 // Calendar Library (React-friendly)
@@ -14,7 +15,7 @@ function getDateParts(dateString: string) {
  */
 export async function getLessons(assignedTo?: string): Promise<Lesson[]> {
   try {
-    const token = localStorage.getItem("token");
+    const token = getRequiredAuthToken();
     let url = "/api/lessons";
 
     if (assignedTo === "None") {
@@ -154,7 +155,7 @@ export function nextMonth(currentMonthYear: string) {
  */
 export async function getLessonsForMonth(date: Date, token?: string | null, assignedTo?: string): Promise<Lesson[]> {
   try {
-    if (!token) token = localStorage.getItem("token");
+    token = token || getRequiredAuthToken();
     let url = "/api/lessons";
 
     if (assignedTo === "None") {

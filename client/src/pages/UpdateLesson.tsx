@@ -35,6 +35,7 @@ function UpdateLesson() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedLessonId, setSelectedLessonId] = useState("");
   const [status, setStatus] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<LessonMutationInput>({
     type: "beginner",
     date: "",
@@ -99,12 +100,17 @@ function UpdateLesson() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (isSubmitting) {
+      return;
+    }
+
     if (!selectedLessonId) {
       setStatus("Select a lesson to update.");
       return;
     }
 
     setStatus("Updating lesson...");
+    setIsSubmitting(true);
 
     try {
       const updatedLesson = await adminLib.lessonUpdate(selectedLessonId, formData);
@@ -119,6 +125,8 @@ function UpdateLesson() {
     } catch (error) {
       console.error("Failed to update lesson:", error);
       setStatus("Failed to update lesson.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -142,7 +150,7 @@ function UpdateLesson() {
       {lessons.length === 0 ? (
         <p>No lessons found.</p>
       ) : (
-        <form className="update-lesson__form" onSubmit={handleSubmit}>
+        <form className="update-lesson__form" onSubmit={handleSubmit} aria-busy={isSubmitting}>
           <label htmlFor="lesson-select">Select lesson</label>
           <select
             id="lesson-select"
@@ -223,7 +231,9 @@ function UpdateLesson() {
             ))}
           </select>
 
-          <button type="submit">Update Lesson</button>
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Updating..." : "Update Lesson"}
+          </button>
         </form>
       )}
 

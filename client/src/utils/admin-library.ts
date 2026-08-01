@@ -6,6 +6,7 @@ import type {
   LessonMutationInput,
   User,
 } from "../types/domain";
+import { getRequiredAuthToken } from "./token-library";
 
 function decodeTokenPayload(token: string): AuthTokenPayload | null {
   try {
@@ -72,10 +73,7 @@ export async function isAdmin(token: string): Promise<boolean> {
 }
 
 export async function getUsers(): Promise<User[]> {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    throw new Error("No auth token provided");
-  }
+  const token = getRequiredAuthToken();
 
   try {
     const res = await fetch("/api/users", {
@@ -104,10 +102,7 @@ export async function getUsers(): Promise<User[]> {
 }
 
 export async function getUser(userId: string): Promise<User> {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    throw new Error("No auth token provided");
-  }
+  const token = getRequiredAuthToken();
 
   try {
     const res = await fetch(`/api/users/${userId}`, {
@@ -136,10 +131,7 @@ export async function getUser(userId: string): Promise<User> {
 }
 
 export async function lessonCreate(newLesson: LessonMutationInput): Promise<Lesson> {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    throw new Error("No auth token provided");
-  }
+  const token = getRequiredAuthToken();
 
   try {
     const lessonData = {
@@ -179,10 +171,7 @@ export async function lessonCreate(newLesson: LessonMutationInput): Promise<Less
 }
 
 export async function lessonDelete(lessonId: string): Promise<{ success?: boolean; message?: string; lesson?: Lesson }> {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    throw new Error("No auth token provided");
-  }
+  const token = getRequiredAuthToken();
 
   try {
     const res = await fetch(`/api/lessons/${lessonId}`, {
@@ -209,10 +198,7 @@ export async function lessonDelete(lessonId: string): Promise<{ success?: boolea
 }
 
 export async function lessonUpdate(lessonId: string, updatedLesson: LessonMutationInput): Promise<Lesson> {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    throw new Error("No auth token provided");
-  }
+  const token = getRequiredAuthToken();
 
   try {
     const lessonData = {

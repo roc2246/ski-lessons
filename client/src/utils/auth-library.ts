@@ -1,4 +1,5 @@
 import type { ApiErrorResponse } from "../types/domain";
+import { getRequiredAuthToken } from "./token-library";
 
 interface LoginResponse {
   token?: string;
@@ -42,18 +43,15 @@ export async function login(username: string, password: string): Promise<LoginRe
 
 // --------------------- LOGOUT ---------------------
 export async function logout() {
-  const token = localStorage.getItem("token");
-
   try {
-    if (token) {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    }
+    const token = getRequiredAuthToken();
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
   } catch (err) {
     console.error("Logout request failed:", err);
   } finally {
@@ -86,7 +84,6 @@ export async function register(username: string, password: string, admin: boolea
 
 // --------------------- SELF DELETE ---------------------
 export async function selfDeleteFrontend() {
-  const token = localStorage.getItem("token")
   if (
     !globalThis.confirm(
       "Are you sure you want to delete your account? This action cannot be undone."
@@ -96,6 +93,7 @@ export async function selfDeleteFrontend() {
   }
 
   try {
+    const token = getRequiredAuthToken();
     const res = await fetch("/api/users/me", {
       method: "DELETE",
       headers: {

@@ -24,6 +24,7 @@ function DeleteLesson() {
   const [status, setStatus] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [userLookup, setUserLookup] = useState<Record<string, string>>({});
+  const [deletingLessonId, setDeletingLessonId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchLessons() {
@@ -55,6 +56,10 @@ function DeleteLesson() {
   }, []);
 
   const handleDelete = async (lessonId: string) => {
+    if (deletingLessonId) {
+      return;
+    }
+
     const confirmed = window.confirm(
       "Are you sure you want to permanently delete this lesson?"
     );
@@ -62,6 +67,7 @@ function DeleteLesson() {
     if (!confirmed) return;
 
     setStatus("Deleting lesson...");
+    setDeletingLessonId(lessonId);
 
     try {
       await adminLib.lessonDelete(lessonId);
@@ -74,6 +80,8 @@ function DeleteLesson() {
     } catch (err) {
       console.error("Failed to delete lesson:", err);
       setStatus("Failed to delete lesson.");
+    } finally {
+      setDeletingLessonId(null);
     }
   };
 
@@ -191,8 +199,10 @@ function DeleteLesson() {
                     className="delete-lessons__delete"
                     onClick={() => handleDelete(lesson._id)}
                     aria-label={`Delete ${lesson.type || "lesson"} on ${formatLessonDate(lesson.date)}`}
+                    disabled={deletingLessonId !== null}
+                    aria-busy={deletingLessonId === lesson._id}
                   >
-                    Delete
+                    {deletingLessonId === lesson._id ? "Deleting..." : "Delete"}
                   </button>
                 </article>
               );
