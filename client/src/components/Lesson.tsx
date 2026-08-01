@@ -28,7 +28,7 @@ export default function Lesson({ lesson, onLessonAdded }: LessonProps) {
       }
     } catch (err) {
       alert(
-        `User is already assigned to a lesson on ${formatLessonDate(lesson.date)} at ${lesson.timeLength}`,
+        `User is already assigned to a lesson on ${formatLessonDate(lesson.date)} during ${lesson.timeLength}`,
       );
       console.error(err);
     }
