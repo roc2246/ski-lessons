@@ -32,7 +32,7 @@ async function ensureLessonIndexes() {
     await lessonsCollection.createIndex(
       { date: 1, assignedTo: 1 },
       {
-        unique: true,
+        unique: false,
         partialFilterExpression: { assignedTo: { $type: "objectId" } },
         name: "date_1_assignedTo_1",
       }
