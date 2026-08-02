@@ -24,9 +24,35 @@ function createHttpError(message: string, status: number): Error & { status?: nu
   return error;
 }
 
+function formatUtcDateKey(date: Date): string {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function getDateKey(value: string | Date | null | undefined) {
-  const date = new Date(value ?? "");
-  return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    const isoLike = /^\d{4}-\d{2}-\d{2}/;
+    if (isoLike.test(trimmed)) {
+      return trimmed.slice(0, 10);
+    }
+
+    const parsed = new Date(trimmed);
+    return Number.isNaN(parsed.getTime()) ? null : formatUtcDateKey(parsed);
+  }
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : formatUtcDateKey(value);
+  }
+
+  const parsed = new Date(String(value));
+  return Number.isNaN(parsed.getTime()) ? null : formatUtcDateKey(parsed);
 }
 
 function normalizeLessonDate(value: unknown): string | null {
@@ -38,21 +64,21 @@ function normalizeLessonDate(value: unknown): string | null {
     const trimmed = value.trim();
     if (!trimmed) return null;
 
-    const isoLike = /^\d{4}-\d{2}-\d{2}$/;
-    if (isoLike.test(trimmed)) {
-      return trimmed;
+    const isoDatePrefix = /^\d{4}-\d{2}-\d{2}/;
+    if (isoDatePrefix.test(trimmed)) {
+      return trimmed.slice(0, 10);
     }
 
     const parsed = new Date(trimmed);
-    return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10);
+    return Number.isNaN(parsed.getTime()) ? null : formatUtcDateKey(parsed);
   }
 
   if (value instanceof Date) {
-    return Number.isNaN(value.getTime()) ? null : value.toISOString().slice(0, 10);
+    return Number.isNaN(value.getTime()) ? null : formatUtcDateKey(value);
   }
 
   const parsed = new Date(String(value));
-  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10);
+  return Number.isNaN(parsed.getTime()) ? null : formatUtcDateKey(parsed);
 }
 
 async function notifyIfServerError(subject: string, error: unknown) {

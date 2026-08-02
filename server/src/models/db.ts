@@ -16,32 +16,6 @@ export function isDatabaseReady(): boolean {
   return isConnected;
 }
 
-async function ensureLessonIndexes() {
-  try {
-    const lessonsCollection = mongoose.connection.db?.collection("lessons");
-    if (!lessonsCollection) {
-      return;
-    }
-
-    try {
-      await lessonsCollection.dropIndex("date_1_assignedTo_1");
-    } catch {
-      // Ignore missing or already-migrated indexes.
-    }
-
-    await lessonsCollection.createIndex(
-      { date: 1, assignedTo: 1 },
-      {
-        unique: false,
-        partialFilterExpression: { assignedTo: { $type: "objectId" } },
-        name: "date_1_assignedTo_1",
-      }
-    );
-  } catch (error) {
-    console.warn("Lesson index update skipped:", error);
-  }
-}
-
 export async function dbConnect() {
   if (isConnected) return;
 
@@ -58,7 +32,6 @@ export async function dbConnect() {
 
     isConnected = true;
     console.log("✅ MongoDB connected");
-    await ensureLessonIndexes();
   } catch (error) {
     console.warn("DB connection error:", error);
     await errorEmail("Connection Failed", error instanceof Error ? error.toString() : String(error));

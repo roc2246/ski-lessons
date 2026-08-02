@@ -123,6 +123,20 @@ describe("createLesson", () => {
     expect(result.date).toBe("2025-12-01");
   });
 
+  it("keeps the original calendar day when given an ISO timestamp", async () => {
+    const lessonInput = {
+      type: "private",
+      date: "2026-08-01T20:00:00-04:00",
+      timeLength: "2 hours",
+      guests: 2,
+      assignedTo: "user123",
+    };
+
+    const result = await models.createLesson(lessonInput);
+
+    expect(result.date).toBe("2026-08-01");
+  });
+
   it("throws if required field missing", async () => {
     await expect(
       models.createLesson({
