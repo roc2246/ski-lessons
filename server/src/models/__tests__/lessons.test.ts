@@ -134,6 +134,21 @@ describe("createLesson", () => {
       })
     ).rejects.toThrow(/Required fields missing: Date/);
   });
+
+  it("allows multiple unassigned lessons for the same date and time", async () => {
+    const Lesson = utilities.getModel({} as any, "Lesson");
+    (Lesson.exists as any).mockResolvedValueOnce(false);
+
+    await expect(
+      models.createLesson({
+        type: "beginner",
+        date: "2025-12-01",
+        timeLength: "9-12",
+        guests: 2,
+        assignedTo: null,
+      })
+    ).resolves.toBeDefined();
+  });
 });
 
 describe("retrieveLessons", () => {

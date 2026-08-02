@@ -59,4 +59,7 @@ export const BlacklistedTokenSchema = new mongoose.Schema<BlacklistedTokenDocume
 
 LessonSchema.index({ date: 1 });
 LessonSchema.index({ assignedTo: 1 });
-LessonSchema.index({ date: 1, assignedTo: 1 });
+LessonSchema.index(
+  { date: 1, assignedTo: 1 },
+  { unique: true, partialFilterExpression: { assignedTo: { $type: "objectId" } } }
+);

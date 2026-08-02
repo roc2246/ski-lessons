@@ -2,6 +2,11 @@ import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
 import { getErrorStatus } from "../utilities/type-guards.js";
 
+function isMongoDuplicateKeyError(error: unknown): boolean {
+  const record = typeof error === "object" && error !== null ? error as Record<string, unknown> : null;
+  return record?.code === 11000 || record?.name === "MongoServerError" && String(record?.message || "").includes("duplicate key");
+}
+
 const CONFLICTING_TIME_LENGTHS: Record<string, string[]> = {
   "9-12": ["9-12", "9-4"],
   "1-4": ["1-4", "9-4"],
@@ -77,18 +82,17 @@ export async function createLesson(lessonData: Record<string, unknown>) {
     }
 
     if (assignedTo !== null) {
-      const exists = await Lesson.exists({
+      const conflictingWindows = CONFLICTING_TIME_LENGTHS[String(lessonData.timeLength)] ?? [String(lessonData.timeLength)];
+      const existingConflict = await Lesson.exists({
         date: normalizedDate,
         assignedTo,
         timeLength: {
-          $in: CONFLICTING_TIME_LENGTHS[String(lessonData.timeLength)] ?? [String(lessonData.timeLength)],
+          $in: conflictingWindows,
         },
       });
 
-      const errorMessage = `This instructor is already booked on ${normalizedDate} during ${lessonData.timeLength}.`;
-
-      if (exists) {
-        throw createHttpError(errorMessage, 409);
+      if (existingConflict) {
+        throw createHttpError("A lesson already exists for this date and time slot.", 409);
       }
     }
 
@@ -102,6 +106,10 @@ export async function createLesson(lessonData: Record<string, unknown>) {
 
     return newLesson;
   } catch (error) {
+    if (isMongoDuplicateKeyError(error)) {
+      throw createHttpError("A lesson already exists for this date and time slot.", 409);
+    }
+
     await notifyIfServerError("Failed to create lesson", error);
     throw error;
   }
