@@ -37,7 +37,7 @@ export const LessonSchema = new mongoose.Schema<LessonDocument>(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const UserSchema = new mongoose.Schema<UserDocument>(
@@ -46,20 +46,18 @@ export const UserSchema = new mongoose.Schema<UserDocument>(
     password: { type: String, required: true },
     admin: { type: Boolean, required: true, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export const BlacklistedTokenSchema = new mongoose.Schema<BlacklistedTokenDocument>(
-  {
-    token: { type: String, required: true, unique: true, index: true },
-    expiresAt: { type: Date, required: true, index: { expires: 0 } },
-  },
-  { timestamps: true }
-);
+export const BlacklistedTokenSchema =
+  new mongoose.Schema<BlacklistedTokenDocument>(
+    {
+      token: { type: String, required: true, unique: true, index: true },
+      expiresAt: { type: Date, required: true, index: { expires: 0 } },
+    },
+    { timestamps: true },
+  );
 
 LessonSchema.index({ date: 1 });
 LessonSchema.index({ assignedTo: 1 });
-LessonSchema.index(
-  { date: 1, assignedTo: 1 },
-  { unique: true, partialFilterExpression: { assignedTo: { $type: "objectId" } } }
-);
+LessonSchema.index({ date: 1, assignedTo: 1 });
