@@ -8,6 +8,9 @@ function isMongoDuplicateKeyError(error: unknown): boolean {
   return record?.code === 11000 || record?.name === "MongoServerError" && String(record?.message || "").includes("duplicate key");
 }
 
+/**
+ * Defines overlapping lesson windows that cannot be assigned to the same user on the same date.
+ */
 const CONFLICTING_TIME_LENGTHS: Record<string, string[]> = {
   "9-12": ["9-12", "9-4"],
   "1-4": ["1-4", "9-4"],
@@ -89,6 +92,9 @@ async function notifyIfServerError(subject: string, error: unknown) {
   }
 }
 
+/**
+ * Creates a lesson after required-field, date-normalization, and conflict-window checks.
+ */
 export async function createLesson(lessonData: Record<string, unknown>) {
   try {
     const requiredFields = ["type", "date", "timeLength", "guests"] as const;
@@ -157,6 +163,9 @@ export async function retrieveLessons(param: Record<string, unknown>, limit = 50
   }
 }
 
+/**
+ * Returns unassigned lessons the user can take without creating time-window conflicts.
+ */
 export async function retrieveAvailableLessonsForUser(userId: string, limit = 50, skip = 0) {
   try {
     const [availableLessonsRaw, userLessonsRaw] = await Promise.all([
@@ -261,6 +270,9 @@ export async function updateLesson(id: string, lessonData: Record<string, unknow
   }
 }
 
+/**
+ * Assigns an unclaimed lesson to a user when no conflicting lesson exists for that date.
+ */
 export async function switchLessonAssignment(id: string, newUserId: string | null) {
   try {
     if (typeof id !== "string") {

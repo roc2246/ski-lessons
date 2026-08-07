@@ -181,6 +181,7 @@ All endpoints are mounted under `/api`.
 
 | Method | Endpoint | Access | Description |
 | --- | --- | --- | --- |
+| GET | `/health` | Public | Service readiness check (`200` when DB is ready, `503` when degraded) |
 | POST | `/api/auth/register` | Public | Register a user (server always stores `admin: false`) |
 | POST | `/api/auth/login` | Public | Login and receive JWT |
 | POST | `/api/auth/logout` | Authenticated | Revoke current token |
@@ -286,6 +287,7 @@ Conflict example:
 ## Auth and RBAC
 
 - Protected routes require `Authorization: Bearer <token>`.
+- `POST /api/auth/login` and `POST /api/auth/register` are rate-limited (20 requests per 15 minutes per IP).
 - Middleware verifies JWT and checks blacklist revocation status.
 - Expired tokens return `401 Unauthorized: Token expired`.
 - Invalid or malformed tokens return `401 Unauthorized: Invalid token`.
@@ -320,6 +322,8 @@ Conflict example:
 
 - `token: String` (unique)
 - `expiresAt: Date` (TTL index)
+
+Schema source of truth: `server/src/models/schemas.ts`
 
 ## Migration
 

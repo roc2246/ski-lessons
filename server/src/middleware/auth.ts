@@ -11,6 +11,9 @@ interface AuthenticatedUser {
   admin?: boolean;
 }
 
+/**
+ * Verifies that a decoded JWT payload contains the minimum identity fields used by the app.
+ */
 function isAuthenticatedUserPayload(value: unknown): value is AuthenticatedUser {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -81,6 +84,9 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
   }
 }
 
+/**
+ * Allows only admin-authenticated users to proceed.
+ */
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (req.user?.admin !== true) {
     return sendError(res, 403, "Forbidden: Admin access required");

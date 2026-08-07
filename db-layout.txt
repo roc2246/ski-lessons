@@ -1,21 +1,42 @@
-COLLECTIONS
+DATABASE SCHEMA OVERVIEW
 
-Users
-instructorID
-username
-password
+Source of truth: server/src/models/schemas.ts
 
-Pro
-instructorID
-name
-discipline
-department
-certs
+COLLECTION: users
+- _id: ObjectId
+- username: string (required, unique, indexed)
+- password: string (required, hashed)
+- admin: boolean (required, default false)
+- createdAt: Date (timestamps)
+- updatedAt: Date (timestamps)
 
-Lessons
-lessonID
-type
-date
-timeLength
-guests
-assignedTo
+COLLECTION: lessons
+- _id: ObjectId
+- type: string (required)
+- date: string (required, normalized YYYY-MM-DD)
+- timeLength: string (required; 9-12 | 1-4 | 9-4)
+- guests: number (required)
+- assignedTo: ObjectId | null (ref users, default null)
+- createdAt: Date (timestamps)
+- updatedAt: Date (timestamps)
+
+Indexes:
+- { date: 1 }
+- { assignedTo: 1 }
+- { date: 1, assignedTo: 1 }
+
+COLLECTION: blacklistedtokens
+- _id: ObjectId
+- token: string (required, unique, indexed)
+- expiresAt: Date (required, TTL index: expires immediately at expiresAt)
+- createdAt: Date (timestamps)
+- updatedAt: Date (timestamps)
+
+LESSON ASSIGNMENT CONFLICT WINDOWS
+- 9-12 conflicts with: 9-12, 9-4
+- 1-4 conflicts with: 1-4, 9-4
+- 9-4 conflicts with: 9-12, 1-4, 9-4
+
+Notes:
+- Lessons are stored as day strings (YYYY-MM-DD) to avoid timezone drift in calendar rendering.
+- Legacy data can be normalized with: npm --prefix server run migrate:lessons

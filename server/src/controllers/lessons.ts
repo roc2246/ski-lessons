@@ -41,6 +41,9 @@ export async function manageUpdateLesson(req: Request, res: Response) {
   }
 }
 
+/**
+ * Retrieves lessons by assignedTo query mode: None, all, explicit userId, or current user.
+ */
 export async function manageLessonRetrieval(req: Request, res: Response) {
   try {
     const assignedToParam = typeof req.query.assignedTo === "string" ? req.query.assignedTo : undefined;

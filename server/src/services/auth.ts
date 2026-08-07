@@ -29,6 +29,9 @@ async function getUserModel() {
   return utilities.getModel(UserSchema, "User");
 }
 
+/**
+ * Seeds or repairs the local development admin account outside production.
+ */
 export async function ensureLocalAdminUser(
   username: string | undefined = process.env.LOCAL_ADMIN_USERNAME,
   password: string | undefined = process.env.LOCAL_ADMIN_PASSWORD
@@ -103,6 +106,9 @@ export async function newUser(username: string, password: string, admin: boolean
   }
 }
 
+/**
+ * Authenticates a user and returns a 1-hour JWT with user identity and admin claims.
+ */
 export async function loginUser(username: string, password: string) {
   try {
     if (typeof username !== "string" || typeof password !== "string") {
@@ -173,6 +179,9 @@ export async function getUsers(userId?: string) {
   }
 }
 
+/**
+ * Revokes the current token by upserting it into the blacklist until expiration.
+ */
 export async function logoutUser(token: string) {
   try {
     if (typeof token !== "string") {
@@ -203,6 +212,9 @@ export async function logoutUser(token: string) {
   }
 }
 
+/**
+ * Checks whether a token has been revoked and persisted in the blacklist collection.
+ */
 export async function isTokenBlacklisted(token: string) {
   if (typeof token !== "string") {
     throw createStatusError("Token must be a string", 400);
