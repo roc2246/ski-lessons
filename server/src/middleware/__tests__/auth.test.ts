@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { authenticate, requireAdmin } from "../auth.js";
 import * as utilities from "../../utilities/index.js";
-import * as models from "../../models/index.js";
+import * as services from "../../services/index.js";
 
 vi.mock("jsonwebtoken", () => ({
   default: {
@@ -21,7 +21,7 @@ vi.mock("../../utilities/index.js", async () => {
   };
 });
 
-vi.mock("../../models/index.js", () => ({
+vi.mock("../../services/index.js", () => ({
   isTokenBlacklisted: vi.fn(() => Promise.resolve(false)),
 }));
 

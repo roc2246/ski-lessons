@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import * as models from "../models/index.js";
+import * as services from "../services/index.js";
 import * as utilities from "../utilities/index.js";
 import { getErrorStatus } from "../utilities/type-guards.js";
 
@@ -23,7 +23,7 @@ function parseAuthRequestBody(body: unknown): AuthRequestBody {
 export async function manageNewUser(req: Request, res: Response) {
   try {
     const { username, password } = parseAuthRequestBody(req.body);
-    await models.newUser(username, password, false);
+    await services.newUser(username, password, false);
     res.status(201).json({ message: `${username} registered` });
   } catch (error) {
     utilities.sendError(res, 400, "Failed to register user", error);
@@ -33,7 +33,7 @@ export async function manageNewUser(req: Request, res: Response) {
 export async function manageLogin(req: Request, res: Response) {
   try {
     const { username, password } = parseAuthRequestBody(req.body);
-    const token = await models.loginUser(username, password);
+    const token = await services.loginUser(username, password);
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     utilities.sendError(res, 401, "Login failed", error);
@@ -45,7 +45,7 @@ export async function manageLogout(req: Request, res: Response) {
     if (typeof req.token !== "string") {
       throw Object.assign(new Error("Invalid token"), { status: 401 });
     }
-    await models.logoutUser(req.token);
+    await services.logoutUser(req.token);
     res.status(200).json({ message: "Successfully logged out" });
   } catch (error) {
     const status = getErrorStatus(error);
@@ -72,8 +72,8 @@ export async function selfDeleteAccount(req: Request, res: Response) {
       throw new Error("User credentials missing");
     }
 
-    await models.unassignAllLessons(userId);
-    await models.deleteUser(username);
+    await services.unassignAllLessons(userId);
+    await services.deleteUser(username);
     res.status(200).json({ message: `User "${username}" deleted successfully` });
   } catch (error) {
     console.error(error);
@@ -84,7 +84,7 @@ export async function selfDeleteAccount(req: Request, res: Response) {
 export async function manageGetUsers(req: Request, res: Response) {
   try {
     const { userId } = req.user ?? {};
-    const users = await models.getUsers(typeof userId === "string" ? userId : undefined);
+    const users = await services.getUsers(typeof userId === "string" ? userId : undefined);
     res.status(200).json({ message: "Users retrieved successfully", users });
   } catch (error) {
     utilities.sendError(res, 500, "Failed to retrieve users", error);

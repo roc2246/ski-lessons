@@ -22,13 +22,13 @@ import mongoose from "mongoose";
 import { errorEmail } from "../../email/index.js";
 
 const originalURI = process.env.URI;
-let models: typeof import("../index.js");
+let services: typeof import("../index.js");
 
 beforeEach(async () => {
   process.env.URI = "mongodb://localhost:27017/test";
   vi.clearAllMocks();
   vi.resetModules();
-  models = await import("../index.js");
+  services = await import("../index.js");
 });
 
 afterEach(() => {
@@ -43,7 +43,7 @@ describe("dbConnect", () => {
   it("should call mongoose.connect with correct args", async () => {
     (mongoose.connect as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce("mocked");
 
-    await models.dbConnect();
+    await services.dbConnect();
 
     expect(mongoose.connect).toHaveBeenCalledOnce();
     expect(mongoose.connect).toHaveBeenCalledWith(process.env.URI, {
@@ -55,7 +55,7 @@ describe("dbConnect", () => {
     const error = new Error("DB failed");
     (mongoose.connect as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(error);
 
-    await expect(models.dbConnect()).rejects.toThrow("DB failed");
+    await expect(services.dbConnect()).rejects.toThrow("DB failed");
 
     expect(errorEmail).toHaveBeenCalledWith("Connection Failed", expect.stringContaining("DB failed"));
   });

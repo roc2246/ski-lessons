@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import * as models from "../models/index.js";
+import * as services from "../services/index.js";
 import { sendError } from "../utilities/index.js";
 import { getJwtSecret } from "../utilities/config.js";
 import { getErrorStatus, hasErrorName } from "../utilities/type-guards.js";
@@ -50,7 +50,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       throw new Error("Invalid token payload");
     }
 
-    const blacklisted = await models.isTokenBlacklisted(token);
+    const blacklisted = await services.isTokenBlacklisted(token);
     if (blacklisted) {
       return sendError(res, 401, "Unauthorized: Token has been revoked");
     }

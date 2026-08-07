@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
 import { getJwtSecret } from "../utilities/config.js";
+import { BlacklistedTokenSchema, UserSchema } from "../models/schemas.js";
 
 type StatusError = Error & { status?: number };
 
@@ -15,7 +16,7 @@ interface AuthUserDocument {
 }
 
 function getBlacklistedTokenModel() {
-  return utilities.getModel(utilities.BlacklistedTokenSchema, "BlacklistedToken");
+  return utilities.getModel(BlacklistedTokenSchema, "BlacklistedToken");
 }
 
 function createStatusError(message: string, status: number): StatusError {
@@ -25,7 +26,7 @@ function createStatusError(message: string, status: number): StatusError {
 }
 
 async function getUserModel() {
-  return utilities.getModel(utilities.UserSchema, "User");
+  return utilities.getModel(UserSchema, "User");
 }
 
 export async function ensureLocalAdminUser(
@@ -54,7 +55,7 @@ export async function ensureLocalAdminUser(
   const existing = await User.findOne({ username: normalizedUsername }).lean();
 
   if (existing) {
-    if (existing.admin === true) {
+    if ((existing as AuthUserDocument).admin === true) {
       return existing;
     }
 
@@ -82,7 +83,7 @@ export async function newUser(username: string, password: string, admin: boolean
       throw new Error("Username, password, and admin must be provided with the correct types");
     }
 
-    const User = utilities.getModel(utilities.UserSchema, "User");
+    const User = utilities.getModel(UserSchema, "User");
 
     const existing = await User.findOne({ username }).lean();
     if (existing) throw new Error("User already exists");
@@ -108,19 +109,19 @@ export async function loginUser(username: string, password: string) {
       throw new Error("Username and password must be strings");
     }
 
-    const User = utilities.getModel(utilities.UserSchema, "User");
+    const User = utilities.getModel(UserSchema, "User");
 
     const userCreds = await User.findOne({ username });
     if (!userCreds) throw new Error("User or password doesn't match");
 
-    const passwordMatch = await bcrypt.compare(password, userCreds.password);
+    const passwordMatch = await bcrypt.compare(password, (userCreds as AuthUserDocument).password);
     if (!passwordMatch) throw new Error("User or password doesn't match");
 
     return jwt.sign(
       {
-        userId: userCreds._id.toString(),
-        username: userCreds.username,
-        admin: userCreds.admin,
+        userId: (userCreds as AuthUserDocument)._id.toString(),
+        username: (userCreds as AuthUserDocument).username,
+        admin: (userCreds as AuthUserDocument).admin,
       },
       getJwtSecret(),
       { expiresIn: "1h" }
@@ -136,7 +137,7 @@ export async function deleteUser(username: string) {
       throw new Error("Username must be a string");
     }
 
-    const User = utilities.getModel(utilities.UserSchema, "User");
+    const User = utilities.getModel(UserSchema, "User");
 
     const deletedUser = await User.findOneAndDelete({ username });
     if (!deletedUser) throw new Error(`No user found with username: ${username}`);
@@ -153,7 +154,7 @@ export async function getUser(id: string) {
       throw new Error("User ID must be a string");
     }
 
-    const User = utilities.getModel(utilities.UserSchema, "User");
+    const User = utilities.getModel(UserSchema, "User");
     const user = await User.findById(id).lean();
     if (!user) throw new Error(`No user found with ID: ${id}`);
     return user;
@@ -164,7 +165,7 @@ export async function getUser(id: string) {
 
 export async function getUsers(userId?: string) {
   try {
-    const User = utilities.getModel(utilities.UserSchema, "User");
+    const User = utilities.getModel(UserSchema, "User");
     const query = typeof userId === "string" ? { _id: { $ne: userId } } : {};
     return await User.find(query).select("-password").lean();
   } catch (error) {

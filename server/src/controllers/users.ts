@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import * as models from "../models/index.js";
+import * as services from "../services/index.js";
 import { sendError } from "../utilities/errors.js";
 import { getErrorStatus } from "../utilities/type-guards.js";
 
@@ -13,7 +13,7 @@ function getRouteParam(value: string | string[] | undefined, paramName: string):
 
 export async function manageUserRetrieval(_req: Request, res: Response) {
   try {
-    const users = await models.retrieveUsers();
+    const users = await services.retrieveUsers();
     res.status(200).json({
       message: "Users retrieved",
       users,
@@ -26,7 +26,7 @@ export async function manageUserRetrieval(_req: Request, res: Response) {
 export async function manageGetUsers(req: Request, res: Response) {
   try {
     const userId = getRouteParam(req.params.userId, "userId");
-    const user = await models.getUser(userId);
+    const user = await services.getUser(userId);
 
     res.status(200).json({
       message: "User retrieved",

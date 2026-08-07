@@ -4,7 +4,7 @@ vi.mock("../../email/index.js", () => ({
   errorEmail: vi.fn(),
 }));
 
-import * as models from "../index.js";
+import * as services from "../index.js";
 import jwt from "jsonwebtoken";
 import { errorEmail } from "../../email/index.js";
 import * as utilities from "../../utilities/index.js";
@@ -80,38 +80,37 @@ vi.mock("../../utilities/index.js", async () => {
       if (modelName === "BlacklistedToken") return blacklistedTokenModel;
       return constructorSpy;
     }),
-    UserSchema: actual.UserSchema,
   };
 });
 
 describe("newUser", () => {
   it("should register new user with admin flag", async () => {
-    await models.newUser("adminUser", "password", true);
+    await services.newUser("adminUser", "password", true);
     expect(instance).toMatchObject({ username: "adminUser", password: "hashed_password", admin: true });
     expect(instance.save).toHaveBeenCalled();
   });
 
   it("should throw error if user exists", async () => {
-    await expect(models.newUser("exists", "password", false)).rejects.toThrow("User already exists");
+    await expect(services.newUser("exists", "password", false)).rejects.toThrow("User already exists");
     expect(errorEmail).toHaveBeenCalled();
   });
 
   it("should throw if args missing", async () => {
-    await expect(models.newUser(null as unknown as string, "", false)).rejects.toThrow();
-    await expect(models.newUser(" ", null as unknown as string, false)).rejects.toThrow();
-    await expect(models.newUser(" ", "password", null as unknown as boolean)).rejects.toThrow();
+    await expect(services.newUser(null as unknown as string, "", false)).rejects.toThrow();
+    await expect(services.newUser(" ", null as unknown as string, false)).rejects.toThrow();
+    await expect(services.newUser(" ", "password", null as unknown as boolean)).rejects.toThrow();
   });
 });
 
 describe("loginUser", () => {
   it("should return token and include admin", async () => {
-    const token = await models.loginUser("existusername", "password");
+    const token = await services.loginUser("existusername", "password");
     expect(token).toBe("mocked.token");
     expect(jwt.sign).toHaveBeenCalled();
   });
 
   it("should throw if credentials are wrong", async () => {
-    await expect(models.loginUser("existusername", "wrongpass")).rejects.toThrow("User or password doesn't match");
+    await expect(services.loginUser("existusername", "wrongpass")).rejects.toThrow("User or password doesn't match");
   });
 });
 
@@ -124,24 +123,24 @@ describe("deleteUser", () => {
   });
 
   it("deletes user and returns doc", async () => {
-    const deleted = await models.deleteUser("existentUser");
+    const deleted = await services.deleteUser("existentUser");
     expect(deleted).toEqual({ username: "existentUser", _id: "user123" });
   });
 
   it("throws if user not found", async () => {
-    await expect(models.deleteUser("nonexistent")).rejects.toThrow("No user found with username: nonexistent");
+    await expect(services.deleteUser("nonexistent")).rejects.toThrow("No user found with username: nonexistent");
   });
 });
 
 describe("logoutUser", () => {
   it("persists token to blacklist store", async () => {
-    await models.logoutUser("fake.token");
+    await services.logoutUser("fake.token");
     expect(blacklistedTokenModel.updateOne).toHaveBeenCalled();
   });
 
   it("throws 401-style errors when token data is invalid", async () => {
     (jwt.decode as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce(null);
 
-    await expect(models.logoutUser("bad.token")).rejects.toThrow("Invalid token: missing expiration");
+    await expect(services.logoutUser("bad.token")).rejects.toThrow("Invalid token: missing expiration");
   });
 });

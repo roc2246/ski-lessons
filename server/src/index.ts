@@ -6,7 +6,7 @@ import routes from "./routes/index.js";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { dbConnect, ensureLocalAdminUser, isDatabaseReady } from "./models/index.js";
+import { dbConnect, ensureLocalAdminUser, isDatabaseReady } from "./services/index.js";
 import { sanitizeRequest } from "./middleware/sanitize.js";
 import { validateRuntimeConfig } from "./utilities/config.js";
 

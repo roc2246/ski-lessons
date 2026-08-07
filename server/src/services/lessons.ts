@@ -1,6 +1,7 @@
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
 import { getErrorStatus } from "../utilities/type-guards.js";
+import { LessonSchema, UserSchema } from "../models/schemas.js";
 
 function isMongoDuplicateKeyError(error: unknown): boolean {
   const record = typeof error === "object" && error !== null ? error as Record<string, unknown> : null;
@@ -98,7 +99,7 @@ export async function createLesson(lessonData: Record<string, unknown>) {
       }
     }
 
-    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+    const Lesson = utilities.getModel(LessonSchema, "Lesson");
 
     const assignedTo = lessonData.assignedTo ?? null;
     const normalizedDate = normalizeLessonDate(lessonData.date);
@@ -147,7 +148,7 @@ export async function retrieveLessons(param: Record<string, unknown>, limit = 50
       throw new Error("Param must be a object");
     }
 
-    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+    const Lesson = utilities.getModel(LessonSchema, "Lesson");
 
     return await Lesson.find(param).limit(limit).skip(skip).lean();
   } catch (error) {
@@ -188,7 +189,7 @@ export async function retrieveAvailableLessonsForUser(userId: string, limit = 50
 
 export async function retrieveUsers() {
   try {
-    const User = utilities.getModel(utilities.UserSchema, "User");
+    const User = utilities.getModel(UserSchema, "User");
     return await User.find({}).select("-password").lean();
   } catch (error) {
     await notifyIfServerError("Failed to retrieve users", error);
@@ -206,7 +207,7 @@ export async function updateLesson(id: string, lessonData: Record<string, unknow
       throw new Error("Lesson data must be an object");
     }
 
-    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+    const Lesson = utilities.getModel(LessonSchema, "Lesson");
     const existingLesson = await Lesson.findById(id).lean();
 
     if (!existingLesson) {
@@ -270,7 +271,7 @@ export async function switchLessonAssignment(id: string, newUserId: string | nul
       throw createHttpError("New User ID must be a string or null", 400);
     }
 
-    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+    const Lesson = utilities.getModel(LessonSchema, "Lesson");
 
     const lessonToAssign = await Lesson.findById(id).lean();
 
@@ -325,7 +326,7 @@ export async function unassignAllLessons(userId: string) {
       throw new Error("User ID must be a string");
     }
 
-    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+    const Lesson = utilities.getModel(LessonSchema, "Lesson");
     await Lesson.updateMany({ assignedTo: userId }, { assignedTo: null });
   } catch (error) {
     await notifyIfServerError("Failed to unassign lessons", error);
@@ -339,7 +340,7 @@ export async function removeLesson(id: string) {
       throw new Error("Lesson ID must be a string");
     }
 
-    const Lesson = utilities.getModel(utilities.LessonSchema, "Lesson");
+    const Lesson = utilities.getModel(LessonSchema, "Lesson");
 
     const deleted = await Lesson.findByIdAndDelete(id);
     if (!deleted) throw createHttpError("Lesson not found or already deleted", 404);

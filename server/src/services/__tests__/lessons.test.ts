@@ -87,7 +87,7 @@ vi.mock("../../utilities/index.js", async () => {
   };
 });
 
-import * as models from "../index.js";
+import * as services from "../index.js";
 import { errorEmail } from "../../email/index.js";
 import * as utilities from "../../utilities/index.js";
 
@@ -105,7 +105,7 @@ describe("createLesson", () => {
       assignedTo: "user123",
     };
 
-    const result = await models.createLesson(lessonInput);
+    const result = await services.createLesson(lessonInput);
     expect(result.save).toHaveBeenCalled();
   });
 
@@ -118,7 +118,7 @@ describe("createLesson", () => {
       assignedTo: "user123",
     };
 
-    const result = await models.createLesson(lessonInput);
+    const result = await services.createLesson(lessonInput);
 
     expect(result.date).toBe("2025-12-01");
   });
@@ -132,14 +132,14 @@ describe("createLesson", () => {
       assignedTo: "user123",
     };
 
-    const result = await models.createLesson(lessonInput);
+    const result = await services.createLesson(lessonInput);
 
     expect(result.date).toBe("2026-08-01");
   });
 
   it("throws if required field missing", async () => {
     await expect(
-      models.createLesson({
+      services.createLesson({
         type: "group",
         date: undefined,
         timeLength: "1 hour",
@@ -154,7 +154,7 @@ describe("createLesson", () => {
     (Lesson.exists as any).mockResolvedValueOnce(false);
 
     await expect(
-      models.createLesson({
+      services.createLesson({
         type: "beginner",
         date: "2025-12-01",
         timeLength: "9-12",
@@ -167,24 +167,24 @@ describe("createLesson", () => {
 
 describe("retrieveLessons", () => {
   it("returns lessons for valid ID", async () => {
-    const results = await models.retrieveLessons({ assignedTo: "2" });
+    const results = await services.retrieveLessons({ assignedTo: "2" });
     expect(results).toEqual([{ lesson: "lesson" }]);
   });
 
   it("throws if param not object", async () => {
-    await expect(models.retrieveLessons("FAIL" as unknown as Record<string, unknown>)).rejects.toThrow("Param must be a object");
+    await expect(services.retrieveLessons("FAIL" as unknown as Record<string, unknown>)).rejects.toThrow("Param must be a object");
     expect(errorEmail).toHaveBeenCalled();
   });
 });
 
 describe("switchLessonAssignment", () => {
   it("switches assigned instructor", async () => {
-    const lesson = await models.switchLessonAssignment("validLessonId", "newUser123");
+    const lesson = await services.switchLessonAssignment("validLessonId", "newUser123");
     expect(lesson.assignedTo).toBe("newUser123");
   });
 
   it("throws if lesson not found", async () => {
-    await expect(models.switchLessonAssignment("badId", "newUser")).rejects.toThrow("Lesson not found");
+    await expect(services.switchLessonAssignment("badId", "newUser")).rejects.toThrow("Lesson not found");
     expect(errorEmail).not.toHaveBeenCalled();
   });
 });
@@ -199,7 +199,7 @@ describe("updateLesson", () => {
       assignedTo: "newUser123",
     };
 
-    const result = await models.updateLesson("validLessonId", updateInput);
+    const result = await services.updateLesson("validLessonId", updateInput);
 
     expect(result._id).toBe("validLessonId");
     expect(result.type).toBe("intermediate");
@@ -209,7 +209,7 @@ describe("updateLesson", () => {
   });
 
   it("preserves the selected date when updating a lesson", async () => {
-    const result = await models.updateLesson("validLessonId", {
+    const result = await services.updateLesson("validLessonId", {
       type: "advanced",
       date: "2025-12-03",
       timeLength: "9-12",
@@ -222,7 +222,7 @@ describe("updateLesson", () => {
 
   it("throws if lesson to update is not found", async () => {
     await expect(
-      models.updateLesson("missingLessonId", {
+      services.updateLesson("missingLessonId", {
         type: "beginner",
         date: "2025-12-03",
         timeLength: "9-12",
@@ -237,7 +237,7 @@ describe("updateLesson", () => {
     (Lesson.findOne as any).mockResolvedValueOnce({ _id: "conflictLesson" });
 
     await expect(
-      models.updateLesson("validLessonId", {
+      services.updateLesson("validLessonId", {
         type: "advanced",
         date: "2025-12-01",
         timeLength: "9-12",
@@ -250,13 +250,13 @@ describe("updateLesson", () => {
 
 describe("removeLesson", () => {
   it("deletes lesson successfully", async () => {
-    const result = await models.removeLesson("validLessonId");
+    const result = await services.removeLesson("validLessonId");
     expect(result.success).toBe(true);
     expect(result.lesson._id).toBe("validLessonId");
   });
 
   it("throws if lesson not found", async () => {
-    await expect(models.removeLesson("notFound")).rejects.toThrow("Lesson not found or already deleted");
+    await expect(services.removeLesson("notFound")).rejects.toThrow("Lesson not found or already deleted");
     expect(errorEmail).not.toHaveBeenCalled();
   });
 });

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("../../models/index.js", async () => {
-  const actual = await vi.importActual<typeof import("../../models/index.js")>("../../models/index.js");
+vi.mock("../../services/index.js", async () => {
+  const actual = await vi.importActual<typeof import("../../services/index.js")>("../../services/index.js");
   return {
     ...actual,
     newUser: vi.fn(),
@@ -19,7 +19,7 @@ vi.mock("../../utilities/index.js", async () => {
 });
 
 import * as controllers from "../auth.js";
-import * as models from "../../models/index.js";
+import * as services from "../../services/index.js";
 import * as utilities from "../../utilities/index.js";
 
 const createRes = () => {
@@ -50,7 +50,7 @@ describe("decodeUser", () => {
 
 describe("manageNewUser", () => {
   it("creates a user and returns 201", async () => {
-    (models.newUser as any).mockResolvedValueOnce(undefined);
+    (services.newUser as any).mockResolvedValueOnce(undefined);
     const req = createReq({ username: "user", password: "pass" });
     const res = createRes();
 
@@ -63,7 +63,7 @@ describe("manageNewUser", () => {
 
 describe("manageLogin", () => {
   it("returns a token when login succeeds", async () => {
-    (models.loginUser as any).mockResolvedValueOnce("token123");
+    (services.loginUser as any).mockResolvedValueOnce("token123");
     const req = createReq({ username: "user", password: "pass" });
     const res = createRes();
 
@@ -76,13 +76,13 @@ describe("manageLogin", () => {
 
 describe("manageLogout", () => {
   it("logs out the current token", async () => {
-    (models.logoutUser as any).mockResolvedValueOnce(undefined);
+    (services.logoutUser as any).mockResolvedValueOnce(undefined);
     const req: any = { token: "token123" };
     const res = createRes();
 
     await controllers.manageLogout(req, res);
 
-    expect(models.logoutUser).toHaveBeenCalledWith("token123");
+    expect(services.logoutUser).toHaveBeenCalledWith("token123");
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ message: "Successfully logged out" });
   });
@@ -90,8 +90,8 @@ describe("manageLogout", () => {
 
 describe("selfDeleteAccount", () => {
   it("deletes the user account and unassigns lessons", async () => {
-    (models.unassignAllLessons as any).mockResolvedValueOnce(undefined);
-    (models.deleteUser as any).mockResolvedValueOnce({ username: "user" });
+    (services.unassignAllLessons as any).mockResolvedValueOnce(undefined);
+    (services.deleteUser as any).mockResolvedValueOnce({ username: "user" });
     const req: any = { user: { username: "user", userId: "uid123" } };
     const res = createRes();
 
@@ -104,7 +104,7 @@ describe("selfDeleteAccount", () => {
 
 describe("manageGetUsers", () => {
   it("returns the list of users for the current authenticated user", async () => {
-    (models.getUsers as any).mockResolvedValueOnce([{ username: "user" }]);
+    (services.getUsers as any).mockResolvedValueOnce([{ username: "user" }]);
     const req: any = { user: { userId: "uid123" } };
     const res = createRes();
 

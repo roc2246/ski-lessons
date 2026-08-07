@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { dbConnect } from "../models/db.js";
+import { dbConnect } from "../services/db.js";
 
 const OBJECT_ID_REGEX = /^[a-fA-F0-9]{24}$/;
 

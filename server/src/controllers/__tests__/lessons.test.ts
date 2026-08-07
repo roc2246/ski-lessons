@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("../../models/index.js", async () => {
-  const actual = await vi.importActual<typeof import("../../models/index.js")>("../../models/index.js");
+vi.mock("../../services/index.js", async () => {
+  const actual = await vi.importActual<typeof import("../../services/index.js")>("../../services/index.js");
   return {
     ...actual,
     createLesson: vi.fn(),
@@ -18,7 +18,7 @@ vi.mock("../../utilities/index.js", async () => {
 });
 
 import * as controllers from "../lessons.js";
-import * as models from "../../models/index.js";
+import * as services from "../../services/index.js";
 import * as utilities from "../../utilities/index.js";
 
 const createRes = () => {
@@ -37,7 +37,7 @@ describe("manageCreateLesson", () => {
     const req = createReq({ lessonData: { type: "Beginner" } });
     const res = createRes();
     const lesson = { _id: "1", ...(req.body.lessonData as Record<string, unknown>) };
-    (models.createLesson as any).mockResolvedValueOnce(lesson);
+    (services.createLesson as any).mockResolvedValueOnce(lesson);
 
     await controllers.manageCreateLesson(req as any, res as any);
 
@@ -54,11 +54,11 @@ describe("manageUpdateLesson", () => {
     );
     const res = createRes();
     const lesson = { _id: "lesson123", ...(req.body.lessonData as Record<string, unknown>) };
-    (models.updateLesson as any).mockResolvedValueOnce(lesson);
+    (services.updateLesson as any).mockResolvedValueOnce(lesson);
 
     await controllers.manageUpdateLesson(req as any, res as any);
 
-    expect(models.updateLesson).toHaveBeenCalledWith("lesson123", req.body.lessonData);
+    expect(services.updateLesson).toHaveBeenCalledWith("lesson123", req.body.lessonData);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ message: "Lesson updated successfully", lesson });
   });
@@ -70,7 +70,7 @@ describe("manageUpdateLesson", () => {
     );
     const res = createRes();
     const modelError = Object.assign(new Error("conflict"), { status: 409 });
-    (models.updateLesson as any).mockRejectedValueOnce(modelError);
+    (services.updateLesson as any).mockRejectedValueOnce(modelError);
 
     await controllers.manageUpdateLesson(req as any, res as any);
 
@@ -81,7 +81,7 @@ describe("manageUpdateLesson", () => {
 describe("manageLessonRetrieval", () => {
   it("retrieves lessons for the current user", async () => {
     const lessons = [{ _id: "l1" }];
-    (models.retrieveLessons as any).mockResolvedValueOnce(lessons);
+    (services.retrieveLessons as any).mockResolvedValueOnce(lessons);
     const req: any = { user: { userId: "uid123" }, query: {} };
     const res = createRes();
 
@@ -93,13 +93,13 @@ describe("manageLessonRetrieval", () => {
 
   it("retrieves all unassigned lessons when assignedTo=None", async () => {
     const lessons = [{ _id: "l2", assignedTo: null }];
-    (models.retrieveLessons as any).mockResolvedValueOnce(lessons);
+    (services.retrieveLessons as any).mockResolvedValueOnce(lessons);
     const req: any = { user: { userId: "uid123" }, query: { assignedTo: "None" } };
     const res = createRes();
 
     await controllers.manageLessonRetrieval(req, res);
 
-    expect(models.retrieveLessons).toHaveBeenCalledWith({ assignedTo: null });
+    expect(services.retrieveLessons).toHaveBeenCalledWith({ assignedTo: null });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       message: "Lessons with assignedTo=None retrieved",
@@ -113,7 +113,7 @@ describe("manageSwitchLessonAssignment", () => {
     const req: any = { params: { lessonId: "123" }, user: { userId: "uid123" } };
     const res = createRes();
     const updatedLesson = { _id: "123", assignedTo: "uid123" };
-    (models.switchLessonAssignment as any).mockResolvedValueOnce(updatedLesson);
+    (services.switchLessonAssignment as any).mockResolvedValueOnce(updatedLesson);
 
     await controllers.manageSwitchLessonAssignment(req, res);
 
@@ -127,7 +127,7 @@ describe("manageRemoveLesson", () => {
     const req: any = { params: { lessonId: "123" } };
     const res = createRes();
     const result = { success: true, message: "Lesson successfully removed" };
-    (models.removeLesson as any).mockResolvedValueOnce(result);
+    (services.removeLesson as any).mockResolvedValueOnce(result);
 
     await controllers.manageRemoveLesson(req, res);
 
