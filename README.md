@@ -38,6 +38,7 @@ server/
     middleware/
     models/
     routes/
+    services/
     utilities/
     scripts/
     email/

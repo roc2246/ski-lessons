@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("../../services/index.js", async () => {
   const actual = await vi.importActual<typeof import("../../services/index.js")>("../../services/index.js");
-  return { ...actual, retrieveUsers: vi.fn(), getUser: vi.fn() };
+  return { ...actual, getUsers: vi.fn(), getUser: vi.fn() };
 });
 
 vi.mock("../../utilities/index.js", async () => {
@@ -26,7 +26,7 @@ beforeEach(() => vi.clearAllMocks());
 describe("manageUserRetrieval", () => {
   it("retrieves all users", async () => {
     const fakeUsers = [{ username: "user1" }, { username: "user2" }];
-    (services.retrieveUsers as any).mockResolvedValueOnce(fakeUsers);
+    (services.getUsers as any).mockResolvedValueOnce(fakeUsers);
     const req: any = {};
     const res = createRes();
 

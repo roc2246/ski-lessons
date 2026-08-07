@@ -13,7 +13,7 @@ function getRouteParam(value: string | string[] | undefined, paramName: string):
 
 export async function manageUserRetrieval(_req: Request, res: Response) {
   try {
-    const users = await services.retrieveUsers();
+    const users = await services.getUsers();
     res.status(200).json({
       message: "Users retrieved",
       users,

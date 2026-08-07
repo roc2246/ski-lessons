@@ -1,7 +1,7 @@
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
 import { getErrorStatus } from "../utilities/type-guards.js";
-import { LessonSchema, UserSchema } from "../models/schemas.js";
+import { LessonSchema } from "../models/schemas.js";
 
 function isMongoDuplicateKeyError(error: unknown): boolean {
   const record = typeof error === "object" && error !== null ? error as Record<string, unknown> : null;
@@ -192,16 +192,6 @@ export async function retrieveAvailableLessonsForUser(userId: string, limit = 50
     });
   } catch (error) {
     await notifyIfServerError("Failed to retrieve available lessons", error);
-    throw error;
-  }
-}
-
-export async function retrieveUsers() {
-  try {
-    const User = utilities.getModel(UserSchema, "User");
-    return await User.find({}).select("-password").lean();
-  } catch (error) {
-    await notifyIfServerError("Failed to retrieve users", error);
     throw error;
   }
 }
