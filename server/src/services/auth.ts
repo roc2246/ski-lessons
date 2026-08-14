@@ -3,16 +3,9 @@ import jwt from "jsonwebtoken";
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
 import { getJwtSecret } from "../utilities/config.js";
-import { BlacklistedTokenSchema, UserSchema } from "../models/schemas.js";
+import { BlacklistedTokenSchema, UserSchema, type UserDocument } from "../models/schemas.js";
 
 type StatusError = Error & { status?: number };
-
-interface AuthUserDocument {
-  _id: { toString(): string };
-  username: string;
-  password: string;
-  admin: boolean;
-}
 
 function getBlacklistedTokenModel() {
   return utilities.getModel(BlacklistedTokenSchema, "BlacklistedToken");

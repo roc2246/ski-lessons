@@ -1,11 +1,15 @@
 import mongoose from "mongoose";
 
+// Lesson type and time window enums must match client domain types
+const LESSON_TYPES = ["beginner", "intermediate", "advanced", "expert"] as const;
+const LESSON_TIME_WINDOWS = ["9-12", "1-4", "9-4"] as const;
+
 export interface LessonDocument {
-  type: string;
+  type: string; // validated against enum
   date: string;
-  timeLength: string;
+  timeLength: string; // validated against enum
   guests: number;
-  assignedTo?: mongoose.Types.ObjectId | null;
+  assignedTo: mongoose.Types.ObjectId | null; // explicitly required, can be null
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -27,9 +31,17 @@ export interface BlacklistedTokenDocument {
 
 export const LessonSchema = new mongoose.Schema<LessonDocument>(
   {
-    type: { type: String, required: true },
+    type: {
+      type: String,
+      required: true,
+      enum: LESSON_TYPES,
+    },
     date: { type: String, required: true },
-    timeLength: { type: String, required: true },
+    timeLength: {
+      type: String,
+      required: true,
+      enum: LESSON_TIME_WINDOWS,
+    },
     guests: { type: Number, required: true },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,

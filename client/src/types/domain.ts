@@ -1,3 +1,12 @@
+/**
+ * Domain Types for the Frontend
+ * 
+ * IMPORTANT: These types must stay synchronized with the server's API contract types
+ * located at: server/src/types/api-contract.ts
+ * 
+ * When server API changes (new fields, type changes, etc.), update both files to prevent drift.
+ */
+
 export const LESSON_TYPES = ["beginner", "intermediate", "advanced", "expert"] as const;
 export const LESSON_TIME_WINDOWS = ["9-12", "1-4", "9-4"] as const;
 export const UNASSIGNED_LESSON_VALUE = "None" as const;
