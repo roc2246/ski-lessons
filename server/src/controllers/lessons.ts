@@ -11,7 +11,7 @@ function getRouteParam(value: string | string[] | undefined, paramName: string):
   return value;
 }
 
-export async function manageCreateLesson(req: Request, res: Response) {
+export async function manageCreateLesson(req: Request, res: Response): Promise<void> {
   try {
     const lessonData = { ...(getRecord(req.body?.lessonData) ?? {}) };
     const createdLesson = await services.createLesson(lessonData);
@@ -25,7 +25,7 @@ export async function manageCreateLesson(req: Request, res: Response) {
   }
 }
 
-export async function manageUpdateLesson(req: Request, res: Response) {
+export async function manageUpdateLesson(req: Request, res: Response): Promise<void> {
   try {
     const lessonId = getRouteParam(req.params.lessonId, "lessonId");
     const lessonData = { ...(getRecord(req.body?.lessonData) ?? {}) };
@@ -44,7 +44,7 @@ export async function manageUpdateLesson(req: Request, res: Response) {
 /**
  * Retrieves lessons by assignedTo query mode: None, all, explicit userId, or current user.
  */
-export async function manageLessonRetrieval(req: Request, res: Response) {
+export async function manageLessonRetrieval(req: Request, res: Response): Promise<void> {
   try {
     const assignedToParam = typeof req.query.assignedTo === "string" ? req.query.assignedTo : undefined;
     const currentUserId = req.user?.userId;
@@ -60,7 +60,7 @@ export async function manageLessonRetrieval(req: Request, res: Response) {
       lessons = await services.retrieveLessons({ assignedTo: currentUserId });
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       message:
         assignedToParam === "None"
           ? "Lessons with assignedTo=None retrieved"
@@ -72,11 +72,11 @@ export async function manageLessonRetrieval(req: Request, res: Response) {
       lessons,
     });
   } catch (error) {
-    return utilities.sendError(res, 500, "Failed to retrieve lessons", error);
+    utilities.sendError(res, 500, "Failed to retrieve lessons", error);
   }
 }
 
-export async function manageSwitchLessonAssignment(req: Request, res: Response) {
+export async function manageSwitchLessonAssignment(req: Request, res: Response): Promise<void> {
   try {
     const lessonId = getRouteParam(req.params.lessonId, "lessonId");
     const newUserId = req.user?.userId ?? null;
@@ -92,7 +92,7 @@ export async function manageSwitchLessonAssignment(req: Request, res: Response) 
   }
 }
 
-export async function manageRemoveLesson(req: Request, res: Response) {
+export async function manageRemoveLesson(req: Request, res: Response): Promise<void> {
   try {
     const lessonId = getRouteParam(req.params.lessonId, "lessonId");
     const result = await services.removeLesson(lessonId);

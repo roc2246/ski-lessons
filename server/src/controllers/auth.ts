@@ -20,7 +20,7 @@ function parseAuthRequestBody(body: unknown): AuthRequestBody {
   return { username, password };
 }
 
-export async function manageNewUser(req: Request, res: Response) {
+export async function manageNewUser(req: Request, res: Response): Promise<void> {
   try {
     const { username, password } = parseAuthRequestBody(req.body);
     await services.newUser(username, password, false);
@@ -30,7 +30,7 @@ export async function manageNewUser(req: Request, res: Response) {
   }
 }
 
-export async function manageLogin(req: Request, res: Response) {
+export async function manageLogin(req: Request, res: Response): Promise<void> {
   try {
     const { username, password } = parseAuthRequestBody(req.body);
     const token = await services.loginUser(username, password);
@@ -40,7 +40,7 @@ export async function manageLogin(req: Request, res: Response) {
   }
 }
 
-export async function manageLogout(req: Request, res: Response) {
+export async function manageLogout(req: Request, res: Response): Promise<void> {
   try {
     if (typeof req.token !== "string") {
       throw Object.assign(new Error("Invalid token"), { status: 401 });
@@ -53,7 +53,7 @@ export async function manageLogout(req: Request, res: Response) {
   }
 }
 
-export async function decodeUser(req: Request, res: Response) {
+export async function decodeUser(req: Request, res: Response): Promise<void> {
   try {
     const { userId, username, admin } = req.user ?? { userId: "", username: "", admin: false };
     res.status(200).json({
@@ -65,7 +65,7 @@ export async function decodeUser(req: Request, res: Response) {
   }
 }
 
-export async function selfDeleteAccount(req: Request, res: Response) {
+export async function selfDeleteAccount(req: Request, res: Response): Promise<void> {
   try {
     const { username, userId } = req.user ?? {};
     if (!username || !userId) {
@@ -81,7 +81,7 @@ export async function selfDeleteAccount(req: Request, res: Response) {
   }
 }
 
-export async function manageGetUsers(req: Request, res: Response) {
+export async function manageGetUsers(req: Request, res: Response): Promise<void> {
   try {
     const { userId } = req.user ?? {};
     const users = await services.getUsers(typeof userId === "string" ? userId : undefined);

@@ -11,7 +11,7 @@ function getRouteParam(value: string | string[] | undefined, paramName: string):
   return value;
 }
 
-export async function manageUserRetrieval(_req: Request, res: Response) {
+export async function manageUserRetrieval(_req: Request, res: Response): Promise<void> {
   try {
     const users = await services.getUsers();
     res.status(200).json({
@@ -23,7 +23,7 @@ export async function manageUserRetrieval(_req: Request, res: Response) {
   }
 }
 
-export async function manageGetUsers(req: Request, res: Response) {
+export async function manageGetUsers(req: Request, res: Response): Promise<void> {
   try {
     const userId = getRouteParam(req.params.userId, "userId");
     const user = await services.getUser(userId);
