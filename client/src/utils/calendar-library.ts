@@ -6,7 +6,7 @@ import { getErrorMessage, getString, isLesson, isLessonArray, readJsonObject } f
 // Calendar Library (React-friendly)
 // ================================
 
-function getDateParts(dateString: string) {
+function getDateParts(dateString: string): number[] {
   const datePart = String(dateString).slice(0, 10);
   return datePart.split("-").map(Number);
 }
@@ -40,7 +40,7 @@ export async function getLessons(assignedTo?: string): Promise<Lesson[]> {
     }
 
     return data.lessons;
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Error retrieving lessons:", getErrorMessage(err));
     throw err;
   }
@@ -70,7 +70,7 @@ export function preprocessLessons(lessons: Lesson[]): CalendarLesson[] {
 /**
  * Get month name and year string from Date object
  */
-export function getMonthYear(date: Date) {
+export function getMonthYear(date: Date): string {
   const monthNames = [
     "January","February","March","April","May","June",
     "July","August","September","October","November","December"
@@ -81,7 +81,7 @@ export function getMonthYear(date: Date) {
 /**
  * Get all dates for a month (array of numbers)
  */
-export function getDatesForMonth(date: Date) {
+export function getDatesForMonth(date: Date): number[] {
   const year = date.getFullYear();
   const month = date.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -91,7 +91,7 @@ export function getDatesForMonth(date: Date) {
 /**
  * Generate array of Date objects for a month
  */
-export function generateCalendarDates(date: Date) {
+export function generateCalendarDates(date: Date): Date[] {
   const year = date.getFullYear();
   const month = date.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -105,7 +105,7 @@ export function generateCalendarDates(date: Date) {
 /**
  * Navigate to previous month
  */
-export function prevMonth(currentMonthYear: string) {
+export function prevMonth(currentMonthYear: string): { newMonthYear: string; newDates: number[] } {
   const [monthStr, yearStr] = currentMonthYear.split(" ");
   const monthNames = [
     "January","February","March","April","May","June",
@@ -130,7 +130,7 @@ export function prevMonth(currentMonthYear: string) {
 /**
  * Navigate to next month
  */
-export function nextMonth(currentMonthYear: string) {
+export function nextMonth(currentMonthYear: string): { newMonthYear: string; newDates: number[] } {
   const [monthStr, yearStr] = currentMonthYear.split(" ");
   const monthNames = [
     "January","February","March","April","May","June",
@@ -193,7 +193,7 @@ export async function getLessonsForMonth(date: Date, token?: string | null, assi
       const [lessonYear, lessonMonth] = getDateParts(lesson.date);
       return lessonMonth - 1 === month && lessonYear === year;
     });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Error in getLessonsForMonth:", err);
     return [];
   }
@@ -244,7 +244,7 @@ export async function addLesson(lesson: Lesson): Promise<Lesson> {
     }
 
     return data.lesson;
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Error adding lesson:", err);
     throw err;
   }

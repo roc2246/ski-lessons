@@ -32,7 +32,7 @@ export async function dbConnect() {
 
     isConnected = true;
     console.log("✅ MongoDB connected");
-  } catch (error) {
+  } catch (error: unknown) {
     console.warn("DB connection error:", error);
     await errorEmail("Connection Failed", error instanceof Error ? error.toString() : String(error));
     throw error;

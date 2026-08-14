@@ -138,7 +138,7 @@ export async function createLesson(lessonData: Record<string, unknown>): Promise
     await newLesson.save();
 
     return newLesson;
-  } catch (error) {
+  } catch (error: unknown) {
     if (isMongoDuplicateKeyError(error)) {
       throw createHttpError("A lesson already exists for this date and time slot.", 409);
     }
@@ -153,7 +153,7 @@ export async function retrieveLessons(param: Record<string, unknown>, limit = 50
     const Lesson = utilities.getModel(LessonSchema, "Lesson");
 
     return await Lesson.find(param).limit(limit).skip(skip).lean();
-  } catch (error) {
+  } catch (error: unknown) {
     await notifyIfServerError("Failed to retrieve lessons", error);
     throw error;
   }
@@ -186,7 +186,7 @@ export async function retrieveAvailableLessonsForUser(userId: string, limit = 50
         return conflicts.includes(userLesson.timeLength);
       });
     });
-  } catch (error) {
+  } catch (error: unknown) {
     await notifyIfServerError("Failed to retrieve available lessons", error);
     throw error;
   }
@@ -242,7 +242,7 @@ export async function updateLesson(id: string, lessonData: Record<string, unknow
     }
 
     return updated;
-  } catch (error) {
+  } catch (error: unknown) {
     await notifyIfServerError("Failed to update lesson", error);
     throw error;
   }
@@ -300,7 +300,7 @@ export async function switchLessonAssignment(id: string, newUserId: string | nul
     }
 
     return updated;
-  } catch (error) {
+  } catch (error: unknown) {
     await notifyIfServerError("Failed to switch lesson assignment", error);
     throw error;
   }
@@ -310,7 +310,7 @@ export async function unassignAllLessons(userId: string): Promise<void> {
   try {
     const Lesson = utilities.getModel(LessonSchema, "Lesson");
     await Lesson.updateMany({ assignedTo: userId }, { assignedTo: null });
-  } catch (error) {
+  } catch (error: unknown) {
     await notifyIfServerError("Failed to unassign lessons", error);
     throw error;
   }
@@ -328,7 +328,7 @@ export async function removeLesson(id: string): Promise<any> {
       message: "Lesson successfully removed",
       lesson: deleted,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     await notifyIfServerError("Failed to remove lesson", error);
     throw error;
   }

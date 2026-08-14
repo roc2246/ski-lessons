@@ -92,7 +92,7 @@ export async function newUser(username: string, password: string, admin: boolean
     });
 
     await newUser.save();
-  } catch (error) {
+  } catch (error: unknown) {
     await errorEmail("Failed to register user", error instanceof Error ? error.toString() : String(error));
     throw error;
   }
@@ -108,8 +108,8 @@ export async function loginUser(username: string, password: string): Promise<str
     const userCreds = await User.findOne({ username });
     if (!userCreds) throw new Error("User or password doesn't match");
 
-    // After null check, TypeScript narrows userCreds to non-null document type
-    const passwordMatch = await bcrypt.compare(password, userCreds.password as string);
+    // After null check, TypeScript narrows userCreds to a populated Mongoose document.
+    const passwordMatch = await bcrypt.compare(password, userCreds.password);
     if (!passwordMatch) throw new Error("User or password doesn't match");
 
     return jwt.sign(
@@ -121,7 +121,7 @@ export async function loginUser(username: string, password: string): Promise<str
       getJwtSecret(),
       { expiresIn: "1h" }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     throw error;
   }
 }
@@ -134,7 +134,7 @@ export async function deleteUser(username: string): Promise<unknown> {
     if (!deletedUser) throw new Error(`No user found with username: ${username}`);
 
     return deletedUser;
-  } catch (error) {
+  } catch (error: unknown) {
     throw error;
   }
 }
@@ -145,7 +145,7 @@ export async function getUser(id: string): Promise<unknown> {
     const user = await User.findById(id).lean();
     if (!user) throw new Error(`No user found with ID: ${id}`);
     return user;
-  } catch (error) {
+  } catch (error: unknown) {
     throw error;
   }
 }
@@ -155,7 +155,7 @@ export async function getUsers(userId?: string): Promise<unknown[]> {
     const User = utilities.getModel(UserSchema, "User");
     const query = typeof userId === "string" ? { _id: { $ne: userId } } : {};
     return await User.find(query).select("-password").lean();
-  } catch (error) {
+  } catch (error: unknown) {
     throw error;
   }
 }
@@ -184,7 +184,7 @@ export async function logoutUser(token: string): Promise<void> {
       { token, expiresAt: new Date(expiresAt * 1000) },
       { upsert: true }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     throw error;
   }
 }

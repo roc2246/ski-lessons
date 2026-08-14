@@ -40,7 +40,7 @@ export async function login(username: string, password: string): Promise<LoginRe
     }
 
     return data;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error during login:", error);
     alert(getErrorMessage(error, "Something went wrong during login"));
     return null;
@@ -49,7 +49,7 @@ export async function login(username: string, password: string): Promise<LoginRe
 
 
 // --------------------- LOGOUT ---------------------
-export async function logout() {
+export async function logout(): Promise<void> {
   try {
     const token = getRequiredAuthToken();
     await fetch("/api/auth/logout", {
@@ -59,7 +59,7 @@ export async function logout() {
         Authorization: `Bearer ${token}`,
       },
     });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Logout request failed:", err);
   } finally {
     // ALWAYS remove token locally
@@ -69,7 +69,7 @@ export async function logout() {
 
 
 // --------------------- REGISTER ---------------------
-export async function register(username: string, password: string, admin: boolean) {
+export async function register(username: string, password: string, admin: boolean): Promise<void> {
   try {
     const res = await fetch("/api/auth/register", {
       method: "POST",
@@ -84,13 +84,13 @@ export async function register(username: string, password: string, admin: boolea
     } else {
       alert(data.error || "Registration failed");
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error during login:", error);
   }
 }
 
 // --------------------- SELF DELETE ---------------------
-export async function selfDeleteFrontend() {
+export async function selfDeleteFrontend(): Promise<void> {
   if (
     !globalThis.confirm(
       "Are you sure you want to delete your account? This action cannot be undone."
@@ -118,7 +118,7 @@ export async function selfDeleteFrontend() {
     } else {
       alert(getString(data.message) ?? "Failed to delete account");
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error deleting account:", error);
     alert("An unexpected error occurred. Please try again");
   }

@@ -79,7 +79,7 @@ export async function isAdmin(token: string): Promise<boolean> {
     }
 
     return getBoolean(credentials?.admin) === true;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error checking admin status:", error);
     throw error;
   }
@@ -108,7 +108,7 @@ export async function getUsers(): Promise<User[]> {
     }
 
     return data.users;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error retrieving users:", error);
     throw error;
   }
@@ -137,7 +137,7 @@ export async function getUser(userId: string): Promise<User> {
     }
 
     return data.user;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error retrieving user:", error);
     throw error;
   }
@@ -178,7 +178,7 @@ export async function lessonCreate(newLesson: LessonMutationInput): Promise<Less
       console.error("Lesson creation failed:", data);
       throw new Error(getString(data.message) ?? "Failed to create lesson");
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error during lesson creation:", error);
     throw error;
   }
@@ -211,7 +211,7 @@ export async function lessonDelete(lessonId: string): Promise<{ success?: boolea
       console.error("Lesson deletion failed:", result);
       throw new Error(result.message ?? "Failed to delete lesson");
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error during lesson deletion:", error);
     throw error;
   }
@@ -247,7 +247,7 @@ export async function lessonUpdate(lessonId: string, updatedLesson: LessonMutati
     }
 
     throw new Error(getString(data.message) ?? "Failed to update lesson");
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error during lesson update:", error);
     throw error;
   }
