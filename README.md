@@ -136,6 +136,12 @@ Root (`package.json`):
 - `npm run test:coverage` runs Vitest with coverage
 - `npm run start` starts `server/dist/index.js`
 
+## Documentation
+
+- **[API Reference](docs/API.md)** — Complete endpoint reference with request/response examples, status codes, and error handling
+- **[Database Schema](docs/DATABASE.md)** — MongoDB collections, indexes, business logic, and query examples
+- **[Middleware & Validation](docs/MIDDLEWARE.md)** — Request pipeline, validation flow, and middleware architecture
+
 Server (`server/package.json`):
 
 - `npm run dev` starts nodemon using `dist/index.js`
@@ -343,16 +349,22 @@ The migration script runs from compiled server output. Run `npm run build` in `s
 
 Request lifecycle:
 
-1. Route selection in `server/src/routes/index.ts`
-2. Middleware execution (`authenticate`, `requireAdmin`, request validation)
-3. Controller orchestration (`server/src/controllers/*.ts`)
-4. Model/data access (`server/src/models/*.ts`)
-5. Utility and schema support (`server/src/utilities/*.ts`)
+1. **Sanitization** — Input data sanitized to prevent NoSQL injection/XSS
+2. **Validation** — Request data validated against business rules (type, format, required fields)
+3. **Authentication** — JWT verified, user attached to request
+4. **Authorization** — Admin status checked if endpoint is admin-only
+5. **Controller** — HTTP orchestration with pre-validated, authenticated request
+6. **Service/Model** — Business logic and database operations (trusts middleware guarantees)
+7. **Response** — JSON returned to client
+
+**Key guarantee:** By controller execution, data is sanitized, validated, authenticated, and authorized.
 
 Frontend/back-end split:
 
 - `client/` handles pages, components, calendar rendering, and user interaction.
 - `server/` handles auth, RBAC, validation, persistence, and API responses.
+
+For detailed middleware architecture, see [Middleware & Validation](docs/MIDDLEWARE.md).
 
 ## SCSS Architecture
 
@@ -361,6 +373,12 @@ Frontend/back-end split:
 - Shared responsive and reduced-motion mixins: `respond-min`, `respond-max`, `motion-reduce`
 - Layout partials live in `client/src/scss/layouts/`
 - Component partials live in `client/src/scss/components/`
+
+## API Contract
+
+The API contract is defined in `server/src/types/api-contract.ts` and must stay synchronized with `client/src/types/domain.ts`. When adding new fields or changing lesson/user types on the server, update both files to prevent client/server drift.
+
+See [API Reference](docs/API.md) for full endpoint documentation.
 
 Guidelines:
 

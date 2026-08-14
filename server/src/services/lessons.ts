@@ -94,6 +94,21 @@ async function notifyIfServerError(subject: string, error: unknown) {
 
 /**
  * Creates a lesson after required-field, date-normalization, and conflict-window checks.
+ * 
+ * Steps:
+ * 1. Validates all required fields are present (type, date, timeLength, guests)
+ * 2. Normalizes date to YYYY-MM-DD format (handles ISO strings and Date objects)
+ * 3. If assignedTo is set, checks for time-window conflicts on that date
+ * 4. Saves to database and returns the created lesson
+ * 
+ * Error handling:
+ * - Returns 409 Conflict if time window already taken by user or duplicate lesson exists
+ * - Catches MongoDB duplicate key errors (E11000) and converts to 409
+ * - Sends email alert on 5xx errors
+ * 
+ * @param lessonData - Object containing type, date, timeLength, guests, assignedTo (optional)
+ * @returns The created lesson document
+ * @throws Error with status 400 (validation), 409 (conflict), or 500 (server error)
  */
 export async function createLesson(lessonData: Record<string, unknown>): Promise<any> {
   try {
@@ -161,6 +176,20 @@ export async function retrieveLessons(param: Record<string, unknown>, limit = 50
 
 /**
  * Returns unassigned lessons the user can take without creating time-window conflicts.
+ * 
+ * Algorithm:
+ * 1. Fetch all unassigned lessons
+ * 2. Fetch all lessons currently assigned to the user
+ * 3. Filter out unassigned lessons that have a time-window conflict with any user lesson on the same date
+ * 
+ * Time-window conflict: Two lessons conflict if they're on the same date AND their time windows overlap.
+ * See CONFLICTING_TIME_LENGTHS map for overlap rules.
+ * 
+ * @param userId - User ID to fetch available lessons for
+ * @param limit - Max number of lessons to return (default: 50)
+ * @param skip - Number of lessons to skip (pagination, default: 0)
+ * @returns Array of available lessons the user can assign to
+ * @throws If database query fails
  */
 export async function retrieveAvailableLessonsForUser(userId: string, limit = 50, skip = 0): Promise<any[]> {
   try {

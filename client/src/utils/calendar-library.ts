@@ -13,6 +13,10 @@ function getDateParts(dateString: string): number[] {
 
 /**
  * Fetch lessons from the API using the assignedTo filter when provided.
+ * 
+ * @param assignedTo - Optional filter: "None" for unassigned, userId for user's lessons, undefined for all
+ * @returns Array of Lesson objects from the API
+ * @throws Error if API call fails, token is invalid, or response is malformed
  */
 export async function getLessons(assignedTo?: string): Promise<Lesson[]> {
   try {
@@ -47,8 +51,18 @@ export async function getLessons(assignedTo?: string): Promise<Lesson[]> {
 }
 
 /**
- * Preprocess lessons to add _year, _month, _day, _startDate
- * Handles both ISO date strings and YYYY-MM-DD format
+ * Preprocess lessons to add computed date/time properties for calendar rendering.
+ * 
+ * Adds to each lesson:
+ * - _year: Integer year
+ * - _month: Integer month (1-12)
+ * - _day: Integer day (1-31)
+ * - _startDate: Date object for sorting/rendering start time
+ * 
+ * Handles both ISO date strings (2025-02-15) and legacy YYYY-MM-DD format.
+ * 
+ * @param lessons - Array of lessons from API
+ * @returns Array of lessons with computed properties for UI consumption
  */
 export function preprocessLessons(lessons: Lesson[]): CalendarLesson[] {
   return lessons.map((lesson) => {
