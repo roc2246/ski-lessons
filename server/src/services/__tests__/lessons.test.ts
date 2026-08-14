@@ -170,11 +170,6 @@ describe("retrieveLessons", () => {
     const results = await services.retrieveLessons({ assignedTo: "2" });
     expect(results).toEqual([{ lesson: "lesson" }]);
   });
-
-  it("throws if param not object", async () => {
-    await expect(services.retrieveLessons("FAIL" as unknown as Record<string, unknown>)).rejects.toThrow("Param must be a object");
-    expect(errorEmail).toHaveBeenCalled();
-  });
 });
 
 describe("switchLessonAssignment", () => {

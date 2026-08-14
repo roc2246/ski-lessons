@@ -12,7 +12,6 @@ interface AuthUserDocument {
   username: string;
   password: string;
   admin: boolean;
-  lean?: () => Promise<unknown>;
 }
 
 function getBlacklistedTokenModel() {
@@ -50,10 +49,6 @@ export async function ensureLocalAdminUser(
     return null;
   }
 
-  if (typeof normalizedUsername !== "string" || typeof normalizedPassword !== "string") {
-    throw new Error("Username and password must be strings");
-  }
-
   const User = await getUserModel();
   const existing = await User.findOne({ username: normalizedUsername }).lean();
 
@@ -80,12 +75,8 @@ export async function ensureLocalAdminUser(
   return seededUser.toObject();
 }
 
-export async function newUser(username: string, password: string, admin: boolean) {
+export async function newUser(username: string, password: string, admin: boolean): Promise<void> {
   try {
-    if (typeof username !== "string" || typeof password !== "string" || typeof admin !== "boolean") {
-      throw new Error("Username, password, and admin must be provided with the correct types");
-    }
-
     const User = utilities.getModel(UserSchema, "User");
 
     const existing = await User.findOne({ username }).lean();
@@ -109,12 +100,8 @@ export async function newUser(username: string, password: string, admin: boolean
 /**
  * Authenticates a user and returns a 1-hour JWT with user identity and admin claims.
  */
-export async function loginUser(username: string, password: string) {
+export async function loginUser(username: string, password: string): Promise<string> {
   try {
-    if (typeof username !== "string" || typeof password !== "string") {
-      throw new Error("Username and password must be strings");
-    }
-
     const User = utilities.getModel(UserSchema, "User");
 
     const userCreds = await User.findOne({ username });
@@ -137,12 +124,8 @@ export async function loginUser(username: string, password: string) {
   }
 }
 
-export async function deleteUser(username: string) {
+export async function deleteUser(username: string): Promise<unknown> {
   try {
-    if (typeof username !== "string") {
-      throw new Error("Username must be a string");
-    }
-
     const User = utilities.getModel(UserSchema, "User");
 
     const deletedUser = await User.findOneAndDelete({ username });
@@ -154,12 +137,8 @@ export async function deleteUser(username: string) {
   }
 }
 
-export async function getUser(id: string) {
+export async function getUser(id: string): Promise<unknown> {
   try {
-    if (typeof id !== "string") {
-      throw new Error("User ID must be a string");
-    }
-
     const User = utilities.getModel(UserSchema, "User");
     const user = await User.findById(id).lean();
     if (!user) throw new Error(`No user found with ID: ${id}`);
@@ -169,7 +148,7 @@ export async function getUser(id: string) {
   }
 }
 
-export async function getUsers(userId?: string) {
+export async function getUsers(userId?: string): Promise<unknown[]> {
   try {
     const User = utilities.getModel(UserSchema, "User");
     const query = typeof userId === "string" ? { _id: { $ne: userId } } : {};
@@ -182,12 +161,8 @@ export async function getUsers(userId?: string) {
 /**
  * Revokes the current token by upserting it into the blacklist until expiration.
  */
-export async function logoutUser(token: string) {
+export async function logoutUser(token: string): Promise<void> {
   try {
-    if (typeof token !== "string") {
-      throw createStatusError("Token must be a string", 400);
-    }
-
     if (typeof jwt.decode !== "function") {
       throw createStatusError("Invalid token: unable to decode", 401);
     }
@@ -215,11 +190,7 @@ export async function logoutUser(token: string) {
 /**
  * Checks whether a token has been revoked and persisted in the blacklist collection.
  */
-export async function isTokenBlacklisted(token: string) {
-  if (typeof token !== "string") {
-    throw createStatusError("Token must be a string", 400);
-  }
-
+export async function isTokenBlacklisted(token: string): Promise<boolean> {
   try {
     const BlacklistedToken = getBlacklistedTokenModel();
     const found = await BlacklistedToken.exists({ token });

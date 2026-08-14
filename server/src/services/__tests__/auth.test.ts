@@ -94,12 +94,6 @@ describe("newUser", () => {
     await expect(services.newUser("exists", "password", false)).rejects.toThrow("User already exists");
     expect(errorEmail).toHaveBeenCalled();
   });
-
-  it("should throw if args missing", async () => {
-    await expect(services.newUser(null as unknown as string, "", false)).rejects.toThrow();
-    await expect(services.newUser(" ", null as unknown as string, false)).rejects.toThrow();
-    await expect(services.newUser(" ", "password", null as unknown as boolean)).rejects.toThrow();
-  });
 });
 
 describe("loginUser", () => {

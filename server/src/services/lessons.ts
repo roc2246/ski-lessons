@@ -1,7 +1,7 @@
 import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
 import { getErrorStatus } from "../utilities/type-guards.js";
-import { LessonSchema } from "../models/schemas.js";
+import { LessonSchema, type LessonDocument } from "../models/schemas.js";
 
 function isMongoDuplicateKeyError(error: unknown): boolean {
   const record = typeof error === "object" && error !== null ? error as Record<string, unknown> : null;
@@ -95,7 +95,7 @@ async function notifyIfServerError(subject: string, error: unknown) {
 /**
  * Creates a lesson after required-field, date-normalization, and conflict-window checks.
  */
-export async function createLesson(lessonData: Record<string, unknown>) {
+export async function createLesson(lessonData: Record<string, unknown>): Promise<any> {
   try {
     const requiredFields = ["type", "date", "timeLength", "guests"] as const;
 
@@ -148,12 +148,8 @@ export async function createLesson(lessonData: Record<string, unknown>) {
   }
 }
 
-export async function retrieveLessons(param: Record<string, unknown>, limit = 50, skip = 0) {
+export async function retrieveLessons(param: Record<string, unknown>, limit = 50, skip = 0): Promise<any[]> {
   try {
-    if (typeof param !== "object" || param === null || Array.isArray(param)) {
-      throw new Error("Param must be a object");
-    }
-
     const Lesson = utilities.getModel(LessonSchema, "Lesson");
 
     return await Lesson.find(param).limit(limit).skip(skip).lean();
@@ -166,7 +162,7 @@ export async function retrieveLessons(param: Record<string, unknown>, limit = 50
 /**
  * Returns unassigned lessons the user can take without creating time-window conflicts.
  */
-export async function retrieveAvailableLessonsForUser(userId: string, limit = 50, skip = 0) {
+export async function retrieveAvailableLessonsForUser(userId: string, limit = 50, skip = 0): Promise<any[]> {
   try {
     const [availableLessonsRaw, userLessonsRaw] = await Promise.all([
       retrieveLessons({ assignedTo: null }, limit, skip),
@@ -196,16 +192,8 @@ export async function retrieveAvailableLessonsForUser(userId: string, limit = 50
   }
 }
 
-export async function updateLesson(id: string, lessonData: Record<string, unknown>) {
+export async function updateLesson(id: string, lessonData: Record<string, unknown>): Promise<any> {
   try {
-    if (typeof id !== "string") {
-      throw new Error("Lesson ID must be a string");
-    }
-
-    if (typeof lessonData !== "object" || lessonData === null || Array.isArray(lessonData)) {
-      throw new Error("Lesson data must be an object");
-    }
-
     const Lesson = utilities.getModel(LessonSchema, "Lesson");
     const existingLesson = await Lesson.findById(id).lean();
 
@@ -263,12 +251,8 @@ export async function updateLesson(id: string, lessonData: Record<string, unknow
 /**
  * Assigns an unclaimed lesson to a user when no conflicting lesson exists for that date.
  */
-export async function switchLessonAssignment(id: string, newUserId: string | null) {
+export async function switchLessonAssignment(id: string, newUserId: string | null): Promise<any> {
   try {
-    if (typeof id !== "string") {
-      throw new Error("Lesson ID must be a string");
-    }
-
     if (newUserId !== null && typeof newUserId !== "string") {
       throw createHttpError("New User ID must be a string or null", 400);
     }
@@ -322,12 +306,8 @@ export async function switchLessonAssignment(id: string, newUserId: string | nul
   }
 }
 
-export async function unassignAllLessons(userId: string) {
+export async function unassignAllLessons(userId: string): Promise<void> {
   try {
-    if (typeof userId !== "string") {
-      throw new Error("User ID must be a string");
-    }
-
     const Lesson = utilities.getModel(LessonSchema, "Lesson");
     await Lesson.updateMany({ assignedTo: userId }, { assignedTo: null });
   } catch (error) {
@@ -336,12 +316,8 @@ export async function unassignAllLessons(userId: string) {
   }
 }
 
-export async function removeLesson(id: string) {
+export async function removeLesson(id: string): Promise<any> {
   try {
-    if (typeof id !== "string") {
-      throw new Error("Lesson ID must be a string");
-    }
-
     const Lesson = utilities.getModel(LessonSchema, "Lesson");
 
     const deleted = await Lesson.findByIdAndDelete(id);
