@@ -53,7 +53,8 @@ export async function ensureLocalAdminUser(
   const existing = await User.findOne({ username: normalizedUsername }).lean();
 
   if (existing) {
-    if ((existing as AuthUserDocument).admin === true) {
+    // Check admin property safely after existing null check
+    if (existing.admin === true) {
       return existing;
     }
 
@@ -107,14 +108,15 @@ export async function loginUser(username: string, password: string): Promise<str
     const userCreds = await User.findOne({ username });
     if (!userCreds) throw new Error("User or password doesn't match");
 
-    const passwordMatch = await bcrypt.compare(password, (userCreds as AuthUserDocument).password);
+    // After null check, TypeScript narrows userCreds to non-null document type
+    const passwordMatch = await bcrypt.compare(password, userCreds.password as string);
     if (!passwordMatch) throw new Error("User or password doesn't match");
 
     return jwt.sign(
       {
-        userId: (userCreds as AuthUserDocument)._id.toString(),
-        username: (userCreds as AuthUserDocument).username,
-        admin: (userCreds as AuthUserDocument).admin,
+        userId: userCreds._id.toString(),
+        username: userCreds.username,
+        admin: userCreds.admin,
       },
       getJwtSecret(),
       { expiresIn: "1h" }
