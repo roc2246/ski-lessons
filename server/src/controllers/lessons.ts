@@ -56,8 +56,10 @@ export async function manageLessonRetrieval(req: Request, res: Response): Promis
       lessons = await services.retrieveLessons({});
     } else if (assignedToParam) {
       lessons = await services.retrieveLessons({ assignedTo: assignedToParam });
-    } else {
+    } else if (currentUserId) {
       lessons = await services.retrieveLessons({ assignedTo: currentUserId });
+    } else {
+      lessons = await services.retrieveLessons({});
     }
 
     res.status(200).json({

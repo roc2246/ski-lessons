@@ -2,6 +2,7 @@ import * as utilities from "../utilities/index.js";
 import { errorEmail } from "../email/index.js";
 import { getErrorStatus } from "../utilities/type-guards.js";
 import { LessonSchema, type LessonDocument } from "../models/schemas.js";
+import type { HydratedDocument, QueryFilter } from "mongoose";
 
 function isMongoDuplicateKeyError(error: unknown): boolean {
   const record = typeof error === "object" && error !== null ? error as Record<string, unknown> : null;
@@ -21,6 +22,9 @@ interface LessonScheduleView {
   date: string | Date | null | undefined;
   timeLength: string;
 }
+
+type LeanLesson = LessonDocument & { _id: unknown };
+type LessonResult = HydratedDocument<LessonDocument>;
 
 function createHttpError(message: string, status: number): Error & { status?: number } {
   const error = new Error(message) as Error & { status?: number };
@@ -110,7 +114,7 @@ async function notifyIfServerError(subject: string, error: unknown) {
  * @returns The created lesson document
  * @throws Error with status 400 (validation), 409 (conflict), or 500 (server error)
  */
-export async function createLesson(lessonData: Record<string, unknown>): Promise<any> {
+export async function createLesson(lessonData: Record<string, unknown>): Promise<LessonResult> {
   try {
     const requiredFields = ["type", "date", "timeLength", "guests"] as const;
 
@@ -137,7 +141,7 @@ export async function createLesson(lessonData: Record<string, unknown>): Promise
         timeLength: {
           $in: conflictingWindows,
         },
-      });
+      } as QueryFilter<LessonDocument>);
 
       if (existingConflict) {
         throw createHttpError("A lesson already exists for this date and time slot.", 409);
@@ -163,7 +167,7 @@ export async function createLesson(lessonData: Record<string, unknown>): Promise
   }
 }
 
-export async function retrieveLessons(param: Record<string, unknown>, limit = 50, skip = 0): Promise<any[]> {
+export async function retrieveLessons(param: QueryFilter<LessonDocument>, limit = 50, skip = 0): Promise<LeanLesson[]> {
   try {
     const Lesson = utilities.getModel(LessonSchema, "Lesson");
 
@@ -191,21 +195,18 @@ export async function retrieveLessons(param: Record<string, unknown>, limit = 50
  * @returns Array of available lessons the user can assign to
  * @throws If database query fails
  */
-export async function retrieveAvailableLessonsForUser(userId: string, limit = 50, skip = 0): Promise<any[]> {
+export async function retrieveAvailableLessonsForUser(userId: string, limit = 50, skip = 0): Promise<LeanLesson[]> {
   try {
     const [availableLessonsRaw, userLessonsRaw] = await Promise.all([
       retrieveLessons({ assignedTo: null }, limit, skip),
       retrieveLessons({ assignedTo: userId }),
     ]);
 
-    const availableLessons = availableLessonsRaw as LessonScheduleView[];
-    const userLessons = userLessonsRaw as LessonScheduleView[];
-
-    return availableLessons.filter((lesson) => {
+    return availableLessonsRaw.filter((lesson) => {
       const lessonDateKey = getDateKey(lesson.date);
       if (!lessonDateKey) return false;
 
-      return !userLessons.some((userLesson) => {
+      return !userLessonsRaw.some((userLesson) => {
         const userLessonDateKey = getDateKey(userLesson.date);
         if (!userLessonDateKey || userLessonDateKey !== lessonDateKey) {
           return false;
@@ -221,7 +222,7 @@ export async function retrieveAvailableLessonsForUser(userId: string, limit = 50
   }
 }
 
-export async function updateLesson(id: string, lessonData: Record<string, unknown>): Promise<any> {
+export async function updateLesson(id: string, lessonData: Record<string, unknown>): Promise<LessonResult> {
   try {
     const Lesson = utilities.getModel(LessonSchema, "Lesson");
     const existingLesson = await Lesson.findById(id).lean();
@@ -246,7 +247,7 @@ export async function updateLesson(id: string, lessonData: Record<string, unknow
         timeLength: {
           $in: conflictingWindows,
         },
-      });
+      } as QueryFilter<LessonDocument>);
 
       if (conflict) {
         throw createHttpError(
@@ -280,7 +281,7 @@ export async function updateLesson(id: string, lessonData: Record<string, unknow
 /**
  * Assigns an unclaimed lesson to a user when no conflicting lesson exists for that date.
  */
-export async function switchLessonAssignment(id: string, newUserId: string | null): Promise<any> {
+export async function switchLessonAssignment(id: string, newUserId: string | null): Promise<LessonResult> {
   try {
     if (newUserId !== null && typeof newUserId !== "string") {
       throw createHttpError("New User ID must be a string or null", 400);
@@ -308,7 +309,7 @@ export async function switchLessonAssignment(id: string, newUserId: string | nul
         timeLength: {
           $in: conflictingWindows,
         },
-      });
+      } as QueryFilter<LessonDocument>);
 
       if (conflictingLesson) {
         throw createHttpError(
@@ -345,7 +346,7 @@ export async function unassignAllLessons(userId: string): Promise<void> {
   }
 }
 
-export async function removeLesson(id: string): Promise<any> {
+export async function removeLesson(id: string): Promise<{ success: true; message: string; lesson: LessonResult }> {
   try {
     const Lesson = utilities.getModel(LessonSchema, "Lesson");
 

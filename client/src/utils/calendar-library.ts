@@ -209,7 +209,7 @@ export async function getLessonsForMonth(date: Date, token?: string | null, assi
     });
   } catch (err: unknown) {
     console.error("Error in getLessonsForMonth:", err);
-    return [];
+    throw err;
   }
 }
 

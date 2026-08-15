@@ -45,6 +45,8 @@ export interface Credentials {
 
 export interface AuthTokenPayload {
   exp?: number;
+  userId?: string;
+  username?: string;
   admin?: boolean;
 }
 

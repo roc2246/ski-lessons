@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
-
-// Lesson type and time window enums must match client domain types
-const LESSON_TYPES = ["beginner", "intermediate", "advanced", "expert"] as const;
-const LESSON_TIME_WINDOWS = ["9-12", "1-4", "9-4"] as const;
+import type { LessonTimeWindow, LessonType } from "../types/api-contract.js";
+import { LESSON_TIME_WINDOWS, LESSON_TYPES } from "../types/api-contract.js";
 
 export interface LessonDocument {
-  type: string; // validated against enum
+  type: LessonType;
   date: string;
-  timeLength: string; // validated against enum
+  timeLength: LessonTimeWindow;
   guests: number;
   assignedTo: mongoose.Types.ObjectId | null; // explicitly required, can be null
   createdAt?: Date;

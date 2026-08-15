@@ -170,10 +170,9 @@ describe("getLessonsForMonth", () => {
     expect(result[0].date).toBe("2025-10-02");
   });
 
-  it("returns empty array on fetch failure", async () => {
+  it("throws on fetch failure", async () => {
     fetchMock.mockRejectedValue(new Error("fail"));
-    const result = await lib.getLessonsForMonth(new Date(), "token123");
-    expect(result).toEqual([]);
+    await expect(lib.getLessonsForMonth(new Date(), "token123")).rejects.toThrow("fail");
     expect(console.error).toHaveBeenCalled();
   });
 });
