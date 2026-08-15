@@ -26,6 +26,7 @@ dist-ssr
 # ai
 MERN-prompts
 .github
+.agents
 
 # Other
 server/config
